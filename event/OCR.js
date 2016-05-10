@@ -1,3 +1,4 @@
+
 //=========Online COntroller============//
 require("share");
 var playerDataList = Spark.runtimeCollection("playerData"); 
@@ -7,37 +8,57 @@ if(!data) data = {};
 
 if(data.get_server){
 	var response= {};
-	var server = Spark.runtimeCollection("PhotonServer");
-	var timeNow = Date.now();
-	server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow},true,false);
-	var theScheduler = Spark.getScheduler();
-	theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});
-	var numberUser = server.count({});
-	response.numberUser = numberUser;
-	if(numberUser / 100 < PHOTON_SERVER_LIST.length) {
-		response.server = PHOTON_SERVER_LIST[parseInt((numberUser-1)/100)];
-	}else{
-		response.server = PHOTON_SERVER_LIST[0];
+	
+	var index = 0;
+	var found = false;
+	while(index < PHOTON_SERVER_LIST.length && !found){
+		var numberUser = server.count({"server_id": index});
+		if(numberUser  < 20) {
+			response.server = PHOTON_SERVER_LIST[index];
+			response.numberUser = numberUser;
+			response.server_id = index;
+
+			var server = Spark.runtimeCollection("PhotonServer");
+			var timeNow = Date.now();
+			server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index},true,false);
+			var theScheduler = Spark.getScheduler();
+			theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});
+
+			if(data.get_friend_room){
+				var friendRoomDB = Spark.runtimeCollection("FriendRoom");
+				var timeNow = Date.now();
+				friendRoomDB.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index,"server": server,"room_id":playerID},true,false);
+				var theScheduler = Spark.getScheduler();
+				theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_ROOM, {"playerID" : playerID,"remove_room":true});
+				response.room_id = playerID;
+				response.timeout = TIME_EXPIRE_ROOM;
+			}
+
+			found = true;
+		}else{
+			response.error = "Not enough server";
+		}
+		index ++;
 	}
 	Spark.setScriptData("data",response);
 }
 
 if(data.get_bot_player){
-    var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":""},"random_time_5":{"$gt":0}});
-    var opponentPlayerDataArr = opponentPlayerData.toArray();
-    if (opponentPlayerDataArr.length == 0) {
-        opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"random_time_5":{"$gt":0}});
-        opponentPlayerDataArr = opponentPlayerData.toArray();
-    }
-    if (opponentPlayerDataArr.length == 0) {
-        opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID}});
-        opponentPlayerDataArr = opponentPlayerData.toArray();
-    }
-    var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
-    Spark.setScriptData("botData",opponentPlayerDataArr[r]);
+	var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":""},"random_time_5":{"$gt":0}});
+	var opponentPlayerDataArr = opponentPlayerData.toArray();
+	if (opponentPlayerDataArr.length == 0) {
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"random_time_5":{"$gt":0}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+	}
+	if (opponentPlayerDataArr.length == 0) {
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+	}
+	var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
+	Spark.setScriptData("botData",opponentPlayerDataArr[r]);
 }
 
-if(data.online_match_start){
+if(data.online_match_start  && data.game_type != "friend"){
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 	var currentPlayer = Spark.getPlayer();
 	if(!currentPlayer) currentPlayer = {};
@@ -51,7 +72,7 @@ if(data.online_match_start){
 	if(!opponentPlayerData) opponentPlayerData = {"trophies":0};
 	if(!opponentPlayerData.trophies) opponentPlayerData.trophies = 0;	
 	if(opponentPlayer.getPrivateData)
-	var op_total_match_on = (opponentPlayer.getPrivateData("total_match_on")?opponentPlayer.getPrivateData("total_match_on"):0) + 1;
+		var op_total_match_on = (opponentPlayer.getPrivateData("total_match_on")?opponentPlayer.getPrivateData("total_match_on"):0) + 1;
 	
 	var timeNow = Date.now();
 	var response = {
@@ -77,7 +98,7 @@ if(data.online_match_start){
 	Spark.setScriptData("data", response);
 }
 
-if(data.online_match_end){
+if(data.online_match_end && data.game_type != "friend"){
 	var my_score = data.my_score;
 	var op_score = data.opponent_score;
 	var op_id = data.opponent_id;
