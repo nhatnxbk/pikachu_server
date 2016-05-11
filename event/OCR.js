@@ -54,10 +54,10 @@ if(data.get_server){
 }
 
 if(data.get_bot_player){
-	var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":""},"random_time_5":{"$gt":0}});
+	var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":""},"has_random_time":true});
 	var opponentPlayerDataArr = opponentPlayerData.toArray();
 	if (opponentPlayerDataArr.length == 0) {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"random_time_5":{"$gt":0}});
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"has_random_time":0});
 		opponentPlayerDataArr = opponentPlayerData.toArray();
 	}
 	if (opponentPlayerDataArr.length == 0) {
