@@ -12,24 +12,34 @@ if(data.get_server){
 	var index = 0;
 	var found = false;
 	while(index < PHOTON_SERVER_LIST.length && !found){
+		var server = Spark.runtimeCollection("PhotonServer");
 		var numberUser = server.count({"server_id": index});
 		if(numberUser  < 20) {
 			response.server = PHOTON_SERVER_LIST[index];
 			response.numberUser = numberUser;
 			response.server_id = index;
 
-			var server = Spark.runtimeCollection("PhotonServer");
 			var timeNow = Date.now();
 			server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index},true,false);
 			var theScheduler = Spark.getScheduler();
 			theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});
 
-			if(data.get_friend_room){
+			if(data.game_type == "friend"){
+				var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 				var friendRoomDB = Spark.runtimeCollection("FriendRoom");
 				var timeNow = Date.now();
-				friendRoomDB.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index,"server": server,"room_id":playerID},true,false);
+				var updateData = {
+					"playerID": playerID,
+					"facebook_id":currentPlayerData.facebook_id?currentPlayerData.facebook_id:"",
+					"userName":currentPlayerData.userName?currentPlayerData.userName:"",
+					"timeCreate": timeNow,
+					"server_id":index,
+					"server": PHOTON_SERVER_LIST[index],
+					"room_id":playerID
+				};
+				friendRoomDB.update({"playerID": playerID},updateData,true,false);
 				var theScheduler = Spark.getScheduler();
-				theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_ROOM, {"playerID" : playerID,"remove_room":true});
+				theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_ROOM + 5, {"playerID" : playerID,"remove_room":true});
 				response.room_id = playerID;
 				response.timeout = TIME_EXPIRE_ROOM;
 			}
@@ -98,7 +108,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	Spark.setScriptData("data", response);
 }
 
-if(data.online_match_end && data.game_type != "friend"){
+if(data.online_match_end ){
 	var my_score = data.my_score;
 	var op_score = data.opponent_score;
 	var op_id = data.opponent_id;
@@ -107,21 +117,51 @@ if(data.online_match_end && data.game_type != "friend"){
 	var server = Spark.runtimeCollection("PhotonServer");
 	server.remove({"playerID":playerID});
 	server.remove({"playerID":op_id});
-	if(my_score > op_score){
-		var currentPlayer = Spark.getPlayer();
-		bonus = BONUS_TROPHIES;
-		if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
-		currentPlayerData.trophies += bonus*2;
-		playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
-		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-		var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score}};
-		onlineMatchList.update({$or:[{"player_id_1": playerID,"player1_total_match_on":currentPlayer.getPrivateData("total_match_on")},{"player_id_2": playerID,"player2_total_match_on":currentPlayer.getPrivateData("total_match_on")}]}, 
-			{"$set": save_data}, true,false);
+	if(data.game_type != "friend"){
+		if(my_score > op_score){
+			var currentPlayer = Spark.getPlayer();
+			bonus = BONUS_TROPHIES;
+			if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
+			currentPlayerData.trophies += bonus*2;
+			playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
+			var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+			var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score}};
+			onlineMatchList.update({$or:[{"player_id_1": playerID,"player1_total_match_on":currentPlayer.getPrivateData("total_match_on")},{"player_id_2": playerID,"player2_total_match_on":currentPlayer.getPrivateData("total_match_on")}]}, 
+				{"$set": save_data}, true,false);
+		}
+		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies});
+	}else{
+		remove_room();
 	}
-	Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies});
 }
 
 if(data.online_match_cancel){
 	var server = Spark.runtimeCollection("PhotonServer");
+	server.remove({"playerID":playerID});
+	if(data.game_type == "friend"){
+		remove_room();
+	}
+}
+
+if(data.get_friend_room_list){
+	var friendRoomDB = Spark.runtimeCollection("FriendRoom");
+	var response = friendRoomDB.find({}).toArray();
+	var timeNow = Date.now();
+	for (var i = 0; i < response.length; i++) {
+		response[i].timeout = TIME_EXPIRE_ROOM - parseInt((timeNow - response[i].timeCreate) /1000) ;
+	};
+	Spark.setScriptData("data", response);
+
+}
+
+if(data.join_room){
+	var room_id = data.room_id;
+	var server = Spark.runtimeCollection("FriendRoom");
+	var response = server.remove({"room_id":room_id});
+	Spark.setScriptData("data", response);
+}
+
+function remove_room () {
+	var server = Spark.runtimeCollection("FriendRoom");
 	server.remove({"playerID":playerID});
 }
