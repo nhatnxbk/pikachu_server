@@ -156,8 +156,19 @@ if(data.get_friend_room_list){
 
 if(data.join_room){
 	var room_id = data.room_id;
+	var index = data.server_id;
 	var server = Spark.runtimeCollection("FriendRoom");
-	var response = server.remove({"room_id":room_id});
+
+	if(server.find({"room_id":room_id})){
+		var response = true;
+		server.remove({"room_id":room_id});
+		var timeNow = Date.now();
+		server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index},true,false);
+		var theScheduler = Spark.getScheduler();
+		theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});
+	}else{
+		var response = false;
+	}
 	Spark.setScriptData("data", response);
 }
 
