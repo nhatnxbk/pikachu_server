@@ -57,6 +57,14 @@ if(player_data.facebook_friend !== undefined && currentPlayer.time_fb_invite > 1
     }
 }
 
+//=============== Check new user name =============//
+if(player_data.userName != currentPlayer.userName){
+    var result = Spark.sendRequest(
+    {
+      "@class" : ".ChangeUserDetailsRequest",
+      "displayName" : player_data.userName
+  });
+}
 
 playerDataList.update({
 	"playerID": playerID
