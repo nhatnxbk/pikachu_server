@@ -148,11 +148,12 @@ if(data.get_friend_room_list){
 	var friendRoomDB = Spark.runtimeCollection("FriendRoom");
 	var response = friendRoomDB.find({}).toArray();
 	var timeNow = Date.now();
+	var list = [];
 	for (var i = 0; i < response.length; i++) {
-		response[i].timeout = TIME_EXPIRE_ROOM - parseInt((timeNow - response[i].timeCreate) /1000) ;
+		response[i].timeout = TIME_EXPIRE_ROOM - parseInt((timeNow - response[i].timeCreate) /1000);
+		if(response[i].timeout >= 5) list.push(response[i]);
 	};
-	Spark.setScriptData("data", response);
-
+	Spark.setScriptData("data", list);
 }
 
 if(data.join_room){
