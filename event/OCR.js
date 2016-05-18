@@ -26,6 +26,7 @@ if(data.get_server){
 
 			if(data.game_type == "friend"){
 				var currentPlayerData = playerDataList.findOne({"playerID": playerID});
+				if(!currentPlayerData) currentPlayerData = {"trophies":0};
 				var friendRoomDB = Spark.runtimeCollection("FriendRoom");
 				var timeNow = Date.now();
 				var updateData = {
