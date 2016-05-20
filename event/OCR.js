@@ -1,7 +1,6 @@
-
 //=========Online COntroller============//
 require("share");
-var playerDataList = Spark.runtimeCollection("playerData"); 
+var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var data = Spark.getData().data;
 if(!data) data = {};
@@ -56,7 +55,7 @@ if(data.get_server){
 
 if(data.get_bot_player){
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
-	var friendList = (currentPlayerData && currentPlayerData.facebook_friend) ? currentPlayer.facebook_friend : [];
+	var friendList = (currentPlayerData && currentPlayerData.facebook_friend) ? currentPlayerData.facebook_friend : [];
 	var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendList},"has_random_time":true});
 	var opponentPlayerDataArr = opponentPlayerData.toArray();
 	if (opponentPlayerDataArr.length == 0) {

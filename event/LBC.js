@@ -26,6 +26,47 @@ if (data.leader_board_type == LEADER_BOARD_BY_COUNTRY) {
 	Spark.setScriptData("data", dataResponse);
 }
 
+if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
+	//leader board by friends
+	var friendList = (currentPlayer && currentPlayer.facebook_friend) ? currentPlayer.facebook_friend : [];
+	var playerList = playerData.find().sort({"trophies":-1}).limit(100).toArray();
+	var listRank = [];
+	var myPlayerRank;
+	for (var i = 0; i < playerList.length; i++) {
+		var opponent = playerList[i];
+		if (opponent.playerID == playerID) {
+			myPlayerRank = {
+				"rank"     : (i + 1),
+				"trophies" : opponent.trophies,
+				"userName" : opponent.userName,
+				"userId"   : opponent.playerID
+			};
+			listRank.push(myPlayerRank);
+		} else if (opponent.facebook_id && friendList.indexOf(opponent.facebook_id) != -1) {
+			var rank = {
+				"rank"     : (i + 1),
+				"trophies" : opponent.trophies,
+				"userName" : opponent.userName,
+				"userId"   : opponent.playerID
+			};
+			listRank.push(rank);
+		}
+	}
+	if (!myPlayerRank) {
+		myPlayerRank = {
+			"rank"     : 1,
+			"trophies" : currentPlayer.trophies,
+			"userName" : currentPlayer.userName,
+			"userId"   : currentPlayer.playerID
+		};
+	}
+	var dataResponse = {
+		"listRank" 	   : listRank,
+		"myPlayerRank" : myPlayerRank
+	};
+	Spark.setScriptData("data", dataResponse);
+}
+
 function RQMyPlayerRank(shortCode) {
 	var request = new SparkRequests.AroundMeLeaderboardRequest();
 	request.dontErrorOnNotSocial = false;
