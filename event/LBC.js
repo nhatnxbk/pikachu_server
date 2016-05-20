@@ -28,13 +28,14 @@ if (data.leader_board_type == LEADER_BOARD_BY_COUNTRY) {
 
 if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 	//leader board by friends
-	var friendList = (currentPlayer && currentPlayer.facebook_friend) ? currentPlayer.facebook_friend : [];
+	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : [];
+	var friendListArr = JSON.parse(friendList);
 	var playerList = playerData.find().sort({"trophies":-1}).limit(100).toArray();
 	var listRank = [];
 	var myPlayerRank;
 	for (var i = 0; i < playerList.length; i++) {
 		var opponent = playerList[i];
-		if (opponent.playerID == playerID) {
+		if (opponent.trophies && opponent.playerID == playerID) {
 			myPlayerRank = {
 				"rank"     : (listRank.length + 1),
 				"trophies" : opponent.trophies,
@@ -42,7 +43,7 @@ if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 				"userId"   : opponent.playerID
 			};
 			listRank.push(myPlayerRank);
-		} else if (opponent.facebook_id && friendList.indexOf(opponent.facebook_id) != -1) {
+		} else if (opponent.trophies && opponent.facebook_id && friendListArr.indexOf(opponent.facebook_id) != -1) {
 			var rank = {
 				"rank"     : (listRank.length + 1),
 				"trophies" : opponent.trophies,
