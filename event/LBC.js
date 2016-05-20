@@ -36,7 +36,7 @@ if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 		var opponent = playerList[i];
 		if (opponent.playerID == playerID) {
 			myPlayerRank = {
-				"rank"     : (i + 1),
+				"rank"     : (listRank.length + 1),
 				"trophies" : opponent.trophies,
 				"userName" : opponent.userName,
 				"userId"   : opponent.playerID
@@ -44,7 +44,7 @@ if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 			listRank.push(myPlayerRank);
 		} else if (opponent.facebook_id && friendList.indexOf(opponent.facebook_id) != -1) {
 			var rank = {
-				"rank"     : (i + 1),
+				"rank"     : (listRank.length + 1),
 				"trophies" : opponent.trophies,
 				"userName" : opponent.userName,
 				"userId"   : opponent.playerID
