@@ -91,6 +91,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	var response = {
 		"player_id_1": playerID,"player_id_2":data.opponent_id,
 		"time": timeNow,
+		"time_expire": TIME_EXPIRE_MATCH,
 		"player1_total_match_on": my_total_match_on,
 		"player2_total_match_on": op_total_match_on,
 		"player_1_trophy": currentPlayerData.trophies,"player_2_trophy": opponentPlayerData.trophies,

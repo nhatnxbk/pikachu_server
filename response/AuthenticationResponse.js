@@ -35,6 +35,10 @@ if(timeDelta < TIME_FB_INVITE){
 }
 delete currentPlayer.time_fb_invite;
 delete currentPlayer.last_fb_friend_number;
+delete currentPlayer.online_button_click;
+delete currentPlayer.offline_button_click;
+delete currentPlayer.online_match_start;
+delete currentPlayer.online_bot_start;
 var response = Spark.sendRequest({"@class":".AccountDetailsRequest"});
 currentPlayer.location =  response.location;
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
