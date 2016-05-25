@@ -71,6 +71,11 @@ if(data.get_bot_player){
 	Spark.setScriptData("botData",opponentPlayerDataArr[r]);
 }
 
+if(data.online_match_start  && data.game_type == "friend"){
+	var response = {"time_expire": TIME_EXPIRE_MATCH};
+	Spark.setScriptData("data", response);
+}
+
 if(data.online_match_start  && data.game_type != "friend"){
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 	var currentPlayer = Spark.getPlayer();
@@ -89,26 +94,30 @@ if(data.online_match_start  && data.game_type != "friend"){
 	
 	var timeNow = Date.now();
 	var response = {
-		"player_id_1": playerID,"player_id_2":data.opponent_id,
+		"playerID": playerID,"opponent_id":data.opponent_id,
 		"time": timeNow,
 		"time_expire": TIME_EXPIRE_MATCH,
-		"player1_total_match_on": my_total_match_on,
-		"player2_total_match_on": op_total_match_on,
-		"player_1_trophy": currentPlayerData.trophies,"player_2_trophy": opponentPlayerData.trophies,
+		"my_total_match_on": my_total_match_on,
+		"opponent_total_match_on": op_total_match_on,
+		"my_trophy": currentPlayerData.trophies,"opponent_trophy": opponentPlayerData.trophies,
 		"bot_enable": data.bot_enable
 	};
+	Spark.getLog().debug(response);
 	var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-	onlineMatchList.insert(response);
+	onlineMatchList.update({"playerID": playerID},response,true,false);
 	
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
 	currentPlayerData.trophies = currentPlayerData.trophies > BONUS_TROPHIES ? (currentPlayerData.trophies - BONUS_TROPHIES) : 0;
-	playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
+	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 0;
 	
 	if(!data.bot_enable){
+		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 0;
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
 		opponentPlayerData.trophies = opponentPlayerData.trophies > BONUS_TROPHIES ? (opponentPlayerData.trophies - BONUS_TROPHIES) : 0;
 		playerDataList.update({"playerID": data.opponent_id}, {"$set": opponentPlayerData}, true,false);
 	}
+	
+	playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 	Spark.setScriptData("data", response);
 }
 
@@ -122,17 +131,37 @@ if(data.online_match_end ){
 	server.remove({"playerID":playerID});
 	server.remove({"playerID":op_id});
 	if(data.game_type != "friend"){
+		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+
 		if(my_score > op_score){
+			currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 0;
 			var currentPlayer = Spark.getPlayer();
 			bonus = BONUS_TROPHIES;
 			if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
+			if(online_match_data.opponent_trophy < BONUS_TROPHIES){
+				bonus = online_match_data.opponent_trophy > 0 ? online_match_data.opponent_trophy: 1;
+			}
 			currentPlayerData.trophies += bonus*2;
+			if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
+			if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
+				currentPlayerData.highest_trophy = currentPlayerData.trophies;
+			}
 			playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
-			var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+
 			var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score}};
-			onlineMatchList.update({$or:[{"player_id_1": playerID,"player1_total_match_on":currentPlayer.getPrivateData("total_match_on")},{"player_id_2": playerID,"player2_total_match_on":currentPlayer.getPrivateData("total_match_on")}]}, 
-				{"$set": save_data}, true,false);
+			Spark.getLog().debug(save_data);
+		}else{
+			currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
 		}
+
+		var result = Spark.sendRequest({
+			"@class": ".LogEventRequest",
+			"eventKey": "TLB",
+			"trophies": currentPlayerData.trophies,
+			"COUNTRY": currentPlayerData.location.country,
+			"CITY": ""
+		});
 		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies});
 	}else{
 		remove_room();
@@ -149,7 +178,7 @@ if(data.online_match_cancel){
 
 if(data.get_friend_room_list){
 	var friendRoomDB = Spark.runtimeCollection("FriendRoom");
-	var response = friendRoomDB.find({}).toArray();
+	var response = friendRoomDB.find({"playerID":{"$ne":playerID},"server_id":{"$ne":null}}).toArray();
 	var timeNow = Date.now();
 	var list = [];
 	for (var i = 0; i < response.length; i++) {

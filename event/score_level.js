@@ -11,6 +11,13 @@ if(player_data.ignore_bonus){
     delete player_data.bonus_message;
 }
 
+delete player_data.online_win;
+delete player_data.online_lose;
+delete player_data.highest_trophy;
+delete player_data.online_match_start;
+delete player_data.online_bot_start;
+delete player_data.trophies;
+
 var currentPlayer = playerDataList.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
 }); // search the collection data for the entry with the same id as the player
