@@ -166,7 +166,7 @@ if(data.online_match_end ){
 				if(online_match_data.opponent_trophy < BONUS_TROPHIES){
 					bonus = online_match_data.opponent_trophy > 0 ? online_match_data.opponent_trophy: 1;
 				}
-				currentPlayerData.trophies += bonus*2;
+				currentPlayerData.trophies = online_match_data.my_trophy + bonus;
 				if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
 				if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
 					currentPlayerData.highest_trophy = currentPlayerData.trophies;
