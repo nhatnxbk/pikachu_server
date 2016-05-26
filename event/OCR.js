@@ -114,17 +114,20 @@ if(data.online_match_start  && data.game_type != "friend"){
 	var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 	
 	//Them user vao danh sach moi gap
-	var list_ignore = online_match_data?online_match_data.list_ignore:[];
-	if(list_ignore && online_match_data){
-		if(list_ignore.length == NUMBER_IGNORE_PLAYER){
-			list_ignore.pop();
+	if(data.game_type == "random"){
+		var list_ignore = online_match_data?online_match_data.list_ignore:[];
+		if(list_ignore && online_match_data){
+			if(list_ignore.length == NUMBER_IGNORE_PLAYER){
+				list_ignore.pop();
+			}
+			list_ignore.unshift(data.opponent_id);
+		}else{
+			list_ignore = [];
+			list_ignore.push(data.opponent_id);
 		}
-		list_ignore.unshift(data.opponent_id);
-	}else{
-		list_ignore = [];
-		list_ignore.push(data.opponent_id);
+		response.list_ignore = list_ignore;
+		response.is_finish = false;
 	}
-	response.list_ignore = list_ignore;
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
