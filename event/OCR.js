@@ -42,6 +42,8 @@ if(data.get_server){
 				theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_ROOM + 5, {"playerID" : playerID,"remove_room":true});
 				response.room_id = playerID;
 				response.timeout = TIME_EXPIRE_ROOM;
+			}
+			if(data.game_type == "random"){
 				var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 				var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 				if(online_match_data && online_match_data.list_ignore){
