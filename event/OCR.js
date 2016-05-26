@@ -43,12 +43,18 @@ if(data.get_server){
 				response.room_id = playerID;
 				response.timeout = TIME_EXPIRE_ROOM;
 			}
+			var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+			var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+			if(online_match_data && online_match_data.list_ignore){
+				response.list_ignore = online_match_data.list_ignore;
+			}
 
 			found = true;
-		}else{
-			response.error = "Not enough server";
 		}
 		index ++;
+	}
+	if(!found){
+		response.error = "Not enough server";
 	}
 	Spark.setScriptData("data",response);
 }
@@ -104,19 +110,33 @@ if(data.online_match_start  && data.game_type != "friend"){
 	};
 	Spark.getLog().debug(response);
 	var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-	onlineMatchList.update({"playerID": playerID},response,true,false);
+	var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 	
+	//Them user vao danh sach moi gap
+	var list_ignore = online_match_data?online_match_data.list_ignore:[];
+	if(list_ignore && online_match_data){
+		if(list_ignore.length == NUMBER_IGNORE_PLAYER){
+			list_ignore.pop();
+		}
+		list_ignore.unshift(data.opponent_id);
+	}else{
+		list_ignore = [];
+		list_ignore.push(data.opponent_id);
+	}
+	response.list_ignore = list_ignore;
+	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
+
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
 	currentPlayerData.trophies = currentPlayerData.trophies > BONUS_TROPHIES ? (currentPlayerData.trophies - BONUS_TROPHIES) : 0;
 	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 0;
-	
+
 	if(!data.bot_enable){
 		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 0;
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
 		opponentPlayerData.trophies = opponentPlayerData.trophies > BONUS_TROPHIES ? (opponentPlayerData.trophies - BONUS_TROPHIES) : 0;
 		playerDataList.update({"playerID": data.opponent_id}, {"$set": opponentPlayerData}, true,false);
 	}
-	
+
 	playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 	Spark.setScriptData("data", response);
 }
@@ -133,26 +153,29 @@ if(data.online_match_end ){
 	if(data.game_type != "friend"){
 		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+		if(!online_match_data.is_finish){
+			if(my_score > op_score){
+				currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 0;
+				var currentPlayer = Spark.getPlayer();
+				bonus = BONUS_TROPHIES;
+				if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
+				if(online_match_data.opponent_trophy < BONUS_TROPHIES){
+					bonus = online_match_data.opponent_trophy > 0 ? online_match_data.opponent_trophy: 1;
+				}
+				currentPlayerData.trophies += bonus*2;
+				if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
+				if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
+					currentPlayerData.highest_trophy = currentPlayerData.trophies;
+				}
+				playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 
-		if(my_score > op_score){
-			currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 0;
-			var currentPlayer = Spark.getPlayer();
-			bonus = BONUS_TROPHIES;
-			if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
-			if(online_match_data.opponent_trophy < BONUS_TROPHIES){
-				bonus = online_match_data.opponent_trophy > 0 ? online_match_data.opponent_trophy: 1;
+				var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score}};
+				Spark.getLog().debug(save_data);
+			}else{
+				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
 			}
-			currentPlayerData.trophies += bonus*2;
-			if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
-			if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
-				currentPlayerData.highest_trophy = currentPlayerData.trophies;
-			}
-			playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
-
-			var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score}};
-			Spark.getLog().debug(save_data);
-		}else{
-			currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
+			online_match_data.is_finish = true;
+			onlineMatchList.update({"playerID": playerID}, {"$set": online_match_data}, true,false);
 		}
 
 		var result = Spark.sendRequest({
