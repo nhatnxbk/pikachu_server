@@ -42,13 +42,12 @@ if(data.get_server){
 				theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_ROOM + 5, {"playerID" : playerID,"remove_room":true});
 				response.room_id = playerID;
 				response.timeout = TIME_EXPIRE_ROOM;
+				var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+				var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+				if(online_match_data && online_match_data.list_ignore){
+					response.list_ignore = online_match_data.list_ignore;
+				}
 			}
-			var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-			var online_match_data =onlineMatchList.findOne({"playerID":playerID});
-			if(online_match_data && online_match_data.list_ignore){
-				response.list_ignore = online_match_data.list_ignore;
-			}
-
 			found = true;
 		}
 		index ++;
@@ -176,6 +175,8 @@ if(data.online_match_end ){
 			}
 			online_match_data.is_finish = true;
 			onlineMatchList.update({"playerID": playerID}, {"$set": online_match_data}, true,false);
+		}else{
+			bonus = 0;
 		}
 
 		var result = Spark.sendRequest({
