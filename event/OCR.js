@@ -126,8 +126,8 @@ if(data.online_match_start  && data.game_type != "friend"){
 			list_ignore.push(data.opponent_id);
 		}
 		response.list_ignore = list_ignore;
-		response.is_finish = false;
 	}
+	response.is_finish = false;
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
