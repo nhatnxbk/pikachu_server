@@ -57,7 +57,7 @@ if(data.get_server){
 	if(!found){
 		response.error = "Not enough server";
 	}
-	response.time_change_to_bot = 10;
+	response.time_change_to_bot = 20 + Math.random()*30;
 	Spark.setScriptData("data",response);
 }
 
