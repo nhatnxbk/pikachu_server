@@ -132,13 +132,14 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
 	currentPlayerData.trophies = currentPlayerData.trophies > BONUS_TROPHIES ? (currentPlayerData.trophies - BONUS_TROPHIES) : 0;
-	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 0;
+	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 1;
 
 	if(!data.bot_enable){
-		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 0;
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
 		opponentPlayerData.trophies = opponentPlayerData.trophies > BONUS_TROPHIES ? (opponentPlayerData.trophies - BONUS_TROPHIES) : 0;
 		playerDataList.update({"playerID": data.opponent_id}, {"$set": opponentPlayerData}, true,false);
+	}else{
+		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 1;
 	}
 
 	playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
@@ -159,7 +160,7 @@ if(data.online_match_end ){
 		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 		if(!online_match_data.is_finish){
 			if(my_score > op_score){
-				currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 0;
+				currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 1;
 				var currentPlayer = Spark.getPlayer();
 				bonus = BONUS_TROPHIES;
 				if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
