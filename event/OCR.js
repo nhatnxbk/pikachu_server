@@ -142,7 +142,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 1;
 	}
 
-	response.trophies = currentPlayer.trophies;
+	response.trophies = currentPlayerData.trophies;
 
 	playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 	Spark.setScriptData("data", response);
