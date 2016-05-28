@@ -32,7 +32,6 @@ delete player_data.rto_2;
 delete player_data.rto_3;
 delete player_data.rto_4;
 delete player_data.rto_5;
-delete player_data.hrt;
 
 var currentPlayer = playerDataList.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()

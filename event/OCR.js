@@ -191,7 +191,7 @@ if(data.online_match_end ){
 			"COUNTRY": currentPlayerData.location.country,
 			"CITY": ""
 		});
-		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies});
+		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,"online_match_start":currentPlayerData.online_match_start,"highest_trophy":currentPlayerData.highest_trophy});
 	}else{
 		remove_room();
 	}
