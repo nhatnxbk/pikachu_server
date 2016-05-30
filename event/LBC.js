@@ -17,7 +17,7 @@ if (data.leader_board_type == LEADER_BOARD_GLOBAL) {
 
 if (data.leader_board_type == LEADER_BOARD_BY_COUNTRY) {
 	//leader board by country
-	var country = (currentPlayer.location && currentPlayer.location.country) ? currentPlayer.location.country : "VN";
+	var country = (currentPlayer && currentPlayer.location && currentPlayer.location.country) ? currentPlayer.location.country : "VN";
 	if (country == "") country = "VN";
 	var dataResponse = RQLeaderBoard(SHORT_CODE_LB_BY_COUNTRY + country, playerID);
 	if (dataResponse.myPlayerRank === undefined) {
