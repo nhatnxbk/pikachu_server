@@ -48,6 +48,7 @@ if(data.get_server){
 				var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 				if(online_match_data && online_match_data.list_ignore){
 					response.list_ignore = online_match_data.list_ignore;
+					if(DEBUG) response.list_ignore = [];
 				}
 			}
 			found = true;
