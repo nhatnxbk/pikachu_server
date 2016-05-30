@@ -36,10 +36,11 @@ if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 	var myPlayerRank;
 	for (var i = 0; i < playerList.length; i++) {
 		var opponent = playerList[i];
+		var defaultName = playerID == opponent.userId ? "You" : "NoName";
 		var rank = {
 			"rank"     : (listRank.length + 1),
 			"trophies" : opponent.trophies ? opponent.trophies : 0,
-			"userName" : opponent.userName ? opponent.userName : "You",
+			"userName" : opponent.userName ? opponent.userName : defaultName,
 			"userId"   : opponent.playerID
 		};
 		if (opponent.playerID == playerID) {
@@ -109,10 +110,11 @@ function RQLeaderBoard(shortCode) {
 	var myPlayerRank;
 	for (var i = 0; i < data.length; i++) {
 		var opponent = data[i];
+		var defaultName = playerID == opponent.userId ? "You" : "NoName";
 		var rank = {
 			"rank"     : opponent.rank,
 			"trophies" : opponent.trophies ? opponent.trophies : 0,
-			"userName" : opponent.userName ? opponent.userName : "You",
+			"userName" : opponent.userName ? opponent.userName : defaultName,
 			"userId"   : opponent.userId
 		};
 		listRank.push(rank);
