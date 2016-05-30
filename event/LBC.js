@@ -30,32 +30,26 @@ if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 	//leader board by friends
 	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : [];
 	var friendListArr = JSON.parse(friendList);
-	var playerList = playerData.find().sort({"trophies":-1}).limit(100).toArray();
+	var myFBId = currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
+	var playerList = playerData.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
 	var listRank = [];
 	var myPlayerRank;
 	for (var i = 0; i < playerList.length; i++) {
 		var opponent = playerList[i];
-		if (opponent.trophies != null && opponent.playerID == playerID) {
-			myPlayerRank = {
-				"rank"     : (listRank.length + 1),
-				"trophies" : opponent.trophies,
-				"userName" : opponent.userName,
-				"userId"   : opponent.playerID
-			};
-			listRank.push(myPlayerRank);
-		} else if (opponent.trophies != null && opponent.facebook_id && friendListArr.indexOf(opponent.facebook_id) != -1) {
-			var rank = {
-				"rank"     : (listRank.length + 1),
-				"trophies" : opponent.trophies,
-				"userName" : opponent.userName,
-				"userId"   : opponent.playerID
-			};
-			listRank.push(rank);
+		var rank = {
+			"rank"     : (listRank.length + 1),
+			"trophies" : opponent.trophies,
+			"userName" : opponent.userName,
+			"userId"   : opponent.playerID
+		};
+		if (opponent.playerID == playerID) {
+			myPlayerRank = rank;
 		}
+		listRank.push(rank);
 	}
 	if (!myPlayerRank) {
 		myPlayerRank = {
-			"rank"     : 1,
+			"rank"     : listRank.length > 0 ? 101 : 1,
 			"trophies" : currentPlayer.trophies,
 			"userName" : currentPlayer.userName,
 			"userId"   : currentPlayer.playerID
@@ -90,8 +84,8 @@ function RQMyPlayerRank(shortCode) {
 				"userName" : opponent.userName,
 				"userId"   : opponent.userId
 			};
+			return myPlayerRank;
 		}
-		return myPlayerRank;
 	}
 	return myPlayerRank;
 }
