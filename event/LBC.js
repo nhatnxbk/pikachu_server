@@ -17,7 +17,7 @@ if (data.leader_board_type == LEADER_BOARD_GLOBAL) {
 
 if (data.leader_board_type == LEADER_BOARD_BY_COUNTRY) {
 	//leader board by country
-	var country = (currentPlayer.location && currentPlayer.location.country) ? currentPlayer.location.country : "VN";
+	var country = (currentPlayer && currentPlayer.location && currentPlayer.location.country) ? currentPlayer.location.country : "VN";
 	if (country == "") country = "VN";
 	var dataResponse = RQLeaderBoard(SHORT_CODE_LB_BY_COUNTRY + country, playerID);
 	if (dataResponse.myPlayerRank === undefined) {
@@ -28,37 +28,31 @@ if (data.leader_board_type == LEADER_BOARD_BY_COUNTRY) {
 
 if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 	//leader board by friends
-	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : [];
-	var friendListArr = JSON.parse(friendList);
-	var playerList = playerData.find().sort({"trophies":-1}).limit(100).toArray();
+	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
+	var friendListArr = friendList ? JSON.parse(friendList) : [];
+	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
+	var playerList = playerData.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
 	var listRank = [];
 	var myPlayerRank;
 	for (var i = 0; i < playerList.length; i++) {
 		var opponent = playerList[i];
-		if (opponent.trophies != null && opponent.playerID == playerID) {
-			myPlayerRank = {
-				"rank"     : (listRank.length + 1),
-				"trophies" : opponent.trophies,
-				"userName" : opponent.userName,
-				"userId"   : opponent.playerID
-			};
-			listRank.push(myPlayerRank);
-		} else if (opponent.trophies != null && opponent.facebook_id && friendListArr.indexOf(opponent.facebook_id) != -1) {
-			var rank = {
-				"rank"     : (listRank.length + 1),
-				"trophies" : opponent.trophies,
-				"userName" : opponent.userName,
-				"userId"   : opponent.playerID
-			};
-			listRank.push(rank);
+		var rank = {
+			"rank"     : (listRank.length + 1),
+			"trophies" : opponent.trophies ? opponent.trophies : 0,
+			"userName" : opponent.userName ? opponent.userName : "You",
+			"userId"   : opponent.playerID
+		};
+		if (opponent.playerID == playerID) {
+			myPlayerRank = rank;
 		}
+		listRank.push(rank);
 	}
 	if (!myPlayerRank) {
 		myPlayerRank = {
-			"rank"     : 1,
-			"trophies" : currentPlayer.trophies,
-			"userName" : currentPlayer.userName,
-			"userId"   : currentPlayer.playerID
+			"rank"     : listRank.length > 0 ? 101 : 1,
+			"trophies" : currentPlayer && currentPlayer.trophies ? currentPlayer.trophies : 0,
+			"userName" : currentPlayer && currentPlayer.userName ? currentPlayer.userName : "You",
+			"userId"   : currentPlayer && currentPlayer.playerID ? currentPlayer.playerID : 0
 		};
 	}
 	var dataResponse = {
@@ -86,12 +80,12 @@ function RQMyPlayerRank(shortCode) {
 		if (playerID == opponent.userId) {
 			myPlayerRank = {
 				"rank"     : opponent.rank,
-				"trophies" : opponent.trophies,
-				"userName" : opponent.userName,
+				"trophies" : opponent.trophies ? opponent.trophies : 0,
+				"userName" : opponent.userName ? opponent.userName : "You",
 				"userId"   : opponent.userId
 			};
+			return myPlayerRank;
 		}
-		return myPlayerRank;
 	}
 	return myPlayerRank;
 }
@@ -117,8 +111,8 @@ function RQLeaderBoard(shortCode) {
 		var opponent = data[i];
 		var rank = {
 			"rank"     : opponent.rank,
-			"trophies" : opponent.trophies,
-			"userName" : opponent.userName,
+			"trophies" : opponent.trophies ? opponent.trophies : 0,
+			"userName" : opponent.userName ? opponent.userName : "You",
 			"userId"   : opponent.userId
 		};
 		listRank.push(rank);

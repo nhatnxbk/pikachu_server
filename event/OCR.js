@@ -113,7 +113,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	};
 	Spark.getLog().debug(response);
 	var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-	var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+	var online_match_data = onlineMatchList.findOne({"playerID":playerID});
 	
 	//Them user vao danh sach moi gap
 	if(data.game_type == "random"){
@@ -130,6 +130,10 @@ if(data.online_match_start  && data.game_type != "friend"){
 		response.list_ignore = list_ignore;
 	}
 	response.is_finish = false;
+	//rank of myPlayer on leader board friends
+	var myRank = get_current_rank_with_friends();
+	response.rank_before = myRank;
+
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
@@ -184,6 +188,9 @@ if(data.online_match_end ){
 				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
 			}
 			online_match_data.is_finish = true;
+			//rank of myPlayer after match_end
+			myRank = get_current_rank_with_friends();
+			online_match_data.rank_after = myRank;
 			onlineMatchList.update({"playerID": playerID}, {"$set": online_match_data}, true,false);
 		}else{
 			bonus = 0;
@@ -196,7 +203,9 @@ if(data.online_match_end ){
 			"COUNTRY": currentPlayerData.location.country,
 			"CITY": ""
 		});
-		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,"online_match_start":currentPlayerData.online_match_start,"highest_trophy":currentPlayerData.highest_trophy});
+		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,
+			"online_match_start":currentPlayerData.online_match_start,"highest_trophy":currentPlayerData.highest_trophy,
+			"rank_before":online_match_data.rank_before, "rank_after": online_match_data.rank_after});
 	}else{
 		remove_room();
 	}
@@ -243,4 +252,26 @@ if(data.join_room){
 function remove_room () {
 	var server = Spark.runtimeCollection("FriendRoom");
 	server.remove({"playerID":playerID});
+}
+
+function get_current_rank_with_friends() {
+	var currentPlayer = playerDataList.findOne({"playerID": playerID});
+	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
+	var friendListArr = JSON.parse(friendList) ? JSON.parse(friendList) : [];
+	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
+	var playerList = playerDataList.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
+	var rank = 0;
+	for (var i = 0; i < playerList.length; i++) {
+		var opponent = playerList[i];
+		if (opponent.playerID == playerID) {
+			return (rank + 1);
+		} else {
+			rank++;
+		}
+	}
+	if (rank > 0) {
+		return 101;
+	} else {
+		return 1;
+	}
 }
