@@ -255,9 +255,9 @@ function remove_room () {
 
 function get_current_rank_with_friends() {
 	var currentPlayer = playerDataList.findOne({"playerID": playerID});
-	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : [];
-	var friendListArr = JSON.parse(friendList);
-	var myFBId = currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
+	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
+	var friendListArr = JSON.parse(friendList) ? JSON.parse(friendList) : [];
+	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
 	var playerList = playerDataList.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
 	var rank = 0;
 	for (var i = 0; i < playerList.length; i++) {
