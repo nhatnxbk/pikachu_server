@@ -199,8 +199,8 @@ if(data.online_match_end ){
 		var result = Spark.sendRequest({
 			"@class": ".LogEventRequest",
 			"eventKey": "TLB",
-			"trophies": currentPlayerData.trophies,
-			"COUNTRY": currentPlayerData.location.country,
+			"trophies": currentPlayerData ? currentPlayerData.trophies : 0,
+			"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
 			"CITY": ""
 		});
 		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,
@@ -257,7 +257,7 @@ function remove_room () {
 function get_current_rank_with_friends() {
 	var currentPlayer = playerDataList.findOne({"playerID": playerID});
 	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
-	var friendListArr = JSON.parse(friendList) ? JSON.parse(friendList) : [];
+	var friendListArr = friendList ? JSON.parse(friendList) : [];
 	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
 	var playerList = playerDataList.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
 	var rank = 0;
