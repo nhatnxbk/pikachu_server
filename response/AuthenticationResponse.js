@@ -10,7 +10,10 @@ var playerData = Spark.runtimeCollection("playerData"); // get the collection da
 var currentPlayer = playerData.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
 }); // search the collection data for the entry with the same id as the player
-if (currentPlayer == null) currentPlayer = {};
+if (currentPlayer === null){
+  currentPlayer = {};
+  currentPlayer.trophies = USER_START_TROPHY;
+}
 
 //======== Caculate time can request and receive energy or not=========//
 var timeNow = Date.now();
@@ -33,6 +36,7 @@ if(timeDelta < TIME_FB_INVITE){
 }else{
     currentPlayer.can_fb_invite = true;
 }
+playerData.update({"playerID": Spark.getPlayer().getPlayerId()}, {"$set": currentPlayer}, true,false);
 delete currentPlayer.time_fb_invite;
 delete currentPlayer.last_fb_friend_number;
 delete currentPlayer.online_button_click;
