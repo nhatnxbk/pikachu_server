@@ -64,8 +64,8 @@ if(data.get_server){
 
 if(data.get_bot_player){
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
-	var friendList = (currentPlayerData && currentPlayerData.facebook_friend && currentPlayerData.facebook_friend.length > 0) ? currentPlayerData.facebook_friend : [];
-	var friendListArr = JSON.parse(friendList);
+	var friendList = (currentPlayerData && currentPlayerData.facebook_friend && currentPlayerData.facebook_friend.length > 0) ? currentPlayerData.facebook_friend : "";
+	var friendListArr = friendList ? JSON.parse(friendList) : [];
 	var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr},"has_random_time":true});
 	var opponentPlayerDataArr = opponentPlayerData.toArray();
 	if (opponentPlayerDataArr.length == 0) {
