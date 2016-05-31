@@ -166,7 +166,7 @@ if(data.online_match_end ){
 	if(data.game_type != "friend"){
 		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
-		if(!online_match_data.is_finish){
+		if(online_match_data !== null && !online_match_data.is_finish){
 			if(my_score > op_score){
 				currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 1;
 				var currentPlayer = Spark.getPlayer();
