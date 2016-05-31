@@ -13,6 +13,8 @@ var currentPlayer = playerData.findOne({
 if (currentPlayer === null){
   currentPlayer = {};
   currentPlayer.trophies = USER_START_TROPHY;
+  currentPlayer.online_win = 0;
+  currentPlayer.highest_trophy = 100;
 }
 
 //======== Caculate time can request and receive energy or not=========//
