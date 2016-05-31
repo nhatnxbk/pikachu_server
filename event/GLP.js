@@ -26,6 +26,13 @@ for(i = 0; i< searchResult.length; i++){
       "shortCode" : sCode
     });
     pack.url = result.url;
+    packData.update({"pack":pack.pack}, //Looks for a doc with the id of the current player
+    {
+        "$set": pack
+    }, // Uses the $set mongo modifier to set old player data to the current player data
+    true, // Create the document if it does not exist (upsert)
+    false // This query will only affect a single object (multi)
+    );
     if(typeof listBuy != 'undefined'){
         for(j = 0 ; j < listBuy.length; j++){
             if(listBuy[j].pack == pack.pack){
@@ -35,14 +42,5 @@ for(i = 0; i< searchResult.length; i++){
         }
     }
     list.push(pack);
-    packData.update({"pack":pack.pack}, //Looks for a doc with the id of the current player
-    {
-    	"$set": pack
-    }, // Uses the $set mongo modifier to set old player data to the current player data
-    true, // Create the document if it does not exist (upsert)
-    false // This query will only affect a single object (multi)
-    );
-    
-   
 }
 Spark.setScriptData("player_Data", list);
