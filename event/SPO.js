@@ -11,7 +11,7 @@ var currentPlayer = playerDataList.findOne({
 var timeNow = Date.now();
 Spark.getLog().debug("Now : " + timeNow);
 var time_fb_invite = 0;
-if(currentPlayer.time_fb_invite !== undefined){
+if("time_fb_invite" in currentPlayer){
     time_fb_invite = currentPlayer.time_fb_invite;
 }
 var timeDelta = timeNow - time_fb_invite;
@@ -21,7 +21,7 @@ if(timeDelta < TIME_FB_INVITE){
     currentPlayer.can_fb_invite = true;
 }
 
-if(player_data.time_fb_invite !== undefined && currentPlayer.can_fb_invite){
+if("time_fb_invite" in player_data && currentPlayer.can_fb_invite){
     player_data.time_fb_invite = Date.now();
     currentPlayer.can_fb_invite = false;
         

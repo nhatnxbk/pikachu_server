@@ -48,7 +48,7 @@ if(is_buy == 1){
     var packResult = packData.findOne({"pack":pack});
     var playerID = Spark.getPlayer().getPlayerId();
     
-    if(typeof listBuy != 'undefined'){
+    if("list_pack" in currentPlayer){
         for(i = 0 ; i < listBuy.length; i++){
             if(listBuy[i].pack == pack){
                 found = true;

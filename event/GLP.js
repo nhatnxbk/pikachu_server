@@ -33,7 +33,7 @@ for(i = 0; i< searchResult.length; i++){
     true, // Create the document if it does not exist (upsert)
     false // This query will only affect a single object (multi)
     );
-    if(typeof listBuy != 'undefined'){
+    if("list_pack" in currentPlayer){
         for(j = 0 ; j < listBuy.length; j++){
             if(listBuy[j].pack == pack.pack){
                 pack.hint = 0;

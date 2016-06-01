@@ -9,7 +9,7 @@ if(!data) data = {};
 if (data.leader_board_type == LEADER_BOARD_GLOBAL) {
 	//leader board global
 	var dataResponse = RQLeaderBoard(SHORT_CODE_LB_GLOBAL, playerID);
-	if (dataResponse.myPlayerRank === undefined) {
+	if (!("myPlayerRank" in dataResponse)) {
 		dataResponse.myPlayerRank = RQMyPlayerRank(SHORT_CODE_LB_GLOBAL, playerID);
 	}
 	Spark.setScriptData("data", dataResponse);
@@ -20,7 +20,7 @@ if (data.leader_board_type == LEADER_BOARD_BY_COUNTRY) {
 	var country = (currentPlayer && currentPlayer.location && currentPlayer.location.country) ? currentPlayer.location.country : "VN";
 	if (country == "") country = "VN";
 	var dataResponse = RQLeaderBoard(SHORT_CODE_LB_BY_COUNTRY + country, playerID);
-	if (dataResponse.myPlayerRank === undefined) {
+	if (!("myPlayerRank" in dataResponse)) {
 		dataResponse.myPlayerRank = RQMyPlayerRank(SHORT_CODE_LB_BY_COUNTRY + country, playerID);
 	}
 	Spark.setScriptData("data", dataResponse);

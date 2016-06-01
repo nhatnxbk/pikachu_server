@@ -11,17 +11,26 @@ var currentPlayer = playerData.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
 }); // search the collection data for the entry with the same id as the player
 if (currentPlayer === null){
-  currentPlayer = {};
+    currentPlayer = {};
+}
+if(!("trophies" in currentPlayer)){
   currentPlayer.trophies = USER_START_TROPHY;
   currentPlayer.online_win = 0;
-  currentPlayer.highest_trophy = 100;
+  currentPlayer.highest_trophy = USER_START_TROPHY;
+  var result = Spark.sendRequest({
+    "@class": ".LogEventRequest",
+    "eventKey": "TLB",
+    "trophies": currentPlayer ? currentPlayer.trophies : 0,
+    "COUNTRY": currentPlayer && currentPlayer.location && currentPlayer.location.country ? currentPlayer.location.country : "VN",
+    "CITY": ""
+});
 }
 
 //======== Caculate time can request and receive energy or not=========//
 var timeNow = Date.now();
 Spark.getLog().debug("Now : " + timeNow);
 var time_fb_invite = 0;
-if( currentPlayer.time_fb_invite !== undefined){
+if( "time_fb_invite" in currentPlayer){
     time_fb_invite = currentPlayer.time_fb_invite;
 }
 if(!currentPlayer.userName && currentPlayer.facebook_name){
