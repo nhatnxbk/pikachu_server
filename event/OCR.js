@@ -63,21 +63,8 @@ if(data.get_server){
 }
 
 if(data.get_bot_player){
-	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
-	var friendList = (currentPlayerData && currentPlayerData.facebook_friend && currentPlayerData.facebook_friend.length > 0) ? currentPlayerData.facebook_friend : "";
-	var friendListArr = friendList ? JSON.parse(friendList) : [];
-	var opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr},"has_random_time":true});
-	var opponentPlayerDataArr = opponentPlayerData.toArray();
-	if (opponentPlayerDataArr.length == 0) {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
-	}
-	if (opponentPlayerDataArr.length == 0) {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
-	}
-	var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
-	Spark.setScriptData("botData",opponentPlayerDataArr[r]);
+	var opponentPlayer = get_bot_player_data();
+	Spark.setScriptData("botData",opponentPlayer);
 }
 
 if(data.online_match_start  && data.game_type == "friend"){
@@ -273,4 +260,67 @@ function get_current_rank_with_friends() {
 	} else {
 		return 1;
 	}
+}
+
+function get_bot_player_data() {
+	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
+	var friendList = (currentPlayerData && currentPlayerData.facebook_friend && currentPlayerData.facebook_friend.length > 0) ? currentPlayerData.facebook_friend : "";
+	var friendListArr = friendList ? JSON.parse(friendList) : [];
+	var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+	var online_match_data = onlineMatchList.findOne({"playerID":playerID});
+	var list_ignore = online_match_data && online_match_data.list_ignore ? online_match_data.list_ignore : [];
+	var opponentPlayer;
+	var opponentPlayerData;
+	if (IGNORE_HAS_RANDOM_TIME) {
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr}});
+	} else {
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr},"has_random_time":true});
+	}
+	var opponentPlayerDataArr = opponentPlayerData.toArray();
+	if (!IGNORE_HAS_RANDOM_TIME && opponentPlayerDataArr.length == 0) {
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+	}
+	var count = 0;
+	while(count < 10) {
+		if (opponentPlayerDataArr.length == 0) {
+			break;
+		}
+		var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
+		var opponent = opponentPlayerDataArr[r];
+		if (list_ignore.indexOf(opponent.playerID) == -1) {
+			if(list_ignore.length == NUMBER_IGNORE_PLAYER){
+				list_ignore.pop();
+			}
+			list_ignore.unshift(opponent.playerID);
+			opponentPlayer = opponent;
+			onlineMatchList.update({"playerID": playerID}, {"$set": {"list_ignore": list_ignore}}, true,false);
+			break;
+		}
+		count++;
+	}
+	if (!opponentPlayer) {
+		count = 0;
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+		while(count < 10) {
+			var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
+			var opponent = opponentPlayerDataArr[r];
+			if (list_ignore.indexOf(opponent.playerID) == -1) {
+				if(list_ignore.length == NUMBER_IGNORE_PLAYER){
+					list_ignore.pop();
+				}
+				list_ignore.unshift(opponent.playerID);
+				opponentPlayer = opponent;
+				onlineMatchList.update({"playerID": playerID}, {"$set": {"list_ignore": list_ignore}}, true,false);
+				break;
+			}
+			count++;
+		}
+		if (!opponentPlayer) {
+			var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
+			opponentPlayer = opponentPlayerDataArr[r];
+		}
+	}
+	return opponentPlayer;
 }
