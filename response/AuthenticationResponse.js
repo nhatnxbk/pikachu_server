@@ -16,6 +16,7 @@ if (currentPlayer === null){
 if(!("trophies" in currentPlayer)){
   currentPlayer.trophies = USER_START_TROPHY;
   currentPlayer.online_win = 0;
+  currentPlayer.online_match_start = 0;
   currentPlayer.highest_trophy = USER_START_TROPHY;
   var result = Spark.sendRequest({
     "@class": ".LogEventRequest",

@@ -98,8 +98,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	if(!opponentPlayer) opponentPlayer = {};
 	if(!opponentPlayerData) opponentPlayerData = {"trophies":0};
 	if(!opponentPlayerData.trophies) opponentPlayerData.trophies = 0;	
-	if(opponentPlayer.getPrivateData)
-		var op_total_match_on = (opponentPlayer.getPrivateData("total_match_on")?opponentPlayer.getPrivateData("total_match_on"):0) + 1;
+	var op_total_match_on = (opponentPlayer.getPrivateData("total_match_on")?opponentPlayer.getPrivateData("total_match_on"):0) + 1;
 	
 	var timeNow = Date.now();
 	var response = {
