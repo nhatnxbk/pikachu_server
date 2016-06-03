@@ -166,22 +166,27 @@ if(data.online_match_end ){
 		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 		if(online_match_data !== null && !online_match_data.is_finish){
-			if(my_score > op_score){
-				currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 1;
+			if(my_score >= op_score){
+				var isWin = my_score > op_score;
 				var currentPlayer = Spark.getPlayer();
 				bonus = BONUS_TROPHIES;
 				if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
 				if(online_match_data.opponent_trophy < BONUS_TROPHIES){
 					bonus = online_match_data.opponent_trophy > 0 ? online_match_data.opponent_trophy: 1;
 				}
-				currentPlayerData.trophies = online_match_data.my_trophy + bonus;
+				if(isWin){
+					currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 1;
+				}else{
+					bonus = 0;
+				}
+				currentPlayerData.trophies = (online_match_data.my_trophy + bonus);
 				if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
 				if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
 					currentPlayerData.highest_trophy = currentPlayerData.trophies;
 				}
 				playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 
-				var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score}};
+				var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score},"draw":(!isWin)};
 				Spark.getLog().debug(save_data);
 			}else{
 				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
