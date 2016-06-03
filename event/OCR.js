@@ -245,7 +245,7 @@ function get_current_rank_with_friends() {
 	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
 	var friendListArr = friendList ? JSON.parse(friendList) : [];
 	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
-	var playerList = playerDataList.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
+	var playerList = playerDataList.find({"$or":[{"facebook_id":{"$exists":true,"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
 	var rank = 0;
 	for (var i = 0; i < playerList.length; i++) {
 		var opponent = playerList[i];
@@ -272,13 +272,13 @@ function get_bot_player_data() {
 	var opponentPlayer;
 	var opponentPlayerData;
 	if (IGNORE_HAS_RANDOM_TIME) {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr}});
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$exists":true,"$nin":friendListArr}});
 	} else {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr},"has_random_time":true});
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$exists":true,"$nin":friendListArr},"has_random_time":true});
 	}
 	var opponentPlayerDataArr = opponentPlayerData.toArray();
 	if (!IGNORE_HAS_RANDOM_TIME && opponentPlayerDataArr.length == 0) {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$ne":"","$nin":friendListArr}});
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"facebook_id":{"$exists":true,"$nin":friendListArr}});
 		opponentPlayerDataArr = opponentPlayerData.toArray();
 	}
 	var count = 0;
