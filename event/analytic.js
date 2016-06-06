@@ -17,7 +17,7 @@ if(data.level_data){
 if(data.level_data_passed){
 	var playerDataList = Spark.runtimeCollection("playerData");
 	var sum = 0;
-	for(var i = 1; i <= NUM_LEVEL ;i++){
+	for(var i = NUM_LEVEL; i >= 1 ;i--){
 		sum += playerDataList.count({"level":i});
 		response["level" + i] = sum;
 	}
