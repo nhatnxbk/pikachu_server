@@ -22,4 +22,29 @@ if(data.level_data_passed){
 		response["level" + i] = sum;
 	}
 }
+if(data.report_trophies) {
+	var minTrophies = data.min_trophies ? data.min_trophies : -1;
+	var maxTrophies = data.max_trophies ? data.max_trophies : 0;
+	var query;
+	if (maxTrophies > 0) {
+		query = {"trophies":{"$gt":minTrophies,"$lt":maxTrophies}};
+	} else {
+		query = {"trophies":{"$gt":minTrophies}};
+	}
+	var playerDataList = Spark.runtimeCollection("playerData");
+	var trophiesData   = playerDataList.find(query).toArray();
+	var result = [];
+	for (var i = 0; i < trophiesData.length; i++) {
+		var data = trophiesData[i];
+		var userData = {
+			"userName" : data.userName ? data.userName : data.playerID,
+			"fbName"   : data.facebook_name ? data.facebook_name : data.playerID,
+			"trophies" : data.trophies,
+			"online_match_start" : data.online_match_start ? data.online_match_start : 0,
+			"online_bot_start"   : data.online_bot_start ? data.online_bot_start : 0
+		};
+		result.push(userData);
+	}
+	response["trophiesData"] = result;
+}
 Spark.setScriptData("data", response);
