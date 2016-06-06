@@ -14,4 +14,12 @@ if(data.level_data){
 		response["level" + i] = playerDataList.count({"level":i});
 	}
 }
+if(data.level_data_passed){
+	var playerDataList = Spark.runtimeCollection("playerData");
+	var sum = 0;
+	for(var i = 1; i <= NUM_LEVEL ;i++){
+		sum += playerDataList.count({"level":i});
+		response["level" + i] = sum;
+	}
+}
 Spark.setScriptData("data", response);
