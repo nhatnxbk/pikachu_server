@@ -128,8 +128,6 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 	if(!data.bot_enable){
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
-		opponentPlayerData.trophies = opponentPlayerData.trophies > BONUS_TROPHIES ? (opponentPlayerData.trophies - BONUS_TROPHIES) : 0;
-		playerDataList.update({"playerID": data.opponent_id}, {"$set": opponentPlayerData}, true,false);
 	}else{
 		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 1;
 	}
