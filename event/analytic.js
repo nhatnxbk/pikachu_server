@@ -55,13 +55,12 @@ if(data.reset_100_trophies){
 	while(entries.hasNext()){
         var entry = entries.next();
         var trophies = entry.getAttribute("trophies");
-        if(trophies != 100){
-            var id = entry.id;
-            response = entry;
-            break;
-            // leaderboard.deleteEntry(entry, false);
+        if(trophies == 100){
+            var id = entry.getUserId();
+            response = leaderboard.deleteAllEntries(id, false);
         }
     }
 }
+
 
 Spark.setScriptData("data", response);
