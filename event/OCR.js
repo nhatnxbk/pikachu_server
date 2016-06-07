@@ -122,8 +122,9 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
+	var bonus_trophies = get_bonus_trophies_lost(currentPlayer.trophies,opponentPlayerData.trophies);
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
-	currentPlayerData.trophies = currentPlayerData.trophies > BONUS_TROPHIES ? (currentPlayerData.trophies - BONUS_TROPHIES) : 0;
+	currentPlayerData.trophies = currentPlayerData.trophies > bonus_trophies ? (currentPlayerData.trophies - bonus_trophies) : 0;
 	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 1;
 
 	if(!data.bot_enable){
@@ -143,7 +144,7 @@ if(data.online_match_end ){
 	var op_score = data.opponent_score;
 	var op_id = data.opponent_id;
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
-	var bonus = -BONUS_TROPHIES;
+	var bonus = 0;
 	var server = Spark.runtimeCollection("PhotonServer");
 	server.remove({"playerID":playerID});
 	server.remove({"playerID":op_id});
@@ -154,11 +155,9 @@ if(data.online_match_end ){
 			if(my_score >= op_score){
 				var isWin = my_score > op_score;
 				var currentPlayer = Spark.getPlayer();
-				bonus = BONUS_TROPHIES;
+				var bonus_trophies = get_bonus_trophies_win(online_match_data.my_trophy,online_match_data.opponent_trophy);
+				bonus = bonus_trophies;
 				if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
-				if(online_match_data.opponent_trophy < BONUS_TROPHIES){
-					bonus = online_match_data.opponent_trophy > 0 ? online_match_data.opponent_trophy: 1;
-				}
 				if(isWin){
 					currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 1;
 				}else{
@@ -175,6 +174,7 @@ if(data.online_match_end ){
 				Spark.getLog().debug(save_data);
 			}else{
 				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
+				bonus = -get_bonus_trophies_lost(online_match_data.my_trophy,online_match_data.opponent_trophy);
 			}
 			online_match_data.is_finish = true;
 			//rank of myPlayer after match_end
