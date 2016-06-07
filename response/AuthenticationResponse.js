@@ -14,10 +14,10 @@ if (currentPlayer === null){
     currentPlayer = {};
 }
 if(!("trophies" in currentPlayer)){
-  currentPlayer.trophies = USER_START_TROPHY;
+  currentPlayer.trophies = USER_START_TROPHY + parseInt(Math.random()*100);
   currentPlayer.online_win = 0;
   currentPlayer.online_match_start = 0;
-  currentPlayer.highest_trophy = USER_START_TROPHY;
+  currentPlayer.highest_trophy = currentPlayer.trophies;
 //   var result = Spark.sendRequest({
 //     "@class": ".LogEventRequest",
 //     "eventKey": "TLB",
