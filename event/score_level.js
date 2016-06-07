@@ -78,6 +78,11 @@ if("facebook_friend" in player_data && currentPlayer.time_fb_invite > 100){
         player_data.bonus_message = "Invite facebook friend bonus";
         player_data.last_fb_friend_number = friends.length;
     }
+}else{
+    if("facebook_friend" in player_data){
+        friends = JSON.parse(player_data.facebook_friend);
+        player_data.last_fb_friend_number = friends.length;
+    }
 }
 
 //=============== Check new user name =============//
@@ -102,6 +107,5 @@ false // This query will only affect a single object (multi)
 delete player_data.hint;
 delete player_data.random;
 delete player_data.energy;
-
 
 Spark.setScriptData("player_Data", player_data);
