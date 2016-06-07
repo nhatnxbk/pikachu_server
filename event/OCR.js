@@ -238,6 +238,14 @@ if(data.join_room){
 	Spark.setScriptData("data", response);
 }
 
+if (data.get_bonus_trophies) {
+	var myTrophies = data.my_trophies;
+	var oppoentTrophies = data.opponent_trophies;
+	var bonus_win  = get_bonus_trophies_win(myTrophies, oppoentTrophies);
+	var bonus_lost = get_bonus_trophies_lost(myTrophies, oppoentTrophies);
+	Spark.setScriptData("data", {"bonus_win":bonus_win, "bonus_lost": bonus_lost});
+}
+
 function remove_room () {
 	var server = Spark.runtimeCollection("FriendRoom");
 	server.remove({"playerID":playerID});
@@ -326,4 +334,30 @@ function get_bot_player_data() {
 		}
 	}
 	return opponentPlayer;
+}
+
+function get_bonus_trophies_win(myTrophies, oppoentTrophies) {
+	var bonus  = BONUS_TROPHIES;
+	var offset = Math.abs(myTrophies - oppoentTrophies)
+	var bonusByOffset = Math.floor(offset / BONUS_TROPHIES_OFFSET * BONUS_BY_TROPHIES_OFFSET);
+	if (bonusByOffset > BONUS_BY_TROPHIES_OFFSET) {
+		bonusByOffset = BONUS_BY_TROPHIES_OFFSET;
+	}
+	if (myTrophies > oppoentTrophies) {
+		bonusByOffset = -bonusByOffset;
+	}
+	return bonus + bonusByOffset;
+}
+
+function get_bonus_trophies_lost(myTrophies, oppoentTrophies) {
+	var bonus  = BONUS_TROPHIES;
+	var offset = Math.abs(myTrophies - oppoentTrophies)
+	var bonusByOffset = Math.floor(offset / BONUS_TROPHIES_OFFSET * BONUS_BY_TROPHIES_OFFSET);
+	if (bonusByOffset > BONUS_BY_TROPHIES_OFFSET) {
+		bonusByOffset = BONUS_BY_TROPHIES_OFFSET;
+	}
+	if (myTrophies > oppoentTrophies) {
+		bonusByOffset = -bonusByOffset;
+	}
+	return bonus - bonusByOffset;
 }
