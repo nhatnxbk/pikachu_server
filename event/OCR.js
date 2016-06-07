@@ -100,6 +100,10 @@ if(data.online_match_start  && data.game_type != "friend"){
 	Spark.getLog().debug(response);
 	var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 	var online_match_data = onlineMatchList.findOne({"playerID":playerID});
+	var online_opponent_match_data = onlineMatchList.findOne({"playerID":data.opponent_id});
+	if(online_opponent_match_data && online_opponent_match_data.opponent_id == playerID && !online_opponent_match_data.is_finish){
+		response.opponent_trophy = online_opponent_match_data.my_trophy;
+	}
 	
 	//Them user vao danh sach moi gap
 	if(data.game_type == "random"){
