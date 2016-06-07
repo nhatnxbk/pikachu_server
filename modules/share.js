@@ -1,4 +1,4 @@
-var DEBUG = true;
+var DEBUG = false;
 var TIME_EXPIRE_MATCH = 600;
 var TIME_EXPIRE_ROOM = 120;
 var TIME_FB_INVITE = 86400000;
