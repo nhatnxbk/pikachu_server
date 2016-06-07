@@ -25,8 +25,8 @@ CONFIG.num_level = NUM_LEVEL;
 CONFIG.leader_board_global = LEADER_BOARD_GLOBAL;
 CONFIG.leader_board_by_country = LEADER_BOARD_BY_COUNTRY;
 CONFIG.leader_board_by_friends = LEADER_BOARD_BY_FRIENDS;
-CONFIG.rt_1 = [2, 3, 3, 4, 5, 4, 6, 5, 7, 5, 7, 6, 7, 6, 5, 4];//con 1 cap
-CONFIG.rt_2 = [2, 3, 3, 4, 5, 5, 6, 6, 6, 5, 5, 6, 6, 6, 5, 4];// con 2 cap
+CONFIG.rt_1 = [3, 5, 5, 6, 7, 8, 9, 8, 9, 9, 8, 8, 8, 8, 8, 6];//con 1 cap
+CONFIG.rt_2 = [3, 4, 4, 5, 6, 7, 8, 7, 8, 8, 6, 7, 7, 7, 6, 5];// con 2 cap
 CONFIG.rt_3 = [2, 3, 3, 3, 4, 5, 4, 5, 4, 5, 5, 4, 5, 4, 4, 3];// con 3 cap
 CONFIG.rt_4 = [2, 3, 3, 3, 4, 3, 4, 4, 4, 3, 4, 4, 3, 4, 3, 3];// con 4 cap
 CONFIG.rt_5 = [2, 2, 2, 3, 2, 3, 2, 3, 3, 3, 2, 3, 2, 3, 3, 2];// con >= 5 cap
