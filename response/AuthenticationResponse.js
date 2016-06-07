@@ -18,13 +18,13 @@ if(!("trophies" in currentPlayer)){
   currentPlayer.online_win = 0;
   currentPlayer.online_match_start = 0;
   currentPlayer.highest_trophy = USER_START_TROPHY;
-  var result = Spark.sendRequest({
-    "@class": ".LogEventRequest",
-    "eventKey": "TLB",
-    "trophies": currentPlayer ? currentPlayer.trophies : 0,
-    "COUNTRY": currentPlayer && currentPlayer.location && currentPlayer.location.country ? currentPlayer.location.country : "VN",
-    "CITY": ""
-});
+//   var result = Spark.sendRequest({
+//     "@class": ".LogEventRequest",
+//     "eventKey": "TLB",
+//     "trophies": currentPlayer ? currentPlayer.trophies : 0,
+//     "COUNTRY": currentPlayer && currentPlayer.location && currentPlayer.location.country ? currentPlayer.location.country : "VN",
+//     "CITY": ""
+// });
 }
 
 //======== Caculate time can request and receive energy or not=========//
