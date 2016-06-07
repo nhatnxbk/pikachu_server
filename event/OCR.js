@@ -122,7 +122,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
-	var bonus_trophies = get_bonus_trophies_lost(currentPlayer.trophies,opponentPlayerData.trophies);
+	var bonus_trophies = get_bonus_trophies_lost(currentPlayerData.trophies,opponentPlayerData.trophies);
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
 	currentPlayerData.trophies = currentPlayerData.trophies > bonus_trophies ? (currentPlayerData.trophies - bonus_trophies) : 0;
 	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 1;

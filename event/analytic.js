@@ -47,4 +47,21 @@ if(data.report_trophies) {
 	}
 	response["trophiesData"] = result;
 }
+
+if(data.reset_100_trophies){
+	var shortCode = data.shortCode;
+	var leaderboard = Spark.getLeaderboards().getLeaderboard(shortCode);
+	var entries = leaderboard.getEntries(200, 0);
+	while(entries.hasNext()){
+        var entry = entries.next();
+        var trophies = entry.getAttribute("trophies");
+        if(trophies != 100){
+            var id = entry.id;
+            response = entry;
+            break;
+            // leaderboard.deleteEntry(entry, false);
+        }
+    }
+}
+
 Spark.setScriptData("data", response);
