@@ -337,6 +337,42 @@ function get_bot_player_data() {
 			opponentPlayer = opponentPlayerDataArr[r];
 		}
 	}
+	if (!opponentPlayer.rt_1 || opponentPlayer.rt_1.length == 0) {
+		if (opponentPlayer.trophies <= TROPHIES_OF_EASY_BOT) {
+			opponentPlayer.rt_1 = rt_1_e;
+			opponentPlayer.rt_2 = rt_2_e;
+			opponentPlayer.rt_3 = rt_3_e;
+			opponentPlayer.rt_4 = rt_4_e;
+			opponentPlayer.rt_5 = rt_5_e;
+			opponentPlayer.rto_1 = rto_1_e;
+			opponentPlayer.rto_2 = rto_2_e;
+			opponentPlayer.rto_3 = rto_3_e;
+			opponentPlayer.rto_4 = rto_4_e;
+			opponentPlayer.rto_5 = rto_5_e;
+		} else if (opponentPlayer.trophies > TROPHIES_OF_EASY_BOT && opponentPlayer.trophies <= TROPHIES_OF_NORMAL_BOT) {
+			opponentPlayer.rt_1 = rt_1_n;
+			opponentPlayer.rt_2 = rt_2_n;
+			opponentPlayer.rt_3 = rt_3_n;
+			opponentPlayer.rt_4 = rt_4_n;
+			opponentPlayer.rt_5 = rt_5_n;
+			opponentPlayer.rto_1 = rto_1_n;
+			opponentPlayer.rto_2 = rto_2_n;
+			opponentPlayer.rto_3 = rto_3_n;
+			opponentPlayer.rto_4 = rto_4_n;
+			opponentPlayer.rto_5 = rto_5_n;
+		} else {
+			opponentPlayer.rt_1 = rt_1_h;
+			opponentPlayer.rt_2 = rt_2_h;
+			opponentPlayer.rt_3 = rt_3_h;
+			opponentPlayer.rt_4 = rt_4_h;
+			opponentPlayer.rt_5 = rt_5_h;
+			opponentPlayer.rto_1 = rto_1_h;
+			opponentPlayer.rto_2 = rto_2_h;
+			opponentPlayer.rto_3 = rto_3_h;
+			opponentPlayer.rto_4 = rto_4_h;
+			opponentPlayer.rto_5 = rto_5_h;
+		}
+	}
 	return opponentPlayer;
 }
 
