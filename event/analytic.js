@@ -59,6 +59,7 @@ if (data.report_online_match) {
 		var onlineData = {
 			"userName" : data.userName ? data.userName : data.playerID,
 			"trophies" : data.trophies,
+			"online_win" : data.online_win,
 			"online_match_start" : data.online_match_start ? data.online_match_start : 0,
 			"online_bot_start"   : data.online_bot_start ? data.online_bot_start : 0
 		}
