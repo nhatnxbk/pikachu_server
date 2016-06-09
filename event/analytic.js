@@ -7,15 +7,14 @@
 // ====================================================================================================
 require("share");
 var data = Spark.getData().data;
+var playerDataList = Spark.runtimeCollection("playerData");
 var response= {};
 if(data.level_data){
-	var playerDataList = Spark.runtimeCollection("playerData");
 	for(var i = 1; i <= NUM_LEVEL ;i++){
 		response["level" + i] = playerDataList.count({"level":i});
 	}
 }
 if(data.level_data_passed){
-	var playerDataList = Spark.runtimeCollection("playerData");
 	var sum = 0;
 	for(var i = NUM_LEVEL; i >= 1 ;i--){
 		sum += playerDataList.count({"level":i});
@@ -31,8 +30,7 @@ if(data.report_trophies) {
 	} else {
 		query = {"trophies":{"$gt":minTrophies}};
 	}
-	var playerDataList = Spark.runtimeCollection("playerData");
-	var trophiesData   = playerDataList.find(query).toArray();
+	var trophiesData = playerDataList.find(query).toArray();
 	var result = [];
 	for (var i = 0; i < trophiesData.length; i++) {
 		var data = trophiesData[i];
@@ -48,6 +46,27 @@ if(data.report_trophies) {
 	response["trophiesData"] = result;
 }
 
+if (data.report_online_match) {
+	var filter_pvp = data.filter_pvp ? data.filter_pvp : false;
+	var query = {"online_match_start":{$gt:0}};
+	if (filter_pvp) {
+		query = {"online_match_start":{$gt:0},$where: "this.online_match_start > this.online_bot_start"}
+	}
+	var playerDataArr = playerDataList.find(query).sort({"online_match_start":-1}).toArray();
+	var result = [];
+	for (var i = 0; i < playerDataArr.length; i++) {
+		var data = playerDataArr[i];
+		var onlineData = {
+			"userName" : data.userName ? data.userName : data.playerID,
+			"trophies" : data.trophies,
+			"online_match_start" : data.online_match_start ? data.online_match_start : 0,
+			"online_bot_start"   : data.online_bot_start ? data.online_bot_start : 0
+		}
+		result.push(onlineData);
+	}
+	response["onlineMatchData"] = result;
+}
+
 if(data.reset_100_trophies){
 	var shortCode = data.shortCode;
 	var leaderboard = Spark.getLeaderboards().getLeaderboard(shortCode);
@@ -61,6 +80,5 @@ if(data.reset_100_trophies){
         }
     }
 }
-
 
 Spark.setScriptData("data", response);
