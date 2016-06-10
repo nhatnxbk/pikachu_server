@@ -131,6 +131,14 @@ if(data.online_match_start  && data.game_type != "friend"){
 	currentPlayerData.trophies = currentPlayerData.trophies > bonus_trophies ? (currentPlayerData.trophies - bonus_trophies) : 0;
 	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 1;
 
+	var result = Spark.sendRequest({
+		"@class": ".LogEventRequest",
+		"eventKey": "TLB",
+		"trophies": currentPlayerData ? currentPlayerData.trophies : 0,
+		"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
+		"CITY": ""
+	});
+	
 	if(!data.bot_enable){
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
 	}else{
