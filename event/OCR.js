@@ -58,7 +58,7 @@ if(data.get_server){
 	if(!found){
 		response.error = "Not enough server";
 	}
-	response.time_change_to_bot = 20 + Math.random()*30;
+	response.time_change_to_bot = 20 + Math.random()*20;
 	Spark.setScriptData("data",response);
 }
 
@@ -138,7 +138,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 		"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
 		"CITY": ""
 	});
-	
+
 	if(!data.bot_enable){
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
 	}else{

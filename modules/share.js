@@ -75,3 +75,4 @@ CONFIG.num_hint_normal = 75;
 CONFIG.num_energy_big = 360;
 CONFIG.num_random_big = 180;
 CONFIG.num_hint_big = 180;
+CONFIG.max_energy_offline = 5;
