@@ -55,7 +55,8 @@ var rto_5_h = [1.5, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 2.0, 2.0, 2.1, 2.1, 2.2, 2.1, 
 //Config send to user
 var CONFIG = {};
 CONFIG.num_friend_per_energy = 500;
-CONFIG.app_version = 10;
+CONFIG.app_version_ios = 11;
+CONFIG.app_version_android = 11;
 CONFIG.time_energy_recover = 1000;
 CONFIG.time_change_to_bot = 30;
 CONFIG.num_level = NUM_LEVEL;
