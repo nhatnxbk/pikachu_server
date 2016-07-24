@@ -77,3 +77,5 @@ CONFIG.num_energy_big = 360;
 CONFIG.num_random_big = 180;
 CONFIG.num_hint_big = 180;
 CONFIG.max_energy_offline = 5;
+CONFIG.PhotonPR = 2;//CloudRegionCode
+CONFIG.PhotonHO = 1;//HostingOption
