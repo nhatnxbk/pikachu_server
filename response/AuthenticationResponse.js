@@ -27,6 +27,9 @@ if(!("trophies" in currentPlayer)){
 // });
 }
 
+if (!currentPlayer.player_coin) {
+    currentPlayer.player_coin = DEFAULT_COIN;
+}
 //======== Caculate time can request and receive energy or not=========//
 var timeNow = Date.now();
 Spark.getLog().debug("Now : " + timeNow);
