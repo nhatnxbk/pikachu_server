@@ -51,6 +51,17 @@ if(timeDelta < TIME_FB_INVITE){
 }else{
     currentPlayer.can_fb_invite = true;
 }
+
+var itemShopData;
+if (currentPlayer.need_update_shop) {
+    var packItemMaster = Spark.metaCollection("pack_item_master");
+    var item_shop_data = packItemMaster.find().toArray();
+    itemShopData = {
+      "item_shop_data" : item_shop_data
+    }
+    currentPlayer.need_update_shop = 0;
+}
+
 var response = Spark.sendRequest({"@class":".AccountDetailsRequest"});
 currentPlayer.location =  response.location;
 playerData.update({"playerID": Spark.getPlayer().getPlayerId()}, {"$set": currentPlayer}, true,false);
@@ -76,3 +87,6 @@ delete currentPlayer.rto_5;
 
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
 Spark.setScriptData("config", CONFIG); // return the player via script-data
+if (itemShopData !== undefined) {
+  Spark.setScriptData("item_shop_data", itemShopData); // return the player via script-data
+}

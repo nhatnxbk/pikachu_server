@@ -2,6 +2,7 @@ require("share");
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var playerData = playerDataList.findOne({"playerID":playerID});
+var itemPackMaster = Spark.metaCollection("pack_item_master");
 var data = Spark.getData().data;
 if(!data) data = {};
 
