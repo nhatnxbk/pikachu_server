@@ -41,6 +41,6 @@ for(i = 0; i< searchResult.length; i++){
             }
         }
     }
-    list.push(pack);
+    // list.push(pack);
 }
 Spark.setScriptData("player_Data", list);
