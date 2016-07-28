@@ -7,9 +7,12 @@ if(!data) data = {};
 
 if(data.get_server){
 	var response= {};
-	
+	var version = data.version;
 	var index = 0;
 	var found = false;
+	if(version && version > CONFIG.app_version_ios){
+		PHOTON_SERVER_LIST = PHOTON_SERVER_LIST_NEW_SERVER;
+	}
 	while(index < PHOTON_SERVER_LIST.length && !found){
 		var server = Spark.runtimeCollection("PhotonServer");
 		var numberUser = server.count({"server_id": index});
