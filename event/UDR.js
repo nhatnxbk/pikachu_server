@@ -3,6 +3,7 @@ var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var playerData = playerDataList.findOne({"playerID":playerID});
 var itemPackMaster = Spark.metaCollection("pack_item_master");
+var logPurchaserData = Spark.runtimeCollection("user_purchaser_log");
 var data = Spark.getData().data;
 if(!data) data = {};
 
@@ -59,6 +60,22 @@ if (data.buy_pack_item) {
 		};
 	}
 	Spark.setScriptData("data",response);
+}
+
+if (data.log_purchaser) {
+	var pack_id = data.pack_id;
+	if (pack_id !== undefined) {
+		var reg_date = Date.now();
+		var log = {
+			"playerID" : playerID,
+			"pack_id"  : pack_id,
+			"reg_date" : reg_date
+		}
+		logPurchaserData.insert(log);
+		Spark.setScriptData("response",log);
+	} else {
+		Spark.setScriptData("response",{"message":"Pack is not exists."});
+	}
 }
 
 function getItemName(item_id) {
