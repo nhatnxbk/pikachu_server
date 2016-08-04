@@ -410,6 +410,6 @@ function get_bonus_trophies_lost(myTrophies, oppoentTrophies) {
 	if (myTrophies > oppoentTrophies) {
 		bonusByOffset = -bonusByOffset;
 	}
-	// return (bonus - bonusByOffset);
-	return Math.floor((bonus - bonusByOffset) / 2);
+	return (bonus - bonusByOffset);
+	// return Math.floor((bonus - bonusByOffset) / 2);
 }
