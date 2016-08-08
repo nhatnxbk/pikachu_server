@@ -27,7 +27,7 @@ if (data.get_item_in_shop) {
 	var querry = data.item_type ? {"item_type":data.item_type} : {};
     var itemPackMasterArr = itemPackMaster.find(querry).toArray();
     var itemShopData = {"item_shop_data":itemPackMasterArr};
-    Spark.setScriptData("data", {"data":itemShopData});
+    Spark.setScriptData("data", itemShopData);
 }
 
 if (data.buy_pack_item) {
