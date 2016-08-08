@@ -79,6 +79,12 @@ if (data.log_purchaser) {
 	}
 }
 
+//get config
+if (data.get_config) {
+	var config = CONFIG;
+	Spark.setScriptData("data",config);
+}
+
 function getItemName(item_id) {
 	switch(item_id) {
 		case 0 :return "Item Hint";

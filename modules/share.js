@@ -21,6 +21,7 @@ var TROPHIES_OF_EASY_BOT   = 150;
 var TROPHIES_OF_NORMAL_BOT = 250;
 var DEFAULT_COIN = 100;
 var SHOP_VERSION = 1;
+var CONFIG_VERSION = 1;
 //easy
 var rt_1_e = [2, 5, 6, 6, 7, 8, 9, 8, 9, 9, 8, 9, 8, 8, 8, 7];//con 1 cap
 var rt_2_e = [2, 4, 4, 5, 6, 7, 8, 7, 9, 8, 7, 8, 8, 7, 6, 6];// con 2 cap
