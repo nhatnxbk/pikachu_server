@@ -53,13 +53,13 @@ if(timeDelta < TIME_FB_INVITE){
 }
 
 var itemShopData;
-if (!currentPlayer.shop_version || currentPlayer.shop_version < CONFIG.shop_version) {
+if (!currentPlayer.shop_version || currentPlayer.shop_version < SHOP_VERSION) {
     var packItemMaster = Spark.metaCollection("pack_item_master");
     var item_shop_data = packItemMaster.find().toArray();
     itemShopData = {
       "item_shop_data" : item_shop_data
     }
-    currentPlayer.shop_version = CONFIG.SHOP_VERSION;
+    currentPlayer.shop_version = SHOP_VERSION;
 }
 
 var response = Spark.sendRequest({"@class":".AccountDetailsRequest"});

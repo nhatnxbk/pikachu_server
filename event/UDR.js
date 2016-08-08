@@ -22,11 +22,12 @@ if (data.add_player_coin) {
 	Spark.setScriptData("data", response);
 }
 
-//add item master
+//get item master
 if (data.get_item_in_shop) {
-	var type = data.item_type ? data.item_type : 0;
-    var itemPackMasterArr = itemPackMaster.find({"item_type":type}).toArray();
-    Spark.setScriptData("data", {"data":itemPackMasterArr});
+	var querry = data.item_type ? {"item_type":data.item_type} : {};
+    var itemPackMasterArr = itemPackMaster.find(querry).toArray();
+    var itemShopData = {"item_shop_data":itemPackMasterArr};
+    Spark.setScriptData("data", {"data":itemShopData});
 }
 
 if (data.buy_pack_item) {
