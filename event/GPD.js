@@ -12,6 +12,9 @@ var listResponse = new Array();
 for(i = 0; i< searchResult.toArray().length; i++){
     var pack = searchResult.toArray()[i];
     var sCode = "p" + pack.pack + "i" + pack.item;
+    if(pack.pack == 103){
+        sCode = "p1" + "i" + pack.item;
+    }
     var result = Spark.sendRequest({
       "@class" : ".GetDownloadableRequest",
       "shortCode" : sCode
@@ -44,8 +47,8 @@ if(is_buy == 1){
         listBuy= currentPlayer.list_pack;
         else currentPlayer ={};
     var found = false;
-    var packData = Spark.metaCollection("Pack");
-    var packResult = packData.findOne({"pack":pack});
+    var packData = Spark.metaCollection("pack_item_master");
+    var packResult = packData.findOne({"item_id":pack});
     var playerID = Spark.getPlayer().getPlayerId();
     
     if("list_pack" in currentPlayer){
@@ -56,7 +59,7 @@ if(is_buy == 1){
             }
         }
     }else{
-       listBuy = []; 
+       listBuy = [];
     }
     if(!found){
         listBuy.push({'pack':pack,'version':packResult.version});
