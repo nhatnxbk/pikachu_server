@@ -62,6 +62,12 @@ if (!currentPlayer.shop_version || currentPlayer.shop_version < SHOP_VERSION) {
     currentPlayer.shop_version = SHOP_VERSION;
 }
 
+var config;
+if (!currentPlayer.config_version || currentPlayer.config_version < CONFIG_VERSION) {
+    config = CONFIG;
+    currentPlayer.config_version = CONFIG_VERSION;
+}
+
 var response = Spark.sendRequest({"@class":".AccountDetailsRequest"});
 currentPlayer.location =  response.location;
 playerData.update({"playerID": Spark.getPlayer().getPlayerId()}, {"$set": currentPlayer}, true,false);
@@ -86,7 +92,9 @@ delete currentPlayer.rto_4;
 delete currentPlayer.rto_5;
 
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
-Spark.setScriptData("config", CONFIG); // return the player via script-data
+if (config !== undefined) {
+  Spark.setScriptData("config", CONFIG); // return the player via script-data
+}
 if (itemShopData !== undefined) {
   Spark.setScriptData("item_shop_data", itemShopData); // return the player via script-data
 }
