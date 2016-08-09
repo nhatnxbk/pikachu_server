@@ -4,6 +4,8 @@ var playerID = Spark.getPlayer().getPlayerId();
 var playerData = playerDataList.findOne({"playerID":playerID});
 var itemPackMaster = Spark.metaCollection("pack_item_master");
 var logPurchaserData = Spark.runtimeCollection("user_purchaser_log");
+var userFeedbackData = Spark.runtimeCollection("user_feedback");
+var userNotice = Spark.runtimeCollection("user_notice");
 var data = Spark.getData().data;
 if(!data) data = {};
 
@@ -85,9 +87,94 @@ if (data.get_config) {
 	Spark.setScriptData("data",config);
 }
 
+//add feedback
+if (data.user_feedback) {
+	var title = data.title ? data.title : "User Feedback";
+	var content = data.content ? data.content : "No feedback from user!";
+	var timeNow = Date.now();
+	var feedback = {
+		"playerID": playerID,
+		"title"   : title,
+		"feedback": content,
+		"time"    : timeNow
+	}
+	userFeedbackData.insert(feedback);
+	var response = {
+		"result"   : true,
+		"message"  : "Your feedback was sent!",
+		"feedback" : feedback
+	}
+	Spark.setScriptData("data",response);
+}
+
+//get feedback
+if (data.get_user_feedback) {
+	var feedback = getUserFeedback();
+	Spark.setScriptData("data", feedback);
+}
+
+//add notice
+if (data.add_notice) {
+	var title = data.title ? data.title : "User Feedback";
+	var content = data.content ? data.content : "No have notice!";
+	var timeNow = Date.now();
+	var playerID = data.playerID ? data.playerID : "all";
+	var notice = {
+		"playerID": playerID,
+		"title"   : title,
+		"message" : content,
+		"time"    : timeNow
+	}
+	userNotice.insert(notice);
+	var response = {
+		"result"  : true,
+		"message" : "Add notice success!",
+		"notice"  : notice
+	}
+	Spark.setScriptData("data",response);
+}
+
+//get notice without feedback
+if (data.get_notice_without_feedback) {
+	var notice = getNotice();
+	Spark.setScriptData("data", notice);
+}
+
+//get all notice
+if (data.get_notice) {
+	var feedback = getUserFeedback();
+	var notice = getNotice();
+	var allNotice = feedback.concat(notice);
+	allNotice.sort(function(a,b){
+		return a.time - b.time;
+	});
+	Spark.setScriptData("data", allNotice);
+}
+
+function getNotice () {
+	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(10).sort({"time":-1}).toArray();
+	var timeNow = Date.now();
+	for (var i = 0; i < notice.length; i++) {
+		notice[i].time = timeNow - notice[i].time;
+		notice[i].type = 0;
+	}
+	return notice;
+}
+
+function getUserFeedback () {
+	var feedbacks = userFeedbackData.find({"playerID":playerID}).limit(5).sort({"time":-1}).toArray();
+	var timeNow = Date.now();
+	for (var i = 0; i < feedbacks.length; i++) {
+		var feedback = feedbacks[i];
+		feedback.time = timeNow - feedback.time;
+		feedback.type = 1;
+	}
+	return feedbacks;
+}
+
 function getItemName(item_id) {
 	switch(item_id) {
-		case 0 :return "Item Hint";
+		case 0 : return "Item Hint";
 		case 1 : return "Item Random";
 		case 2 : return "Item Energy";
 	}
