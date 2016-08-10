@@ -261,6 +261,40 @@ if (data.get_bonus_trophies) {
 	Spark.setScriptData("data", {"bonus_win":bonus_win, "bonus_lost": bonus_lost});
 }
 
+if(data.get_number_fb_duplicate){
+    var count_found =0;
+    var playerDataList = Spark.runtimeCollection("playerData");
+    var list = playerDataList.find({app_version:15,facebook_id:{$exists:true}}).toArray();
+    for (var i = 0; i < list.length; i++) {
+        var list_2 = playerDataList.find({app_version:{$lt:15},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}}).toArray();
+        if(list_2.length > 0)
+        count_found++;
+    }
+    
+    Spark.setScriptData("data", {"found":count_found, "total ": list.length});
+}
+
+if(data.process_number_fb_duplicate){
+    var count_found =0;
+    var playerDataList = Spark.runtimeCollection("playerData");
+    var list = playerDataList.find({app_version:15,facebook_id:{$exists:true}}).toArray();
+    
+    for (var i = 0; i < list.length; i++) {
+        var currentPlayer = list[i];
+        var new_data = playerDataList.findOne({app_version:{$lt:15},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}});
+        if(new_data){
+            delete new_data._id;
+            delete new_data.app_version;
+            count_found++;
+            playerDataList.update({"playerID": currentPlayer.playerID}, {"$set": new_data}, true,false);
+            // break;
+        }
+    }
+    
+    Spark.setScriptData("data", {"updated":count_found, "total ": list.length});
+}
+
+
 function remove_room () {
 	var server = Spark.runtimeCollection("FriendRoom");
 	server.remove({"playerID":playerID});
