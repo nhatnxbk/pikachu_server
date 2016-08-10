@@ -264,9 +264,9 @@ if (data.get_bonus_trophies) {
 if(data.get_number_fb_duplicate){
     var count_found =0;
     var playerDataList = Spark.runtimeCollection("playerData");
-    var list = playerDataList.find({app_version:15,facebook_id:{$exists:true}}).toArray();
+    var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
     for (var i = 0; i < list.length; i++) {
-        var list_2 = playerDataList.find({app_version:{$lt:15},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}}).toArray();
+        var list_2 = playerDataList.find({app_version:{$lt:16},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}}).toArray();
         if(list_2.length > 0)
         count_found++;
     }
@@ -277,11 +277,11 @@ if(data.get_number_fb_duplicate){
 if(data.process_number_fb_duplicate){
     var count_found =0;
     var playerDataList = Spark.runtimeCollection("playerData");
-    var list = playerDataList.find({app_version:15,facebook_id:{$exists:true}}).toArray();
+    var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
     
     for (var i = 0; i < list.length; i++) {
         var currentPlayer = list[i];
-        var new_data = playerDataList.findOne({app_version:{$lt:15},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}});
+        var new_data = playerDataList.findOne({app_version:{$lt:16},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}});
         if(new_data){
             delete new_data._id;
             delete new_data.app_version;
