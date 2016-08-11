@@ -265,13 +265,33 @@ if(data.get_number_fb_duplicate){
     var count_found =0;
     var playerDataList = Spark.runtimeCollection("playerData");
     var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
+    var list_result = [];
     for (var i = 0; i < list.length; i++) {
-        var list_2 = playerDataList.find({app_version:{$lt:16},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}}).toArray();
-        if(list_2.length > 0)
-        count_found++;
+        var currentPlayer = list[i];
+        var new_data = playerDataList.findOne({app_version:{$lt:16},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}});
+        if(new_data){
+        	count_found++;
+        	new_data.old_data = currentPlayer;
+        	list_result.push(new_data);
+        }
     }
     
-    Spark.setScriptData("data", {"found":count_found, "total ": list.length});
+    Spark.setScriptData("data", {"found":count_found, "total ": list.length,"preview":list_result});
+}
+
+if(data.load_old_data){
+	var old_id = data.old_id;
+    var playerDataList = Spark.runtimeCollection("playerData");
+	var new_data = playerDataList.findOne({playerID:old_id});
+	var found = false;
+	if(new_data){
+		found = true;
+		delete new_data._id;
+		delete new_data.app_version;
+		delete new_data.playerID;
+		playerDataList.update({"playerID": playerID}, {"$set": new_data}, true,false);
+	}
+    Spark.setScriptData("data", {"success":found});
 }
 
 if(data.process_number_fb_duplicate){
@@ -285,6 +305,7 @@ if(data.process_number_fb_duplicate){
         if(new_data){
             delete new_data._id;
             delete new_data.app_version;
+			delete new_data.playerID;
             count_found++;
             playerDataList.update({"playerID": currentPlayer.playerID}, {"$set": new_data}, true,false);
             // break;
