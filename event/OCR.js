@@ -290,6 +290,14 @@ if(data.load_old_data){
 		delete new_data.app_version;
 		delete new_data.playerID;
 		playerDataList.update({"playerID": playerID}, {"$set": new_data}, true,false);
+		
+		var result = Spark.sendRequest({
+			"@class": ".LogEventRequest",
+			"eventKey": "TLB",
+			"trophies": new_data ? new_data.trophies : 0,
+			"COUNTRY": new_data && new_data.location && new_data.location.country ? new_data.location.country : "VN",
+			"CITY": ""
+		});
 	}
     Spark.setScriptData("data", {"success":found});
 }
