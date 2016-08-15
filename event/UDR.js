@@ -110,6 +110,7 @@ if (data.user_feedback) {
 //get feedback
 if (data.get_user_feedback) {
 	var feedback = getUserFeedback();
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
 	Spark.setScriptData("data", feedback);
 }
 
@@ -137,6 +138,7 @@ if (data.add_notice) {
 //get notice without feedback
 if (data.get_notice_without_feedback) {
 	var notice = getNotice();
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
 	Spark.setScriptData("data", notice);
 }
 
@@ -148,13 +150,17 @@ if (data.get_notice) {
 	allNotice.sort(function(a,b){
 		return a.time - b.time;
 	});
+	allNotice = allNotice.slice(0, NUM_NOTICE);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
 	Spark.setScriptData("data", allNotice);
 }
 
 function getNotice () {
-	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(10).sort({"time":-1}).toArray();
+	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var timeNow = Date.now();
+	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < notice.length; i++) {
+		notice[i].is_new = notice[i].time >= lastTimeRead ? 1 : 0;
 		notice[i].time = timeNow - notice[i].time;
 		notice[i].type = 0;
 	}
@@ -162,10 +168,12 @@ function getNotice () {
 }
 
 function getUserFeedback () {
-	var feedbacks = userFeedbackData.find({"playerID":playerID}).limit(5).sort({"time":-1}).toArray();
+	var feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var timeNow = Date.now();
+	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < feedbacks.length; i++) {
 		var feedback = feedbacks[i];
+		feedback.is_new = feedback.time >= lastTimeRead ? 1 : 0;
 		feedback.time = timeNow - feedback.time;
 		feedback.type = 1;
 	}
