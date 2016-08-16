@@ -96,6 +96,9 @@ delete currentPlayer.rto_5;
 var numNewMessage = getNumberNewMessgae();
 currentPlayer.new_message = numNewMessage;
 
+// check admin
+currentPlayer.is_admin = isAdmin();
+
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
 if (config !== undefined) {
   Spark.setScriptData("config", CONFIG); // return the player via script-data
@@ -125,4 +128,11 @@ function getNumberNewMessgae() {
     }
   }
   return numNewMessage;
+}
+
+function isAdmin() {
+  if (LIST_ADMIN.indexof(playerID) != -1) {
+    return 1;
+  }
+  return 0;
 }
