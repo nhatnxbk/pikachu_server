@@ -127,6 +127,7 @@ function getNumberNewMessgae() {
       return numNewMessage;
     }
   }
+  return numNewMessage;
 }
 
 function isAdmin() {
