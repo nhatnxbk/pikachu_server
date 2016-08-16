@@ -181,7 +181,7 @@ if (data.get_notice) {
 	var notice = getNotice();
 	var allNotice = feedback.concat(notice);
 	allNotice.sort(function(a,b){
-		return b.time - a.time;
+		return a.time - b.time;
 	});
 	allNotice = allNotice.slice(0, NUM_NOTICE);
 	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
