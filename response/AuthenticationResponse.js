@@ -115,7 +115,7 @@ function getNumberNewMessgae() {
   var feedback = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
   var allMessage = notice.concat(feedback);
   allMessage.sort(function(a,b){
-    return a.time - b.time;
+    return b.time - a.time;
   });
   var numNewMessage = 0;
   for (var i = 0; i < allMessage.length; i++) {
@@ -127,7 +127,6 @@ function getNumberNewMessgae() {
       return numNewMessage;
     }
   }
-  return numNewMessage;
 }
 
 function isAdmin() {
