@@ -166,6 +166,7 @@ if(data.online_match_end ){
 	if(data.game_type != "friend"){
 		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+		var coin_bonus = 0;
 		if(online_match_data !== null && !online_match_data.is_finish){
 			if(my_score >= op_score){
 				var isWin = my_score > op_score;
@@ -175,6 +176,7 @@ if(data.online_match_end ){
 				if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
 				if(isWin){
 					currentPlayerData.online_win = currentPlayerData.online_win ? (currentPlayerData.online_win+1) : 1;
+					coin_bonus = BONUS_COIN_WIN;
 				}else{
 					bonus = 0;
 				}
@@ -185,7 +187,7 @@ if(data.online_match_end ){
 				}
 				playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 
-				var save_data = {"winner":{"id":playerID,"score":my_score},"loser":{"id":op_id,"score":op_score},"draw":(!isWin)};
+				var save_data = {"winner":{"id":playerID,"score":my_score, "coin_bonus": coin_bonus},"loser":{"id":op_id,"score":op_score},"draw":(!isWin)};
 				Spark.getLog().debug(save_data);
 			}else{
 				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
@@ -207,9 +209,9 @@ if(data.online_match_end ){
 			"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
 			"CITY": ""
 		});
-		Spark.setScriptData("data", {"bonus" : bonus,"trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,
+		Spark.setScriptData("data", {"bonus" : bonus, "trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,
 			"online_match_start":currentPlayerData.online_match_start,"highest_trophy":currentPlayerData.highest_trophy,
-			"rank_before":online_match_data.rank_before, "rank_after": online_match_data.rank_after});
+			"rank_before":online_match_data.rank_before, "rank_after": online_match_data.rank_after, "coin_bonus": coin_bonus});
 	}else{
 		remove_room();
 	}
