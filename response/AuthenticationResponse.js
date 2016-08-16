@@ -108,7 +108,7 @@ if (itemShopData !== undefined) {
 }
 
 function getNumberNewMessgae() {
-  var lastTimeRead = currentPlayer.time_last ? currentPlayer.time_last : 0;
+  var lastTimeRead = currentPlayer.last_read ? currentPlayer.last_read : 0;
   var userFeedbackData = Spark.runtimeCollection("user_feedback");
   var userNotice = Spark.runtimeCollection("user_notice");
   var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
