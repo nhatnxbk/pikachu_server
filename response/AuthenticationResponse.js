@@ -131,7 +131,7 @@ function getNumberNewMessgae() {
 }
 
 function isAdmin() {
-  if (LIST_ADMIN.indexof(playerID) != -1) {
+  if (LIST_ADMIN.indexOf(playerID) != -1) {
     return 1;
   }
   return 0;
