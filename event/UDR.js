@@ -114,6 +114,39 @@ if (data.get_user_feedback) {
 	Spark.setScriptData("data", feedback);
 }
 
+//get all feedback
+if (data.get_all_feedback) {
+	var limit = data.limit ? data.limit : 100;
+	var feedbacks = userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}).toArray();
+	var timeNow = Date.now();
+	for (var i = 0; i < feedbacks.length; i++) {
+		feedbacks[i].time = timeNow - feedbacks[i].time;
+		feedbacks[i].type = 1;
+		feedbacks[i].is_new = 0;
+	}
+	Spark.setScriptData("data", feedbacks);
+}
+
+//reponse feedback
+if (data.response_feedback) {
+	var feedbackID   = data.id ? data.id : 0;
+	var responseData = data.response ? data.response : undefined;
+	var response;
+	if (feedbackID && responseData) {
+		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":Date.now()}}, true, false);
+		response = {
+			"result" : true,
+			"message": "Response success!"
+		}
+	} else {
+		response = {
+			"result"  : false,
+			"message" : "Response failure!"
+		}
+	}
+	Spark.setScriptData("data",response);
+}
+
 //add notice
 if (data.add_notice) {
 	var title = data.title ? data.title : "User Feedback";
