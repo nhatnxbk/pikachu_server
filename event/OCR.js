@@ -1,5 +1,6 @@
 //=========Online COntroller============//
 require("share");
+var isEvent = true;
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var data = Spark.getData().data;
@@ -9,7 +10,7 @@ if(data.get_server){
 	var response= {};
 	var version = data.version;
 	var index = 0;
-	var found = false;
+	var found = false;a
 	if(version && version > CONFIG.app_version_ios){
 		PHOTON_SERVER_LIST = PHOTON_SERVER_LIST_NEW_SERVER;
 	}
@@ -60,6 +61,11 @@ if(data.get_server){
 	}
 	if(!found){
 		response.error = "Not enough server";
+	}
+	if(isEvent){
+		var levelCollection = Spark.metaCollection("Level");
+		var levelEvent = levelCollection.findOne({level:1});
+		response.level = levelEvent;
 	}
 	response.time_change_to_bot = 20 + Math.random()*20;
 	Spark.setScriptData("data",response);
