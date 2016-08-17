@@ -202,9 +202,8 @@ function getNotice () {
 }
 
 function getUserFeedback () {
-	var isAdmin = isAdmin();
 	var feedbacks;
-	if (isAdmin) {
+	if (isAdmin()) {
 		feedbacks = userFeedbackData.find().limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();	
 	} else {
 		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();	
