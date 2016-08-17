@@ -196,6 +196,7 @@ function getNotice () {
 	for (var i = 0; i < notice.length; i++) {
 		notice[i].is_new = notice[i].time >= lastTimeRead ? 1 : 0;
 		notice[i].time = timeNow - notice[i].time;
+		notice[i].title = "Notice: " + notice[i].title;
 		notice[i].type = 0;
 	}
 	return notice;
