@@ -183,7 +183,8 @@ if (data.get_notice) {
 	allNotice.sort(function(a,b){
 		return a.time - b.time;
 	});
-	allNotice = allNotice.slice(0, NUM_NOTICE);
+	var limit = isAdmin() ? NUM_NOTICE_ADMIN : NUM_NOTICE;
+	allNotice = allNotice.slice(0, limit);
 	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
 	Spark.setScriptData("data", allNotice);
 }
@@ -201,7 +202,13 @@ function getNotice () {
 }
 
 function getUserFeedback () {
-	var feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
+	var isAdmin = isAdmin();
+	var feedbacks;
+	if (isAdmin) {
+		feedbacks = userFeedbackData.find().limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();	
+	} else {
+		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();	
+	}
 	var timeNow = Date.now();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < feedbacks.length; i++) {
@@ -220,4 +227,11 @@ function getItemName(item_id) {
 		case 2 : return "Item Energy";
 	}
 	return "";
+}
+
+function isAdmin() {
+  if (LIST_ADMIN.indexOf(playerID) != -1) {
+    return 1;
+  }
+  return 0;
 }
