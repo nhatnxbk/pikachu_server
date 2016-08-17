@@ -9,13 +9,31 @@ var userNotice = Spark.runtimeCollection("user_notice");
 var data = Spark.getData().data;
 if(!data) data = {};
 
+//update one signal player id
+if (data.one_signal_player_id) {
+	var response;
+	if (data.userId) {
+		playerDataList.update({"playerID":playerID}, {"$set":{"one_signal_player_id":data.userId}}, true, false);
+		response = {
+			"result"  : true,
+			"message" : "Update one signal player id success"
+		}
+	} else {
+		response = {
+			"result"  : false,
+			"message" : "Update one signal player id failure"
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
 //add coin
 if (data.add_player_coin) {
 	var response;
 	var playerCoin = playerData.player_coin ? playerData.player_coin : 0;
 	var coin = data.number_coin ? data.number_coin : 0;
 	playerData.player_coin = playerCoin + coin;
-	playerDataList.update({"playerID":playerID},{"$set":{"player_coin":playerData.player_coin}});
+	playerDataList.update({"playerID":playerID},{"$set":{"player_coin":playerData.player_coin}}, true, false);
 	response = {
 		"result":true,
 		"message": "You have got " + data.number + " coin!",
@@ -104,6 +122,11 @@ if (data.user_feedback) {
 		"message"  : "Your feedback was sent!",
 		"feedback" : feedback
 	}
+	var userName = playerData.userName ? playerData.userName : "UserFeedback";
+	var listAdmin = getAdmin();
+	if (!isAdmin()) {
+		var push = SendNewNotification(listAdmin, [], "User Feedback", "You received one feedback from user").getResponseJson();
+	}
 	Spark.setScriptData("data",response);
 }
 
@@ -133,6 +156,11 @@ if (data.response_feedback) {
 	var responseData = data.response ? data.response : undefined;
 	var response;
 	if (feedbackID && responseData) {
+		var feedbackPlayerID = userFeedbackData.findOne({"_id":{$oid:feedbackID}}).playerID;
+		var oneSignalPlayerID = getOneSignalPlayerID(feedbackPlayerID);
+		if (oneSignalPlayerID) {
+			var push = SendNewNotification([oneSignalPlayerID], [], "Picachu Online Response Feedback", "We are responsed your feedback, you can check in inbox of game.").getResponseJson();
+		}
 		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":Date.now()}}, true, false);
 		response = {
 			"result" : true,
@@ -149,7 +177,7 @@ if (data.response_feedback) {
 
 //add notice
 if (data.add_notice) {
-	var title = data.title ? data.title : "User Feedback";
+	var title = data.title ? data.title : "Pika Notice";
 	var content = data.content ? data.content : "No have notice!";
 	var timeNow = Date.now();
 	var playerID = data.playerID ? data.playerID : "all";
@@ -164,6 +192,15 @@ if (data.add_notice) {
 		"result"  : true,
 		"message" : "Add notice success!",
 		"notice"  : notice
+	}
+	if (playerID == "all") {
+	    //khi nao release bo comment
+        //SendNewNotification(["All"], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.").getResponseJson();
+	} else {
+		var oneSignalPlayerID = getOneSignalPlayerID(playerID);
+		if (oneSignalPlayerID) {
+			var push = SendNewNotification([oneSignalPlayerID], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.").getResponseJson();
+		}
 	}
 	Spark.setScriptData("data",response);
 }
@@ -234,4 +271,37 @@ function isAdmin() {
     return 1;
   }
   return 0;
+}
+
+function getAdmin() {
+	var listAdmin = playerDataList.find({"playerID":{"$in": LIST_ADMIN}}).toArray();
+	var adminsPush = [];
+	for (var i = 0; i < listAdmin.length; i++) {
+		if (listAdmin[i].one_signal_player_id) {
+			adminsPush.push(listAdmin[i].one_signal_player_id);
+		}
+	}
+	return adminsPush;
+}
+
+function getOneSignalPlayerID(player_id) {
+	var player = playerDataList.findOne({"playerID":player_id});
+	return player.one_signal_player_id;
+}
+
+function SendNewNotification(include_player_ids, excluded_segments, title, message) {
+  var titleObj = {"en":title};
+  var messageObj = {"en":message};
+  var jsonBody = {
+    "app_id": "53aa05a0-16d7-4e30-894f-149c80736052",
+    "include_player_ids": include_player_ids,
+    "excluded_segments": excluded_segments,
+    "headings" : {"en" : title},
+    "contents" : {"en" : message}
+  };
+   var promise = Spark.getHttp("https://onesignal.com/api/v1/notifications").setHeaders({
+    "Content-Type": "application/json;charset=utf-8",
+    "Authorization": "Basic YzU4NzA3N2YtNTZlZS00NjJlLWJkNzMtNzc5NjIwZDE0Zjlj"
+  }).postJson(jsonBody);
+  return promise;
 }
