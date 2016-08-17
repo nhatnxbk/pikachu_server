@@ -3,13 +3,13 @@ require("share");
 //
 // Cloud Code for AuthenticationResponse, write your code here to customise the GameSparks platform.
 //
-// For details of the GameSparks Cloud Code API see https://portal.gamesparks.net/docs.htm			
+// For details of the GameSparks Cloud Code API see https://portal.gamesparks.net/docs.htm      
 //
 // ====================================================================================================
 var playerID = Spark.getPlayer().getPlayerId();
 var playerData = Spark.runtimeCollection("playerData"); // get the collection data
 var currentPlayer = playerData.findOne({
-	"playerID": playerID
+  "playerID": playerID
 }); // search the collection data for the entry with the same id as the player
 if (currentPlayer === null){
     currentPlayer = {};
@@ -42,8 +42,8 @@ if(!currentPlayer.userName && currentPlayer.facebook_name){
     currentPlayer.userName = currentPlayer.facebook_name;
     var result = Spark.sendRequest(
     {
-    	"@class" : ".ChangeUserDetailsRequest",
-    	"displayName" : currentPlayer.facebook_name
+      "@class" : ".ChangeUserDetailsRequest",
+      "displayName" : currentPlayer.facebook_name
     });
 }
 var timeDelta = timeNow - time_fb_invite;
@@ -92,12 +92,13 @@ delete currentPlayer.rto_3;
 delete currentPlayer.rto_4;
 delete currentPlayer.rto_5;
 
-// get new message
-var numNewMessage = getNumberNewMessgae();
-currentPlayer.new_message = numNewMessage;
-
 // check admin
+var is_admin = isAdmin();
 currentPlayer.is_admin = isAdmin();
+
+// get new message
+var numNewMessage = getNumberNewMessgae(is_admin);
+currentPlayer.new_message = numNewMessage;
 
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
 if (config !== undefined) {
@@ -107,19 +108,25 @@ if (itemShopData !== undefined) {
   Spark.setScriptData("item_shop_data", itemShopData); // return the player via script-data
 }
 
-function getNumberNewMessgae() {
+function getNumberNewMessgae(isAdmin) {
   var lastTimeRead = currentPlayer.last_read ? currentPlayer.last_read : 0;
   var userFeedbackData = Spark.runtimeCollection("user_feedback");
   var userNotice = Spark.runtimeCollection("user_notice");
   var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
-  var feedback = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
-  var allMessage = notice.concat(feedback);
+  var feedbacks;
+  var limit = isAdmin ? NUM_NOTICE_ADMIN : NUM_NOTICE;
+  if (isAdmin) {
+    feedbacks = userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}).toArray();
+  } else {
+    feedbacks = userFeedbackData.find({"playerID":playerID}).limit(limit).sort({"time":-1}).toArray();  
+  }
+  var allMessage = notice.concat(feedbacks);
   allMessage.sort(function(a,b){
     return b.time - a.time;
   });
   var numNewMessage = 0;
   for (var i = 0; i < allMessage.length; i++) {
-    if (i < NUM_NOTICE) {
+    if (i < limit) {
       if (allMessage[i].time >= lastTimeRead) {
         numNewMessage++;
       }

@@ -205,9 +205,9 @@ function getNotice () {
 function getUserFeedback () {
 	var feedbacks;
 	if (isAdmin()) {
-		feedbacks = userFeedbackData.find().limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();	
+		feedbacks = userFeedbackData.find().limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();
 	} else {
-		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();	
+		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	}
 	var timeNow = Date.now();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
