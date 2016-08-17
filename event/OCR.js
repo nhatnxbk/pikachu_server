@@ -10,9 +10,13 @@ if(data.get_server){
 	var response= {};
 	var version = data.version;
 	var index = 0;
-	var found = false;a
+	var found = false;
+	var isDebug = data.debug;
 	if(version && version > CONFIG.app_version_ios){
 		PHOTON_SERVER_LIST = PHOTON_SERVER_LIST_NEW_SERVER;
+	}
+	if(isDebug){
+		PHOTON_SERVER_LIST = PHOTON_SERVER_LIST_DEBUG;
 	}
 	while(index < PHOTON_SERVER_LIST.length && !found){
 		var server = Spark.runtimeCollection("PhotonServer");
