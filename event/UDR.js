@@ -1,4 +1,5 @@
 require("share");
+require("event_service");
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var playerData = playerDataList.findOne({"playerID":playerID});
@@ -226,6 +227,96 @@ if (data.get_notice) {
 	Spark.setScriptData("data", allNotice);
 }
 
+//==============event request================//
+
+// get trophies
+if (data.event_get_leaderboard) {
+	var event = getCurrentEvent();
+	var response;
+	if (event) {
+		var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
+		if (groupMember) {
+			var members = groupMember.members;
+			members.sort(function(a, b) {
+				return b.trophies - a.trophies;
+			});
+			response = {
+				"result" : true,
+				"data"   : members
+			}
+		} else {
+			response = {
+				"result": false,
+				"message" : "Group members not found."
+			}
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Don't have event was going."
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+//update trophies
+if (data.event_update_trophies) {
+	var event = getCurrentEvent();
+	var trophies = data.trophies;
+	var response;
+	if (event) {
+		if (trophies) {
+			updateTrophies(event.event_id, playerID, trophies);
+			response = {
+				"result" : true
+			}
+		} else {
+			response = {
+				"result": false,
+				"message" : "Trophies not found."
+			}
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Don't have event was going."
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+//test
+if (data.test) {
+
+}
+
+//=========================admin tool=========================//
+
+// fake event trophies
+if(data.event_fake_trophies) {
+	var event = getCurrentEvent();
+	var response;
+	if (event) {
+		var groupMembers = eventGroupMember.find({"event_id":event.event_id}).toArray();
+		groupMembers.forEach(function(groupMember) {
+			var members = groupMember.members;
+			members.forEach(function(member) {
+				member.trophies = parseInt(Math.random()*500);
+			});
+			eventGroupMember.update({"$and":[{"event_id":event.event_id},{"group_id":groupMember.group_id}]},{"$set":groupMember}, true, false);
+		});
+		response = {
+			"result" : true
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Don't have event was going."
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
 function getNotice () {
 	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var timeNow = Date.now();
@@ -305,3 +396,4 @@ function SendNewNotification(include_player_ids, excluded_segments, title, messa
   }).postJson(jsonBody);
   return promise;
 }
+

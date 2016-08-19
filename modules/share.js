@@ -33,6 +33,7 @@ var NUM_NOTICE = server_config.NUM_NOTICE;
 var NUM_NOTICE_ADMIN = server_config.NUM_NOTICE_ADMIN;
 var LIST_ADMIN = server_config.LIST_ADMIN;
 var BONUS_COIN_WIN = server_config.BONUS_COIN_WIN;
+var NUMBER_MEMBER_PER_GROUP = server_config.NUMBER_MEMBER_PER_GROUP;
 var rt_1_e=server_config.rt_1_e;
 var rt_2_e=server_config.rt_2_e;
 var rt_3_e=server_config.rt_3_e;
