@@ -243,6 +243,7 @@ if (data.event_get_leaderboard) {
 			});
 			if (rewards && rewards.length > 0) {
 				for (var i = 0; i < members.length; i++) {
+					members[i].rank = (i+1);
 					if (i < rewards.length) {
 						members[i].rewards = rewards[i];
 					}
