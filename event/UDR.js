@@ -237,9 +237,17 @@ if (data.event_get_leaderboard) {
 		var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
 		if (groupMember) {
 			var members = groupMember.members;
+			var rewards = getEventReward(event.event_id);
 			members.sort(function(a, b) {
 				return b.trophies - a.trophies;
 			});
+			if (rewards && rewards.length > 0) {
+				for (var i = 0; i < members.length; i++) {
+					if (i < rewards.length) {
+						members[i].rewards = rewards[i];
+					}
+				}
+			}
 			response = {
 				"result" : true,
 				"data"   : members

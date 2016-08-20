@@ -23,6 +23,11 @@ function getCurrentEvent() {
     return event;
 }
 
+function getEventReward(event_id) {
+	var rewards = eventMaster.findOne({"event_id":event_id}).rewards;
+	return rewards;
+}
+
 function getGroupMember(event_id, group_id) {
 	var group = eventGroupMember.findOne({"$and":[{"event_id":event_id},{"group_id":group_id}]});
 	return group;
@@ -34,5 +39,9 @@ function getGroupMemberByPlayerID(event_id, playerID) {
 }
 
 function updateTrophies(event_id, playerID, trophies) {
-	eventGroupMember.update({"$and":{{"event_id":event_id},{"members.playerID":playerID}}},{"$set":{"members.$.trophies":trophies}}, true, false);
+	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":playerID}]},{"$set":{"members.$.trophies":trophies}}, true, false);
+}
+
+function getTrophies(event_id, playerID) {
+
 }
