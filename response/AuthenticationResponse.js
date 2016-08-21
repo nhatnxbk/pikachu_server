@@ -1,4 +1,5 @@
 require("share");
+require("event_service");
 // ====================================================================================================
 //
 // Cloud Code for AuthenticationResponse, write your code here to customise the GameSparks platform.
@@ -99,6 +100,35 @@ currentPlayer.is_admin = isAdmin();
 // get new message
 var numNewMessage = getNumberNewMessgae(is_admin);
 currentPlayer.new_message = numNewMessage;
+
+//get event
+var event = getCurrentEvent();
+if (event) {
+  var event_data = {
+    "time" : event.time_end - timeNow
+  }
+  var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
+  if (groupMember) { // nam trong 1 group nao day roi
+    var members = groupMember.members;
+    var rewards = event.rewards;
+    members.sort(function(a, b) {
+      return b.trophies - a.trophies;
+    });
+    if (rewards && rewards.length > 0) {
+      for (var i = 0; i < members.length; i++) {
+        if (members[i].playerID == playerID) {
+          event.trophies = members[i].trophies;
+          if (i < rewards.length) {
+            event_data.rewards = rewards[i];
+          }
+          break;
+        }
+      }
+    }
+  }
+  if (event_data.trophies == undefined) event_data.trophies = 0;
+  currentPlayer.event_data = event_data;
+}
 
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
 if (config !== undefined) {
