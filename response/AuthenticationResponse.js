@@ -105,7 +105,8 @@ currentPlayer.new_message = numNewMessage;
 var event = getCurrentEvent();
 if (event) {
   var event_data = {
-    "time" : event.time_end - timeNow
+    "time" : event.time_end - timeNow,
+    "trophies" : 0
   }
   var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
   if (groupMember) { // nam trong 1 group nao day roi
@@ -117,7 +118,7 @@ if (event) {
     if (rewards && rewards.length > 0) {
       for (var i = 0; i < members.length; i++) {
         if (members[i].playerID == playerID) {
-          event.trophies = members[i].trophies;
+          event_data.trophies = members[i].trophies;
           if (i < rewards.length) {
             event_data.rewards = rewards[i];
           }
@@ -126,7 +127,6 @@ if (event) {
       }
     }
   }
-  if (event_data.trophies == undefined) event_data.trophies = 0;
   currentPlayer.event_data = event_data;
 }
 
