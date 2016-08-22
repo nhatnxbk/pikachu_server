@@ -17,9 +17,15 @@ function getEventJustEnded() {
     return event;
 }
 
-function getCurrentEvent() {
+function getCurrentEventStart() {
     var now = Date.now();
     var event = eventMaster.findOne({"$and":[{"time_start":{"$lte": now}}, {"time_end":{"$gt":now}}]});
+    return event;
+}
+
+function getCurrentEvent() {
+	var now = Date.now();
+    var event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_distribute":{"$gt":now}}]});
     return event;
 }
 
@@ -38,10 +44,19 @@ function getGroupMemberByPlayerID(event_id, playerID) {
 	return group;
 }
 
-function updateTrophies(event_id, playerID, trophies) {
+function updateEventTrophies(event_id, playerID, trophies) {
 	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":playerID}]},{"$set":{"members.$.trophies":trophies}}, true, false);
 }
 
-function getTrophies(event_id, playerID) {
-
+function getMember(event_id, playerID) {
+	var groupMember = getGroupMemberByPlayerID(event_id, playerID);
+	if (groupMember) {
+		var members = groupMember.members;
+		members.forEach(function(member){
+			if(member.playerID == playerID) {
+				return member;
+			}
+		});
+	}
+	return null;
 }

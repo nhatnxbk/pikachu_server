@@ -105,8 +105,20 @@ currentPlayer.new_message = numNewMessage;
 var event = getCurrentEvent();
 if (event) {
   var event_data = {
-    "time" : event.time_end - timeNow,
     "trophies" : 0
+  }
+  if (event.time_prepare <= timeNow && timeNow < event.time_start) {
+    event_data.status = 1;
+    event_data.time = event.time_start - timeNow;
+    event_data.event_name = "Tournament";
+  } else if (event.time_start <= timeNow && timeNow < event.time_end) {
+    event_data.status = 2;
+    event_data.time = event.time_end - timeNow;
+    event_data.event_name = "Tournament";
+  } else if (event.time_end <= timeNow) {
+    event_data.status = 3;
+    event_data.time = event.time_distribute - timeNow;
+    event_data.event_name = "Result";
   }
   var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
   if (groupMember) { // nam trong 1 group nao day roi
