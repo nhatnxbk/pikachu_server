@@ -23,7 +23,7 @@ if(data.get_server){
 		var server = Spark.runtimeCollection("PhotonServer");
 		var numberUser = server.count({"server_id": index});
 		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+		var online_match_data = onlineMatchList.findOne({"playerID":playerID});
 		var list_ignore = online_match_data?online_match_data.list_ignore:[];
 		var isGameEvent = data.is_event ? data.is_event : 0;
 
@@ -76,6 +76,7 @@ if(data.get_server){
 									list_ignore.unshift(player.playerID);
 								}
 							});
+							onlineMatchList.update({"playerID": playerID},{"$set":{"list_ignore":list_ignore}},true,false);
 						}
 					}
 				}
