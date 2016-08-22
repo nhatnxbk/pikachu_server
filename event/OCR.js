@@ -25,7 +25,7 @@ if(data.get_server){
 		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
 		var online_match_data = onlineMatchList.findOne({"playerID":playerID});
 		var list_ignore = online_match_data?online_match_data.list_ignore:[];
-		var isGameEvent = data.is_event ? data.is_event : 0;
+		var isGameEvent = data.is_event ? data.is_event : false;
 
 		if(numberUser  < 20) {
 			response.server = PHOTON_SERVER_LIST[index];
@@ -112,7 +112,7 @@ if(data.online_match_start  && data.game_type == "friend"){
 }
 
 if(data.online_match_start  && data.game_type != "friend"){
-	var isGameEvent = data.is_event ? data.is_event : 0;
+	var isGameEvent = data.is_event ? data.is_event : false;
 	var event = getCurrentEventStart();
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 	var currentPlayer = Spark.getPlayer();
@@ -130,8 +130,8 @@ if(data.online_match_start  && data.game_type != "friend"){
 	if(!opponentPlayerData.event_trophies) opponentPlayerData.event_trophies = 0;
 	var op_total_match_on = (opponentPlayer.getPrivateData("total_match_on")?opponentPlayer.getPrivateData("total_match_on"):0) + 1;
 
-	var myTrophies = event && isGameEvent == 1 ? currentPlayerData.event_trophies : currentPlayerData.trophies;
-	var opponentTrophies = event && isGameEvent == 1 ? opponentPlayerData.event_trophies : opponentPlayerData.trophies;
+	var myTrophies = event && isGameEvent? currentPlayerData.event_trophies : currentPlayerData.trophies;
+	var opponentTrophies = event && isGameEvent? opponentPlayerData.event_trophies : opponentPlayerData.trophies;
 	
 	var timeNow = Date.now();
 	var response = {
@@ -178,7 +178,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	var bonus_trophies = get_bonus_trophies_lost(myTrophies,opponentTrophies);
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
 	myTrophies = myTrophies > bonus_trophies ? myTrophies - bonus_trophies : 0;
-	if (event && isGameEvent == 1) {
+	if (event && isGameEvent) {
 		currentPlayerData.event_trophies = myTrophies;
 		updateEventTrophies(event.event_id, playerID, myTrophies);
 	} else {
@@ -207,7 +207,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 if(data.online_match_end){
 	var event = getCurrentEventStart();
-	var isGameEvent = data.is_event ? data.is_event : 0;
+	var isGameEvent = data.is_event ? data.is_event : false;
 	var my_score = data.my_score;
 	var op_score = data.opponent_score;
 	var op_id = data.opponent_id;
@@ -233,7 +233,7 @@ if(data.online_match_end){
 				}else{
 					bonus = 0;
 				}
-				if (event && isGameEvent == 1) {
+				if (event && isGameEvent) {
 					currentPlayerData.event_trophies = (online_match_data.my_trophy + bonus);
 				} else {
 					currentPlayerData.trophies = (online_match_data.my_trophy + bonus);
@@ -260,7 +260,7 @@ if(data.online_match_end){
 			bonus = 0;
 		}
 
-		if (event && isGameEvent == 1) {
+		if (event && isGameEvent) {
 			updateEventTrophies(event.event_id, playerID, currentPlayerData.event_trophies);	
 		} else {
 			var result = Spark.sendRequest({
@@ -274,7 +274,7 @@ if(data.online_match_end){
 
 		Spark.setScriptData("data", {
 			"bonus" : bonus,
-			"trophies": (event && isGameEvent == 1) ? currentPlayerData.event_trophies : currentPlayerData.trophies,
+			"trophies": (event && isGameEvent) ? currentPlayerData.event_trophies : currentPlayerData.trophies,
 			"online_win":currentPlayerData.online_win,
 			"online_match_start":currentPlayerData.online_match_start,
 			"highest_trophy":currentPlayerData.highest_trophy,
