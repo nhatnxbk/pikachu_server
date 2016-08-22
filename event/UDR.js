@@ -270,7 +270,7 @@ if (data.event_get_leaderboard) {
 
 //update trophies
 if (data.event_update_trophies) {
-	var event = getCurrentEvent();
+	var event = getCurrentEventStart();
 	var trophies = data.trophies;
 	var response;
 	if (event) {
@@ -311,6 +311,30 @@ if(data.event_fake_trophies) {
 			var members = groupMember.members;
 			members.forEach(function(member) {
 				member.trophies = parseInt(Math.random()*500);
+			});
+			eventGroupMember.update({"$and":[{"event_id":event.event_id},{"group_id":groupMember.group_id}]},{"$set":groupMember}, true, false);
+		});
+		response = {
+			"result" : true
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Don't have event was going."
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+if (data.event_reset_trophies) {
+	var event = getCurrentEvent();
+	var response;
+	if (event) {
+		var groupMembers = eventGroupMember.find({"event_id":event.event_id}).toArray();
+		groupMembers.forEach(function(groupMember) {
+			var members = groupMember.members;
+			members.forEach(function(member) {
+				member.trophies = 0;
 			});
 			eventGroupMember.update({"$and":[{"event_id":event.event_id},{"group_id":groupMember.group_id}]},{"$set":groupMember}, true, false);
 		});

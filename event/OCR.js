@@ -1,5 +1,6 @@
 //=========Online COntroller============//
 require("share");
+require("event_service");
 var isEvent = true;
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
@@ -21,13 +22,18 @@ if(data.get_server){
 	while(index < PHOTON_SERVER_LIST.length && !found){
 		var server = Spark.runtimeCollection("PhotonServer");
 		var numberUser = server.count({"server_id": index});
+		var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
+		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
+		var list_ignore = online_match_data?online_match_data.list_ignore:[];
+		var isGameEvent = data.is_event ? data.is_event : 0;
+
 		if(numberUser  < 20) {
 			response.server = PHOTON_SERVER_LIST[index];
 			response.numberUser = numberUser;
 			response.server_id = index;
 
 			var timeNow = Date.now();
-			server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index},true,false);
+			server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index, "is_event":isGameEvent},true,false);
 			var theScheduler = Spark.getScheduler();
 			theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});
 
@@ -52,10 +58,29 @@ if(data.get_server){
 				response.timeout = TIME_EXPIRE_ROOM;
 			}
 			if(data.game_type == "random"){
-				var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
-				var online_match_data =onlineMatchList.findOne({"playerID":playerID});
-				if(online_match_data && online_match_data.list_ignore){
-					response.list_ignore = online_match_data.list_ignore;
+				if (isGameEvent) {
+					var concurrentPlayersNotEvent = server.find({"is_event":{"$ne":1}}).toArray();
+					var event = getCurrentEventStart();
+					if (event) {
+						var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
+						if (groupMember) {
+							var members = groupMember.members;
+							concurrentPlayersNotEvent.forEach(function(player) {
+								var index = members.indexOf(function(member){
+									return member.playerID == player.playerID;
+								});
+								if (index != -1) {
+									if(list_ignore.length == NUMBER_IGNORE_PLAYER){
+										list_ignore.pop();
+									}
+									list_ignore.unshift(player.playerID);
+								}
+							});
+						}
+					}
+				}
+				if(list_ignore){
+					response.list_ignore = list_ignore;
 					if(DEBUG) response.list_ignore = [];
 				}
 			}
@@ -86,29 +111,39 @@ if(data.online_match_start  && data.game_type == "friend"){
 }
 
 if(data.online_match_start  && data.game_type != "friend"){
+	var isGameEvent = data.is_event ? data.is_event : 0;
+	var event = getCurrentEventStart();
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 	var currentPlayer = Spark.getPlayer();
 	if(!currentPlayer) currentPlayer = {};
-	if(!currentPlayerData) currentPlayerData = {"trophies":0};
+	if(!currentPlayerData) currentPlayerData = {"trophies":0, "event_trophies":0};
 	if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
+	if(!currentPlayerData.event_trophies) currentPlayerData.event_trophies = 0;
 	var my_total_match_on = (currentPlayer.getPrivateData("total_match_on")?currentPlayer.getPrivateData("total_match_on"):0) + 1;
 
 	var opponentPlayerData = playerDataList.findOne({"playerID": data.opponent_id});
 	var opponentPlayer = Spark.loadPlayer(data.opponent_id);
 	if(!opponentPlayer) opponentPlayer = {};
-	if(!opponentPlayerData) opponentPlayerData = {"trophies":0};
-	if(!opponentPlayerData.trophies) opponentPlayerData.trophies = 0;	
+	if(!opponentPlayerData) opponentPlayerData = {"trophies":0,"event_trophies":0};
+	if(!opponentPlayerData.trophies) opponentPlayerData.trophies = 0;
+	if(!opponentPlayerData.event_trophies) opponentPlayerData.event_trophies = 0;
 	var op_total_match_on = (opponentPlayer.getPrivateData("total_match_on")?opponentPlayer.getPrivateData("total_match_on"):0) + 1;
+
+	var myTrophies = event && isGameEvent == 1 ? currentPlayerData.event_trophies : currentPlayerData.trophies;
+	var opponentTrophies = event && isGameEvent == 1 ? opponentPlayerData.event_trophies : opponentPlayerData.trophies;
 	
 	var timeNow = Date.now();
 	var response = {
-		"playerID": playerID,"opponent_id":data.opponent_id,
+		"playerID": playerID,
+		"opponent_id":data.opponent_id,
 		"time": timeNow,
 		"time_expire": TIME_EXPIRE_MATCH,
 		"my_total_match_on": my_total_match_on,
 		"opponent_total_match_on": op_total_match_on,
-		"my_trophy": currentPlayerData.trophies,"opponent_trophy": opponentPlayerData.trophies,
-		"bot_enable": data.bot_enable
+		"my_trophy": myTrophies,
+		"opponent_trophy": opponentTrophies,
+		"bot_enable": data.bot_enable,
+		"is_event": isGameEvent
 	};
 	Spark.getLog().debug(response);
 	var onlineMatchList = Spark.runtimeCollection("OnlineMatch");
@@ -139,18 +174,23 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
-	var bonus_trophies = get_bonus_trophies_lost(currentPlayerData.trophies,opponentPlayerData.trophies);
+	var bonus_trophies = get_bonus_trophies_lost(myTrophies,opponentTrophies);
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
-	currentPlayerData.trophies = currentPlayerData.trophies > bonus_trophies ? (currentPlayerData.trophies - bonus_trophies) : 0;
+	myTrophies = myTrophies > bonus_trophies ? myTrophies - bonus_trophies : 0;
+	if (event && isGameEvent == 1) {
+		currentPlayerData.event_trophies = myTrophies;
+		updateEventTrophies(event.event_id, playerID, myTrophies);
+	} else {
+		currentPlayerData.trophies = myTrophies;
+		var result = Spark.sendRequest({
+			"@class": ".LogEventRequest",
+			"eventKey": "TLB",
+			"trophies": myTrophies,
+			"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
+			"CITY": ""
+		});
+	}
 	currentPlayerData.online_match_start = currentPlayerData.online_match_start ? (currentPlayerData.online_match_start+1) : 1;
-
-	var result = Spark.sendRequest({
-		"@class": ".LogEventRequest",
-		"eventKey": "TLB",
-		"trophies": currentPlayerData ? currentPlayerData.trophies : 0,
-		"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
-		"CITY": ""
-	});
 
 	if(!data.bot_enable){
 		opponentPlayer.setPrivateData("total_match_on",op_total_match_on);
@@ -158,13 +198,15 @@ if(data.online_match_start  && data.game_type != "friend"){
 		currentPlayerData.online_bot_start = currentPlayerData.online_bot_start ? (currentPlayerData.online_bot_start+1) : 1;
 	}
 
-	response.trophies = currentPlayerData.trophies;
+	response.trophies = myTrophies;
 
 	playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 	Spark.setScriptData("data", response);
 }
 
-if(data.online_match_end ){
+if(data.online_match_end){
+	var event = getCurrentEventStart();
+	var isGameEvent = data.is_event ? data.is_event : 0;
 	var my_score = data.my_score;
 	var op_score = data.opponent_score;
 	var op_id = data.opponent_id;
@@ -190,11 +232,16 @@ if(data.online_match_end ){
 				}else{
 					bonus = 0;
 				}
-				currentPlayerData.trophies = (online_match_data.my_trophy + bonus);
-				if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
-				if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
-					currentPlayerData.highest_trophy = currentPlayerData.trophies;
+				if (event && isGameEvent == 1) {
+					currentPlayerData.event_trophies = (online_match_data.my_trophy + bonus);
+				} else {
+					currentPlayerData.trophies = (online_match_data.my_trophy + bonus);
+					if(!currentPlayerData.highest_trophy) currentPlayerData.highest_trophy = currentPlayerData.trophies;
+					if(currentPlayerData.trophies > currentPlayerData.highest_trophy){
+						currentPlayerData.highest_trophy = currentPlayerData.trophies;
+					}
 				}
+
 				playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
 
 				var save_data = {"winner":{"id":playerID,"score":my_score, "coin_bonus": coin_bonus},"loser":{"id":op_id,"score":op_score},"draw":(!isWin)};
@@ -212,16 +259,27 @@ if(data.online_match_end ){
 			bonus = 0;
 		}
 
-		var result = Spark.sendRequest({
-			"@class": ".LogEventRequest",
-			"eventKey": "TLB",
-			"trophies": currentPlayerData ? currentPlayerData.trophies : 0,
-			"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
-			"CITY": ""
-		});
-		Spark.setScriptData("data", {"bonus" : bonus, "trophies": currentPlayerData.trophies,"online_win":currentPlayerData.online_win,
-			"online_match_start":currentPlayerData.online_match_start,"highest_trophy":currentPlayerData.highest_trophy,
-			"rank_before":online_match_data.rank_before, "rank_after": online_match_data.rank_after, "coin_bonus": coin_bonus});
+		if (event && isGameEvent == 1) {
+			updateEventTrophies(event.event_id, playerID, currentPlayerData.event_trophies);	
+		} else {
+			var result = Spark.sendRequest({
+				"@class": ".LogEventRequest",
+				"eventKey": "TLB",
+				"trophies": currentPlayerData ? currentPlayerData.trophies : 0,
+				"COUNTRY": currentPlayerData && currentPlayerData.location && currentPlayerData.location.country ? currentPlayerData.location.country : "VN",
+				"CITY": ""
+			});
+		}
+
+		Spark.setScriptData("data", {
+			"bonus" : bonus,
+			"trophies": (event && isGameEvent == 1) ? currentPlayerData.event_trophies : currentPlayerData.trophies,
+			"online_win":currentPlayerData.online_win,
+			"online_match_start":currentPlayerData.online_match_start,
+			"highest_trophy":currentPlayerData.highest_trophy,
+			"rank_before":online_match_data.rank_before,
+			"rank_after": online_match_data.rank_after,
+			"coin_bonus": coin_bonus});
 	}else{
 		remove_room();
 	}
