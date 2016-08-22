@@ -42,6 +42,25 @@ if (enable) {
 
     // distribute reward for user after event ended
     if (eventJustEnded && !eventJustEnded.is_distribute_reward) {
-
+        var groupMembers = getAllGroupMember(eventJustEnded.event_id);
+        var rewards = eventJustEnded.rewards;
+        if (rewards && rewards.length > 0) {
+            groupMembers.forEach(function(groupMember){
+                var members = groupMember.members;
+                members.sort(function(a, b) {
+                  return b.trophies - a.trophies;
+                });
+                for (var i = 0; i < members.length; i++) {
+                    if (i < rewards.length && members[i].trophies > 0) {
+                       var reward = rewards[i];
+                       reward.is_received = false;
+                       playerDataCollection.update({"playerID":members[i].playerID},{"$set":{"event_rewards":reward}}, true, false);
+                    } else {
+                        break;
+                    }
+                }
+            });
+        }
+        eventMaster.update({"event_id":eventJustEnded.event_id},{"$set":{"is_distribute_reward":1}},true, false);
     }
 }

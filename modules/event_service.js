@@ -34,6 +34,11 @@ function getEventReward(event_id) {
 	return rewards;
 }
 
+function getAllGroupMember(event_id) {
+	var group = eventGroupMember.find({"event_id":event_id}).toArray();
+	return group;
+}
+
 function getGroupMember(event_id, group_id) {
 	var group = eventGroupMember.findOne({"$and":[{"event_id":event_id},{"group_id":group_id}]});
 	return group;

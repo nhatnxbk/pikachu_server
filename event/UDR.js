@@ -294,9 +294,35 @@ if (data.event_update_trophies) {
 	Spark.setScriptData("data", response);
 }
 
-//test
-if (data.test) {
-
+// get event rewards
+if (data.event_get_reward) {
+	var event_rewards = playerData.event_rewards;
+	var response;
+	if (!event_rewards.is_received) {
+		var currentTrophies = playerData.trophies;
+		if (event_rewards.reward_trophies) {
+			currentTrophies = currentTrophies + event_rewards.reward_trophies;
+			var result = Spark.sendRequest({
+				"@class": ".LogEventRequest",
+				"eventKey": "TLB",
+				"trophies": currentTrophies,
+				"COUNTRY": playerData && playerData.location && playerData.location.country ? playerData.location.country : "VN",
+				"CITY": ""
+			});
+		}
+		event_rewards.is_received = true;
+		playerDataList.update({"playerID":playerID},{"$set":{"trophies":currentTrophies, "event_rewards":event_rewards}}, false, true);
+		response = {
+			"result"  : true,
+			"message" : "Get rewards success"
+		}
+	} else {
+		response = {
+			"result"  : false,
+			"message" : "You received rewards already"
+		}
+	}
+	Spark.setScriptData("data",response);
 }
 
 //=========================admin tool=========================//
