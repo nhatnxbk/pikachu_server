@@ -12,6 +12,8 @@ var playerData = Spark.runtimeCollection("playerData"); // get the collection da
 var currentPlayer = playerData.findOne({
   "playerID": playerID
 }); // search the collection data for the entry with the same id as the player
+var timeNow = getTimeNow();
+var event = getCurrentEvent();
 if (currentPlayer === null){
     currentPlayer = {};
 }
@@ -20,20 +22,16 @@ if(!("trophies" in currentPlayer)){
   currentPlayer.online_win = 0;
   currentPlayer.online_match_start = 0;
   currentPlayer.highest_trophy = currentPlayer.trophies;
-//   var result = Spark.sendRequest({
-//     "@class": ".LogEventRequest",
-//     "eventKey": "TLB",
-//     "trophies": currentPlayer ? currentPlayer.trophies : 0,
-//     "COUNTRY": currentPlayer && currentPlayer.location && currentPlayer.location.country ? currentPlayer.location.country : "VN",
-//     "CITY": ""
-// });
+  //new user join event
+  if (event) {
+    joinEvent();
+  }
 }
 
 if (!currentPlayer.player_coin) {
     currentPlayer.player_coin = DEFAULT_COIN;
 }
 //======== Caculate time can request and receive energy or not=========//
-var timeNow = Date.now();
 Spark.getLog().debug("Now : " + timeNow);
 var time_fb_invite = 0;
 if( "time_fb_invite" in currentPlayer){
@@ -102,7 +100,6 @@ var numNewMessage = getNumberNewMessgae(is_admin);
 currentPlayer.new_message = numNewMessage;
 
 //get event
-var event = getCurrentEvent();
 if (event) {
   var event_data = {
     "trophies" : 0
@@ -184,4 +181,26 @@ function isAdmin() {
     return 1;
   }
   return 0;
+}
+
+function joinEvent() {
+  var member = {
+    "playerID": playerID,
+    "userName": currentPlayer.userName ? currentPlayer.userName : playerID,
+    "trophies": 0
+  }
+  if (event.is_match_group) {
+    var lastGroup = eventGroupMember.find({"event_id":event.event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
+    if (lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
+      lastGroup.members.push(member);
+      eventGroupMember.update({"event_id":event.event_id, "group_id":lastGroup.group_id},{"$set":lastGroup}, true, false);
+    } else {
+      var newGroupMember = {
+        "event_id" : event.event_id,
+        "group_id" : lastGroup.group_id + 1,
+        "members"  : [ member ]
+      }
+      eventGroupMember.insert(newGroupMember);
+    }
+  }
 }

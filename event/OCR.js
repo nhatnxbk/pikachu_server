@@ -32,7 +32,7 @@ if(data.get_server){
 			response.numberUser = numberUser;
 			response.server_id = index;
 
-			var timeNow = Date.now();
+			var timeNow = getTimeNow();
 			server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index, "is_event":isGameEvent},true,false);
 			var theScheduler = Spark.getScheduler();
 			theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});
@@ -41,7 +41,7 @@ if(data.get_server){
 				var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 				if(!currentPlayerData) currentPlayerData = {"trophies":0};
 				var friendRoomDB = Spark.runtimeCollection("FriendRoom");
-				var timeNow = Date.now();
+				var timeNow = getTimeNow();
 				var updateData = {
 					"playerID": playerID,
 					"facebook_id":currentPlayerData.facebook_id?currentPlayerData.facebook_id:"",
@@ -133,7 +133,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	var myTrophies = event && isGameEvent? currentPlayerData.event_trophies : currentPlayerData.trophies;
 	var opponentTrophies = event && isGameEvent? opponentPlayerData.event_trophies : opponentPlayerData.trophies;
 	
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	var response = {
 		"playerID": playerID,
 		"opponent_id":data.opponent_id,
@@ -297,7 +297,7 @@ if(data.online_match_cancel){
 if(data.get_friend_room_list){
 	var friendRoomDB = Spark.runtimeCollection("FriendRoom");
 	var response = friendRoomDB.find({"playerID":{"$ne":playerID},"server_id":{"$ne":null}}).toArray();
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	var list = [];
 	for (var i = 0; i < response.length; i++) {
 		response[i].timeout = TIME_EXPIRE_ROOM - parseInt((timeNow - response[i].timeCreate) /1000);
@@ -314,7 +314,7 @@ if(data.join_room){
 	if(server.find({"room_id":room_id})){
 		var response = true;
 		server.remove({"room_id":room_id});
-		var timeNow = Date.now();
+		var timeNow = getTimeNow();
 		server.update({"playerID": playerID},{"playerID": playerID,"timeCreate": timeNow,"server_id":index},true,false);
 		var theScheduler = Spark.getScheduler();
 		theScheduler.inSeconds("remove_online_player", TIME_EXPIRE_MATCH, {"playerID" : playerID});

@@ -6,25 +6,25 @@ var playerDataSys = Spark.systemCollection("player");
 var playerDataCollection = Spark.runtimeCollection("playerData");
 
 function getEventComing() {
-	var now = Date.now();
+	var now = getTimeNow();
 	var event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte":now}},{"time_start":{"$gt":now}}]});
     return event;
 }
 
 function getEventJustEnded() {
-	var now = Date.now();
+	var now = getTimeNow();
 	var event = eventMaster.findOne({"$and":[{"time_end":{"$lte":now}},{"time_distribute":{"$gt":now}}]});
     return event;
 }
 
 function getCurrentEventStart() {
-    var now = Date.now();
+    var now = getTimeNow();
     var event = eventMaster.findOne({"$and":[{"time_start":{"$lte": now}}, {"time_end":{"$gt":now}}]});
     return event;
 }
 
 function getCurrentEvent() {
-	var now = Date.now();
+	var now = getTimeNow();
     var event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_distribute":{"$gt":now}}]});
     return event;
 }
@@ -51,6 +51,10 @@ function getGroupMemberByPlayerID(event_id, playerID) {
 
 function updateEventTrophies(event_id, playerID, trophies) {
 	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":playerID}]},{"$set":{"members.$.trophies":trophies}}, true, false);
+}
+
+function updateEventMemberName(event_id, playerID, userName) {
+	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":playerID}]},{"$set":{"members.$.userName":userName}}, true, false);
 }
 
 function getMember(event_id, playerID) {

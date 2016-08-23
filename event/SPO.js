@@ -8,7 +8,7 @@ var currentPlayer = playerDataList.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
 }); // search the collection data for the entry with the same id as the player
 
-var timeNow = Date.now();
+var timeNow = getTimeNow();
 Spark.getLog().debug("Now : " + timeNow);
 var time_fb_invite = 0;
 if("time_fb_invite" in currentPlayer){
@@ -22,7 +22,7 @@ if(timeDelta < TIME_FB_INVITE){
 }
 
 if("time_fb_invite" in player_data && currentPlayer.can_fb_invite){
-    player_data.time_fb_invite = Date.now();
+    player_data.time_fb_invite = getTimeNow();
     currentPlayer.can_fb_invite = false;
         
     playerDataList.update({

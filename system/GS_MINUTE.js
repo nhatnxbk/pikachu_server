@@ -4,7 +4,7 @@ require("event_service");
 var enable = false;
 
 if (enable) {
-    // test_real_time.insert({"time":Date.now()});
+    // test_real_time.insert({"time":getTimeNow()});
     var eventComing = getEventComing();
     var eventJustEnded = getEventJustEnded();
 

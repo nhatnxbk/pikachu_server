@@ -34,6 +34,7 @@ var NUM_NOTICE_ADMIN = server_config.NUM_NOTICE_ADMIN;
 var LIST_ADMIN = server_config.LIST_ADMIN;
 var BONUS_COIN_WIN = server_config.BONUS_COIN_WIN;
 var NUMBER_MEMBER_PER_GROUP = server_config.NUMBER_MEMBER_PER_GROUP;
+var OFFSET_TIME = server_config.DEBUG_OFFSET_TIME;
 var rt_1_e=server_config.rt_1_e;
 var rt_2_e=server_config.rt_2_e;
 var rt_3_e=server_config.rt_3_e;
@@ -64,3 +65,12 @@ var rto_2_h=server_config.rto_2_h;
 var rto_3_h=server_config.rto_3_h;
 var rto_4_h=server_config.rto_4_h;
 var rto_5_h=server_config.rto_5_h;
+
+function getTimeNow() {
+	return Date.now() + OFFSET_TIME;
+}
+
+function setTimeNow(time_now) {
+	var offset = time_now - Date.now();
+	packData.update({"server":1},{"$set":{"DEBUG_OFFSET_TIME":offset}}, true, false);
+}

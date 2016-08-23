@@ -87,7 +87,7 @@ if (data.buy_pack_item) {
 if (data.log_purchaser) {
 	var pack_id = data.pack_id;
 	if (pack_id !== undefined) {
-		var reg_date = Date.now();
+		var reg_date = getTimeNow();
 		var log = {
 			"playerID" : playerID,
 			"pack_id"  : pack_id,
@@ -110,7 +110,7 @@ if (data.get_config) {
 if (data.user_feedback) {
 	var title = data.title ? data.title : "User Feedback";
 	var content = data.content ? data.content : "No feedback from user!";
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	var feedback = {
 		"playerID": playerID,
 		"title"   : title,
@@ -134,7 +134,7 @@ if (data.user_feedback) {
 //get feedback
 if (data.get_user_feedback) {
 	var feedback = getUserFeedback();
-	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":getTimeNow()}}, true, false);
 	Spark.setScriptData("data", feedback);
 }
 
@@ -142,7 +142,7 @@ if (data.get_user_feedback) {
 if (data.get_all_feedback) {
 	var limit = data.limit ? data.limit : 100;
 	var feedbacks = userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}).toArray();
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	for (var i = 0; i < feedbacks.length; i++) {
 		feedbacks[i].time = timeNow - feedbacks[i].time;
 		feedbacks[i].type = 1;
@@ -162,7 +162,7 @@ if (data.response_feedback) {
 		if (oneSignalPlayerID) {
 			var push = SendNewNotification([oneSignalPlayerID], [], "Picachu Online Response Feedback", "We are responsed your feedback, you can check in inbox of game.").getResponseJson();
 		}
-		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":Date.now()}}, true, false);
+		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":getTimeNow()}}, true, false);
 		response = {
 			"result" : true,
 			"message": "Response success!"
@@ -180,7 +180,7 @@ if (data.response_feedback) {
 if (data.add_notice) {
 	var title = data.title ? data.title : "Pika Notice";
 	var content = data.content ? data.content : "No have notice!";
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	var playerID = data.playerID ? data.playerID : "all";
 	var notice = {
 		"playerID": playerID,
@@ -209,7 +209,7 @@ if (data.add_notice) {
 //get notice without feedback
 if (data.get_notice_without_feedback) {
 	var notice = getNotice();
-	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":getTimeNow()}}, true, false);
 	Spark.setScriptData("data", notice);
 }
 
@@ -223,7 +223,7 @@ if (data.get_notice) {
 	});
 	var limit = isAdmin() ? NUM_NOTICE_ADMIN : NUM_NOTICE;
 	allNotice = allNotice.slice(0, limit);
-	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":Date.now()}}, true, false);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":getTimeNow()}}, true, false);
 	Spark.setScriptData("data", allNotice);
 }
 
@@ -376,9 +376,30 @@ if (data.event_reset_trophies) {
 	Spark.setScriptData("data", response);
 }
 
+//change time server
+if (data.debug_change_time) {
+	var time = data.time;
+	var response;
+	if (time) {
+		setTimeNow(time);
+		response = {
+			"result": true,
+			"message" : "Change time sucess"
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Change time failure"
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+//=====================FUNCTION=====================//
+
 function getNotice () {
 	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < notice.length; i++) {
 		notice[i].is_new = notice[i].time >= lastTimeRead ? 1 : 0;
@@ -396,7 +417,7 @@ function getUserFeedback () {
 	} else {
 		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	}
-	var timeNow = Date.now();
+	var timeNow = getTimeNow();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < feedbacks.length; i++) {
 		var feedback = feedbacks[i];
