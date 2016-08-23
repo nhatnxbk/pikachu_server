@@ -49,6 +49,17 @@ function getGroupMemberByPlayerID(event_id, playerID) {
 	return group;
 }
 
+function getGroupMemberSortByTrophies(event_id, playerID) {
+	var groupMember = getGroupMemberByPlayerID(event_id, playerID);
+	if (groupMember) {
+		var members = groupMember.members;
+		members.sort(function(a,b){
+			return b.trophies - a.trophies;
+		});
+	}
+	return groupMember;
+}
+
 function updateEventTrophies(event_id, playerID, trophies) {
 	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":playerID}]},{"$set":{"members.$.trophies":trophies}}, true, false);
 }
@@ -68,4 +79,17 @@ function getMember(event_id, playerID) {
 		});
 	}
 	return null;
+}
+
+function getPlayerRank(event_id, playerID) {
+	var groupMember = getGroupMemberSortByTrophies(event_id, playerID);
+	if (groupMember) {
+		var members = groupMember.members;
+		for (var i = 0; i < members.length; i++) {
+			if (members[i].playerID == playerID) {
+				return (i + 1);
+			}
+		}
+	}
+	return -1;
 }

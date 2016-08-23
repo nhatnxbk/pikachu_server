@@ -117,13 +117,10 @@ if (event) {
     event_data.time = event.time_distribute - timeNow;
     event_data.event_name = "Result";
   }
-  var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
+  var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
   if (groupMember) { // nam trong 1 group nao day roi
     var members = groupMember.members;
     var rewards = event.rewards;
-    members.sort(function(a, b) {
-      return b.trophies - a.trophies;
-    });
     if (rewards && rewards.length > 0) {
       for (var i = 0; i < members.length; i++) {
         if (members[i].playerID == playerID) {
