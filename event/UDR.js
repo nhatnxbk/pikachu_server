@@ -378,21 +378,22 @@ if (data.event_reset_trophies) {
 
 //change time server
 if (data.debug_change_time) {
-	var time = data.time;
+	var time = data.time ? data.time : Date.now();
 	var response;
-	if (time) {
-		setTimeNow(time);
-		response = {
-			"result": true,
-			"message" : "Change time sucess"
-		}
-	} else {
-		response = {
-			"result": false,
-			"message" : "Change time failure"
-		}
+	setTimeNow(time);
+	response = {
+		"result": true,
+		"message" : "Change time sucess"
 	}
 	Spark.setScriptData("data", response);
+}
+
+if (data.debug_get_time) {
+    var response = {
+        "timeNow" : Date.now(),
+        "timeSys" : getTimeNow()
+    }
+    Spark.setScriptData(data, response);
 }
 
 //=====================FUNCTION=====================//
