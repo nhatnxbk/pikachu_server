@@ -352,6 +352,7 @@ if(data.event_fake_trophies) {
 	Spark.setScriptData("data", response);
 }
 
+// event reset tropheis
 if (data.event_reset_trophies) {
 	var event = getCurrentEvent();
 	var response;
@@ -376,6 +377,26 @@ if (data.event_reset_trophies) {
 	Spark.setScriptData("data", response);
 }
 
+// reset event
+if (data.reset_event) {
+	var event_id = data.event_id;
+	var response;
+	if (event_id) {
+		eventMaster.update({"event_id":event_id},{"$set":{"is_match_group":0,"is_distribute_reward":0}}, true, false);
+		eventGroupMember.remove({"event_id":event_id},0);
+		response = {
+			"result": true,
+			"message" : "Reset event success"
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Don't have event"
+		}
+	}
+	Spark.setScriptData("data",response);
+}
+
 //change time server
 if (data.debug_change_time) {
 	var time = data.time ? data.time : Date.now();
@@ -383,7 +404,7 @@ if (data.debug_change_time) {
 	setTimeNow(time);
 	response = {
 		"result": true,
-		"message" : "Change time sucess"
+		"message" : "Change time success"
 	}
 	Spark.setScriptData("data", response);
 }
