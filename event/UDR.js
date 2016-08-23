@@ -126,7 +126,7 @@ if (data.user_feedback) {
 	var userName = playerData.userName ? playerData.userName : "UserFeedback";
 	var listAdmin = getAdmin();
 	if (!isAdmin()) {
-		var push = SendNewNotification(listAdmin, [], "User Feedback", "You received one feedback from user").getResponseJson();
+		var push = SendNewNotification(listAdmin, [], [], "User Feedback", "You received one feedback from user").getResponseJson();
 	}
 	Spark.setScriptData("data",response);
 }
@@ -160,7 +160,7 @@ if (data.response_feedback) {
 		var feedbackPlayerID = userFeedbackData.findOne({"_id":{$oid:feedbackID}}).playerID;
 		var oneSignalPlayerID = getOneSignalPlayerID(feedbackPlayerID);
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], "Picachu Online Response Feedback", "We are responsed your feedback, you can check in inbox of game.").getResponseJson();
+			var push = SendNewNotification([oneSignalPlayerID], [], [], "Picachu Online Response Feedback", "We are responsed your feedback, you can check in inbox of game.").getResponseJson();
 		}
 		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":getTimeNow()}}, true, false);
 		response = {
@@ -196,11 +196,11 @@ if (data.add_notice) {
 	}
 	if (playerID == "all") {
 	    //khi nao release bo comment
-        //SendNewNotification(["All"], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.").getResponseJson();
+        //SendNewNotification([], ["All"], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.").getResponseJson();
 	} else {
 		var oneSignalPlayerID = getOneSignalPlayerID(playerID);
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.").getResponseJson();
+			var push = SendNewNotification([oneSignalPlayerID], [], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.").getResponseJson();
 		}
 	}
 	Spark.setScriptData("data",response);
@@ -482,7 +482,7 @@ function getOneSignalPlayerID(player_id) {
 	return player.one_signal_player_id;
 }
 
-function SendNewNotification(include_player_ids, excluded_segments, title, message) {
+function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message) {
   var titleObj = {"en":title};
   var messageObj = {"en":message};
   var jsonBody = {
@@ -492,6 +492,9 @@ function SendNewNotification(include_player_ids, excluded_segments, title, messa
     "headings" : {"en" : title},
     "contents" : {"en" : message}
   };
+  if (included_segments.length > 0) {
+  	jsonBody.included_segments = included_segments;
+  }
    var promise = Spark.getHttp("https://onesignal.com/api/v1/notifications").setHeaders({
     "Content-Type": "application/json;charset=utf-8",
     "Authorization": "Basic YzU4NzA3N2YtNTZlZS00NjJlLWJkNzMtNzc5NjIwZDE0Zjlj"
