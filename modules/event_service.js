@@ -13,7 +13,7 @@ function getEventComing() {
 
 function getEventJustEnded() {
 	var now = getTimeNow();
-	var event = eventMaster.findOne({"$and":[{"time_end":{"$lte":now}},{"time_distribute":{"$gt":now}}]});
+	var event = eventMaster.findOne({"$and":[{"time_end":{"$lte":now}},{"time_close":{"$gt":now}}]});
     return event;
 }
 
@@ -25,7 +25,7 @@ function getCurrentEventStart() {
 
 function getCurrentEvent() {
 	var now = getTimeNow();
-    var event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_distribute":{"$gt":now}}]});
+    var event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_close":{"$gt":now}}]});
     return event;
 }
 

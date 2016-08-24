@@ -114,7 +114,7 @@ if (event) {
     event_data.event_name = "Tournament";
   } else if (event.time_end <= timeNow) {
     event_data.status = 3;
-    event_data.time = event.time_distribute - timeNow;
+    event_data.time = event.time_close - timeNow;
     event_data.event_name = "Result";
   }
   var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);

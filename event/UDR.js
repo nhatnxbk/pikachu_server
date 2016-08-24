@@ -272,7 +272,7 @@ if (data.event_update_trophies) {
 	var response;
 	if (event) {
 		if (trophies) {
-			updateTrophies(event.event_id, playerID, trophies);
+			updateEventTrophies(event.event_id, playerID, trophies);
 			response = {
 				"result" : true
 			}
@@ -413,7 +413,27 @@ if (data.debug_get_time) {
         "timeNow" : Date.now(),
         "timeSys" : getTimeNow()
     }
-    Spark.setScriptData(data, response);
+    Spark.setScriptData("data", response);
+}
+
+// debug distribute reward
+if (data.debug_distribute_reward) {
+	var event_id = data.event_id;
+	var event = eventMaster.findOne({"event_id":event_id});
+	var response;
+	if (event) {
+		setTimeNow(event.time_end);
+		eventMaster.update({"event_id":event_id},{"$set":{"is_distribute_reward":0}}, true, false);
+		response = {
+			"result": true,
+			"message" : "Distribute success"
+		}	
+	} else {
+		response = {
+			"result": false,
+			"message" : "Event not found"
+		}
+	}
 }
 
 //=====================FUNCTION=====================//

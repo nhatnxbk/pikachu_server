@@ -1,7 +1,7 @@
 //-------------run every minute------------//
 require("share");
 require("event_service");
-var enable = false;
+var enable = true;
 
 if (enable) {
     // test_real_time.insert({"time":getTimeNow()});
