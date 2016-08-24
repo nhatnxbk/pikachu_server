@@ -307,11 +307,13 @@ if (data.event_get_reward) {
 				"CITY": ""
 			});
 		}
-		event_rewards.is_received = true;
+		event_rewards.is_received = 1;
 		playerDataList.update({"playerID":playerID},{"$set":{"trophies":currentTrophies, "event_rewards":event_rewards}}, false, true);
+		event_rewards.trophies = currentTrophies;
 		response = {
 			"result"  : true,
-			"message" : "Get rewards success"
+			"message" : "Get rewards success",
+			"event_rewards" : event_rewards
 		}
 	} else {
 		response = {

@@ -53,7 +53,7 @@ if (enable) {
                 for (var i = 0; i < members.length; i++) {
                     if (i < rewards.length && members[i].trophies > 0) {
                        var reward = rewards[i];
-                       reward.is_received = false;
+                       reward.is_received = 0;
                        playerDataCollection.update({"playerID":members[i].playerID},{"$set":{"event_rewards":reward}}, true, false);
                     } else {
                         break;
