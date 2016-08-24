@@ -269,10 +269,11 @@ if (data.event_get_leaderboard) {
 if (data.event_update_trophies) {
 	var event = getCurrentEventStart();
 	var trophies = data.trophies;
+	var pID = data.player_id ? data.player_id : playerID;
 	var response;
 	if (event) {
 		if (trophies) {
-			updateEventTrophies(event.event_id, playerID, trophies);
+			updateEventTrophies(event.event_id, pID, trophies);
 			response = {
 				"result" : true
 			}
