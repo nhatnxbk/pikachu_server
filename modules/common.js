@@ -1,4 +1,5 @@
 //======== function common ========//
+var playerID = Spark.getPlayer().getPlayerId();
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerData = playerDataList.findOne({"playerID":playerID});
 

@@ -2,7 +2,6 @@ require("share");
 require("event_service");
 require("common");
 
-var playerID = Spark.getPlayer().getPlayerId();
 var itemPackMaster = Spark.metaCollection("pack_item_master");
 var logPurchaserData = Spark.runtimeCollection("user_purchaser_log");
 var userFeedbackData = Spark.runtimeCollection("user_feedback");
