@@ -1,6 +1,7 @@
 //-------------run every minute------------//
 require("share");
 require("event_service");
+require("common");
 var enable = true;
 
 if (enable) {
@@ -14,6 +15,7 @@ if (enable) {
         var numberPlayer = playerMasterArr.length;
     	var numberGroup = Math.ceil(numberPlayer / NUMBER_MEMBER_PER_GROUP);
     	var groupMemeber = [];
+        var listPlayerPN = [];
     	for (var i = 0; i < numberGroup; i++) {
     		var group = {
     			"group_id" : i + 1,
@@ -26,6 +28,9 @@ if (enable) {
                 var playerID = playerMasterArr[j]._id.$oid;
                 var playerCus = playerDataCollection.findOne({"playerID":playerID});
                 var playerName = playerCus && playerCus.userName ? playerCus.userName : playerID;
+                if (playerCus.one_signal_player_id) {
+                    listPlayerPN.push(playerCus.one_signal_player_id);
+                }
                 var member = {
                     "playerID" : playerID,
                     "userName" : playerName,
@@ -38,10 +43,15 @@ if (enable) {
     	}
         eventGroupMember.insert(groupMemeber);
         eventMaster.update({"event_id":eventComing.event_id},{"$set":{"is_match_group":1}},true, false);
+        var title = "Picachu Tournament";
+        var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
+        var message = "Event will start after " + time " hour";
+        SendNewNotification(listPlayerPN, [], [], title, message);
     }
 
     // distribute reward for user after event ended
     if (eventJustEnded && !eventJustEnded.is_distribute_reward) {
+        var listPlayerPN = [];
         var groupMembers = getAllGroupMember(eventJustEnded.event_id);
         var rewards = eventJustEnded.rewards;
         if (rewards && rewards.length > 0) {
@@ -54,6 +64,10 @@ if (enable) {
                     if (i < rewards.length && members[i].trophies > 0) {
                        var reward = rewards[i];
                        reward.is_received = 0;
+                       var playerCus = playerDataCollection.findOne({"playerID":members[i].playerID});
+                       if (playerCus.one_signal_player_id) {
+                            listPlayerPN.push(playerCus.one_signal_player_id);
+                       }
                        playerDataCollection.update({"playerID":members[i].playerID},{"$set":{"event_rewards":reward}}, true, false);
                     } else {
                         break;
@@ -62,5 +76,8 @@ if (enable) {
             });
         }
         eventMaster.update({"event_id":eventJustEnded.event_id},{"$set":{"is_distribute_reward":1}},true, false);
+        var title = "Picachu Tournament End";
+        var message = "You got some reward from Tournament, you can receive now";
+        SendNewNotification(listPlayerPN, [], [], title, message);
     }
 }
