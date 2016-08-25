@@ -435,6 +435,7 @@ if (data.debug_distribute_reward) {
 			"message" : "Event not found"
 		}
 	}
+	Spark.setScriptData("data", response);
 }
 
 //=====================FUNCTION=====================//
