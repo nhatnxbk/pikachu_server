@@ -241,7 +241,7 @@ if (data.event_get_leaderboard) {
 			var myRankInfo;
 			if (rewards && rewards.length > 0) {
 				for (var i = 0; i < members.length; i++) {
-					var member = memebers[i];
+					var member = members[i];
 					member.rank = (i+1);
 					if (i < rewards.length) {
 						member.rewards = rewards[i];
@@ -267,7 +267,7 @@ if (data.event_get_leaderboard) {
 						}
 						member.last_rank = member.rank;
 						member.last_trophies = member.trophies;
-						updateMemberData(member);
+						updateMemberData(event.event_id, member);
 					}
 				}
 			}
