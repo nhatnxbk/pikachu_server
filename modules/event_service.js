@@ -60,6 +60,11 @@ function getGroupMemberSortByTrophies(event_id, playerID) {
 	return groupMember;
 }
 
+function updateMemberData(event_id, member) {
+	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":member.playerID}]},
+		{"$set":{"members.$.trophies":member.trophies,"members.$.last_rank":member.last_rank,"members.$.last_trophies":member.last_trophies}}, true, false);
+}
+
 function updateEventTrophies(event_id, playerID, trophies) {
 	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":playerID}]},{"$set":{"members.$.trophies":trophies}}, true, false);
 }

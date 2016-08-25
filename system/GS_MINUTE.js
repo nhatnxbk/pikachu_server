@@ -34,7 +34,9 @@ if (enable) {
                 var member = {
                     "playerID" : playerID,
                     "userName" : playerName,
-                    "trophies" : 0
+                    "trophies" : 0,
+                    "last_rank" : members.length,
+                    "last_trophies" : 0
                 };
                 members.push(member);
     		}

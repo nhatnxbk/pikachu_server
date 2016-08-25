@@ -232,22 +232,52 @@ if (data.get_notice) {
 if (data.event_get_leaderboard) {
 	var event = getCurrentEvent();
 	var response;
+	var rankInfo;
 	if (event) {
 		var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
 		if (groupMember) {
 			var members = groupMember.members;
 			var rewards = getEventReward(event.event_id);
+			var myRankInfo;
 			if (rewards && rewards.length > 0) {
 				for (var i = 0; i < members.length; i++) {
-					members[i].rank = (i+1);
+					var member = memebers[i];
+					member.rank = (i+1);
 					if (i < rewards.length) {
-						members[i].rewards = rewards[i];
+						member.rewards = rewards[i];
+					}
+					if (member.playerID == playerID) {
+						if (member.last_rank && member.last_rank > member.rank) {
+							myRankInfo = {
+								"last_rank" : {
+									"rank" : member.last_rank,
+									"trophies" : member.last_trophies
+								},
+								"current_rank" : {
+									"rank" : member.rank,
+									"trophies" : member.trophies
+								} 
+							};	
+							if (member.last_rank < rewards.length) {
+								myRankInfo.last_rank.rewards = rewards[member.last_rank - 1];
+							}
+							if (member.rank < rewards.length) {
+								myRankInfo.current_rank.rewards = rewards[member.rank - 1];
+							}
+						}
+						member.last_rank = member.rank;
+						member.last_trophies = member.trophies;
+						updateMemberData(member);
 					}
 				}
 			}
+
 			response = {
 				"result" : true,
-				"data"   : members
+				"data"   : members,
+			}
+			if (myRankInfo) {
+				response.rank_up_data = myRankInfo;
 			}
 		} else {
 			response = {
