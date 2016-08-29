@@ -124,10 +124,9 @@ if (data.user_feedback) {
 	}
 	var userName = playerData.userName ? playerData.userName : "UserFeedback";
 	var listAdmin = getAdmin();
-	var titleObj = {"en": title};
-	var messageObj = {"en" : "You received one feedback from user"};
+	var message = "You received one feedback from user";
 	if (!isAdmin()) {
-		var push = SendNewNotification(listAdmin, [], [], titleObj, messageObj, null).getResponseJson();
+		var push = SendNewNotification(listAdmin, [], [], title, message, null).getResponseJson();
 	}
 	Spark.setScriptData("data",response);
 }
@@ -161,7 +160,7 @@ if (data.response_feedback) {
 		var feedbackPlayerID = userFeedbackData.findOne({"_id":{$oid:feedbackID}}).playerID;
 		var oneSignalPlayerID = getOneSignalPlayerID(feedbackPlayerID);
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], [], {"en":"Picachu Online Response Feedback"}, {"en":"We are responsed your feedback, you can check in inbox of game."}, null).getResponseJson();
+			var push = SendNewNotification([oneSignalPlayerID], [], [], "Picachu Online Response Feedback", "We are responsed your feedback, you can check in inbox of game.", null).getResponseJson();
 		}
 		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":getTimeNow()}}, true, false);
 		response = {
@@ -197,11 +196,11 @@ if (data.add_notice) {
 	}
 	if (playerID == "all") {
 	    //khi nao release bo comment
-        //SendNewNotification([], ["All"], [], {"en":"Picachu Online Notice"}, {"en":"You have received a message, you can check in inbox of game."}, null).getResponseJson();
+        //SendNewNotification([], ["All"], [], "Picachu Online Notice", You have received a message, you can check in inbox of game.", null).getResponseJson();
 	} else {
 		var oneSignalPlayerID = getOneSignalPlayerID(playerID);
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], [], {"en":"Picachu Online Notice"}, {"en":"You have received a message, you can check in inbox of game."}, null).getResponseJson();
+			var push = SendNewNotification([oneSignalPlayerID], [], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.", null).getResponseJson();
 		}
 	}
 	Spark.setScriptData("data",response);

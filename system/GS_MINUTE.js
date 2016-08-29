@@ -50,10 +50,10 @@ if (enable) {
     	}
         eventGroupMember.insert(groupMemeber);
         eventMaster.update({"event_id":eventComing.event_id},{"$set":{"is_match_group":1}},true, false);
-        var titlePN = {"en":"Picachu Tournament"};
+        var titlePN = "Picachu Tournament";
         var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
-        var messagePN_OTHER = {"en" : "Event will start after " + time + " hour"};
-        var messagePN_VN = {"vi" : "Giải đấu sẽ diễn ra sau " + time + " giờ nữa"};
+        var messagePN_OTHER = "Event will start after " + time + " hour";
+        var messagePN_VN = "Giải đấu sẽ diễn ra sau " + time + " giờ nữa";
         SendNewNotification(listPlayerPN_OTHER, [], [], titlePN, messagePN_OTHER, null);
         SendNewNotification(listPlayerPN_VN, [], [], titlePN, messagePN_VN, null);
     }
@@ -90,10 +90,10 @@ if (enable) {
             });
         }
         eventMaster.update({"event_id":eventJustEnded.event_id},{"$set":{"is_distribute_reward":1}},true, false);
-        var titlePN_OTHER = {"en" : "Picachu Tournament End"};
-        var titlePN_VN = {"vi" : "Giải đấu kết thúc"};
-        var messagePN_OTHER = {"en" : "You got some reward from Tournament, you can receive now"};
-        var messagePN_VN = {"vi" : "Bạn đã nhận được một số phần thưởng của giải đấu. Kiểm tra ngay nhé!"};
+        var titlePN_OTHER = "Picachu Tournament End";
+        var titlePN_VN = "Giải đấu kết thúc";
+        var messagePN_OTHER = "You got some reward from Tournament, you can receive now";
+        var messagePN_VN = "Bạn đã nhận được một số phần thưởng của giải đấu. Kiểm tra ngay nhé!";
         SendNewNotification(listPlayerPN_OTHER, [], [], titlePN_OTHER, messagePN_OTHER, null);
         SendNewNotification(listPlayerPN_VN, [], [], titlePN_VN, messagePN_VN, null);
     }
