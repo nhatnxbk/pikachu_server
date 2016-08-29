@@ -48,7 +48,7 @@ if (enable) {
         var titlePN = "Picachu Tournament";
         var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
         var messagePN = "Event will start after " + time + " hour";
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN);
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
     }
 
     // distribute reward for user after event ended
@@ -80,6 +80,6 @@ if (enable) {
         eventMaster.update({"event_id":eventJustEnded.event_id},{"$set":{"is_distribute_reward":1}},true, false);
         var titlePN = "Picachu Tournament End";
         var messagePN = "You got some reward from Tournament, you can receive now";
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN);
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
     }
 }

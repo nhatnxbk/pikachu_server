@@ -8,7 +8,7 @@ function getOneSignalPlayerID(player_id) {
 	return player.one_signal_player_id;
 }
 
-function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message) {
+function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, data) {
   var titleObj = {"en":title};
   var messageObj = {"en":message};
   var jsonBody = {
@@ -20,6 +20,9 @@ function SendNewNotification(include_player_ids, included_segments, excluded_seg
   };
   if (included_segments.length > 0) {
   	jsonBody.included_segments = included_segments;
+  }
+  if (data) {
+    jsonBody.data = data;
   }
    var promise = Spark.getHttp("https://onesignal.com/api/v1/notifications").setHeaders({
     "Content-Type": "application/json;charset=utf-8",
