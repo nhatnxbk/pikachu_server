@@ -17,8 +17,8 @@ if (data.push_notification) {
     }
     var included_segments = include_player_ids.length > 0 ? [] : ["All"];
     var excluded_segments = [];
-    var message = data.message ? data.message : "Hey, can you back to play with us?";
-    var title = data.title ? data.title : "Picachu Online";
+    var message = {"en" : data.message ? data.message : "Hey, can you back to play with us?"};
+    var title = {"en" : data.title ? data.title : "Picachu Online"};
     var response = SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, additionData).getResponseJson();
     Spark.setScriptData("response", response);
 }

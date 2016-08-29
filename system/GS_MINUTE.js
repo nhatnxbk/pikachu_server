@@ -15,7 +15,8 @@ if (enable) {
         var numberPlayer = playerMasterArr.length;
     	var numberGroup = Math.ceil(numberPlayer / NUMBER_MEMBER_PER_GROUP);
     	var groupMemeber = [];
-        var listPlayerPN = [];
+        var listPlayerPN_VN = [];
+        var listPlayerPN_OTHER = [];
     	for (var i = 0; i < numberGroup; i++) {
     		var group = {
     			"group_id" : i + 1,
@@ -29,7 +30,11 @@ if (enable) {
                 var playerCus = playerDataCollection.findOne({"playerID":playerID});
                 var playerName = playerCus && playerCus.userName ? playerCus.userName : playerID;
                 if (playerCus.one_signal_player_id) {
-                    listPlayerPN.push(playerCus.one_signal_player_id);
+                    if (playerCus.location && playerCus.location.country == "VN") {
+                        listPlayerPN_VN.push(playerCus.one_signal_player_id);    
+                    } else {
+                        listPlayerPN_OTHER.push(playerCus.one_signal_player_id);
+                    }
                 }
                 var member = {
                     "playerID" : playerID,
@@ -45,15 +50,18 @@ if (enable) {
     	}
         eventGroupMember.insert(groupMemeber);
         eventMaster.update({"event_id":eventComing.event_id},{"$set":{"is_match_group":1}},true, false);
-        var titlePN = "Picachu Tournament";
+        var titlePN = {"en":"Picachu Tournament"};
         var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
-        var messagePN = "Event will start after " + time + " hour";
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
+        var messagePN_OTHER = {"en" : "Event will start after " + time + " hour"};
+        var messagePN_VN = {"vi" : "Giải đấu sẽ diễn ra sau " + time + " giờ nữa"};
+        SendNewNotification(listPlayerPN_OTHER, [], [], titlePN, messagePN_OTHER, null);
+        SendNewNotification(listPlayerPN_VN, [], [], titlePN, messagePN_VN, null);
     }
 
     // distribute reward for user after event ended
     if (eventJustEnded && !eventJustEnded.is_distribute_reward) {
-        var listPlayerPN = [];
+        var listPlayerPN_VN = [];
+        var listPlayerPN_OTHER = [];
         var groupMembers = getAllGroupMember(eventJustEnded.event_id);
         var rewards = eventJustEnded.rewards;
         if (rewards && rewards.length > 0) {
@@ -68,7 +76,11 @@ if (enable) {
                        reward.is_received = 0;
                        var playerCus = playerDataCollection.findOne({"playerID":members[i].playerID});
                        if (playerCus.one_signal_player_id) {
-                            listPlayerPN.push(playerCus.one_signal_player_id);
+                            if (playerCus.location && playerCus.location.country == "VN") {
+                                listPlayerPN_VN.push(playerCus.one_signal_player_id);    
+                            } else {
+                                listPlayerPN_OTHER.push(playerCus.one_signal_player_id);
+                            }
                        }
                        playerDataCollection.update({"playerID":members[i].playerID},{"$set":{"event_rewards":reward}}, true, false);
                     } else {
@@ -78,8 +90,11 @@ if (enable) {
             });
         }
         eventMaster.update({"event_id":eventJustEnded.event_id},{"$set":{"is_distribute_reward":1}},true, false);
-        var titlePN = "Picachu Tournament End";
-        var messagePN = "You got some reward from Tournament, you can receive now";
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
+        var titlePN_OTHER = {"en" : "Picachu Tournament End"};
+        var titlePN_VN = {"vi" : "Giải đấu kết thúc"};
+        var messagePN_OTHER = {"en" : "You got some reward from Tournament, you can receive now"};
+        var messagePN_VN = {"vi" : "Bạn đã nhận được một số phần thưởng của giải đấu. Kiểm tra ngay nhé!"};
+        SendNewNotification(listPlayerPN_OTHER, [], [], titlePN_OTHER, messagePN_OTHER, null);
+        SendNewNotification(listPlayerPN_VN, [], [], titlePN_VN, messagePN_VN, null);
     }
 }
