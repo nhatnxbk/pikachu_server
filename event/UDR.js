@@ -467,6 +467,62 @@ if (data.debug_distribute_reward) {
 	}
 	Spark.setScriptData("data", response);
 }
+//debug update trophies
+if (data.debug_update_trophies) {
+	var event = getCurrentEvent();
+	var trophies = data.trophies;
+	var pID = data.player_id ? data.player_id : playerID;
+	var response;
+	if (event) {
+		if (trophies) {
+			updateEventTrophies(event.event_id, pID, trophies);
+			response = {
+				"result" : true
+			}
+		} else {
+			response = {
+				"result": false,
+				"message" : "Trophies not found."
+			}
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Don't have event was going."
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+//debug change time to event
+if (data.debug_change_time_event) {
+	var event_id = data.event_id;
+	var event = eventMaster.findOne({"event_id":event_id});
+	var response;
+	if (event) {
+		var time;
+		if (data.time_prepare) {
+			time = event.time_prepare;
+		} else if (data.time_start) {
+			time = event.time_start;
+		} else if (data.time_end) {
+			time = event.time_end;
+		} else {
+			time = getTimeNow();
+		}
+		setTimeNow(time);
+		response = {
+			"result": true,
+			"message" : "Change time success"
+		}
+	} else {
+		response = {
+			"result": false,
+			"message" : "Event not found"
+		}
+	}
+	Spark.setScriptData("data", response);
+}
 
 //=====================FUNCTION=====================//
 
