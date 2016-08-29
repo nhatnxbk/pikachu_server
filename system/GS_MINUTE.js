@@ -75,7 +75,7 @@ if (enable) {
                        var reward = rewards[i];
                        reward.is_received = 0;
                        var playerCus = playerDataCollection.findOne({"playerID":members[i].playerID});
-                       if (playerCus.one_signal_player_id) {
+                       if (playerCus && playerCus.one_signal_player_id) {
                             if (playerCus.location && playerCus.location.country == "VN") {
                                 listPlayerPN_VN.push(playerCus.one_signal_player_id);    
                             } else {
