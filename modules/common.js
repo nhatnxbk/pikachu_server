@@ -9,8 +9,6 @@ function getOneSignalPlayerID(player_id) {
 }
 
 function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, data) {
-  var titleObj = {"en":title};
-  var messageObj = {"en":message};
   var jsonBody = {
     "app_id": "53aa05a0-16d7-4e30-894f-149c80736052",
     "include_player_ids": include_player_ids,

@@ -1,4 +1,5 @@
 require("share");
+require("common");
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var data = Spark.getData().data;
