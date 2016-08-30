@@ -93,9 +93,10 @@ if(data.get_server){
 		response.error = "Not enough server";
 	}
 	if(isEvent){
-		var levelCollection = Spark.metaCollection("Level");
-		var levelEvent = levelCollection.findOne({level:1});
-		response.level = levelEvent;
+		// var levelCollection = Spark.metaCollection("Level");
+		// var levelEvent = levelCollection.findOne({level:1});
+		// response.level = levelEvent;
+		response.background = "http://topanhdep.net/wp-content/uploads/2015/12/anh-girl-xinh-gai-dep-98-7.jpg";
 	}
 	response.time_change_to_bot = 20 + Math.random()*20;
 	Spark.setScriptData("data",response);

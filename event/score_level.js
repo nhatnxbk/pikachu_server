@@ -19,6 +19,7 @@ delete player_data.online_bot_start;
 delete player_data.trophies;
 delete player_data.location;
 delete player_data.event_data;
+delete player_data.event_rewards;
 delete player_data.new_message;
 delete player_data.is_admin;
 
