@@ -36,6 +36,7 @@ if (enable) {
                         listPlayerPN_OTHER.push(playerCus.one_signal_player_id);
                     }
                 }
+                playerDataCollection.update({"playerID":playerID},{"$set":{"event_trophies":0}}, true, false);
                 var member = {
                     "playerID" : playerID,
                     "userName" : playerName,
