@@ -29,7 +29,7 @@ if (enable) {
                 var playerID = playerMasterArr[j]._id.$oid;
                 var playerCus = playerDataCollection.findOne({"playerID":playerID});
                 var playerName = playerCus && playerCus.userName ? playerCus.userName : playerID;
-                if (playerCus.one_signal_player_id) {
+                if (playerCus && playerCus.one_signal_player_id) {
                     if (playerCus.location && playerCus.location.country == "VN") {
                         listPlayerPN_VN.push(playerCus.one_signal_player_id);    
                     } else {

@@ -184,11 +184,14 @@ function joinEvent() {
   var member = {
     "playerID": playerID,
     "userName": currentPlayer.userName ? currentPlayer.userName : playerID,
-    "trophies": 0
+    "trophies": 0,
+    "last_rank": 1,
+    "last_trophies": 0
   }
   if (event.is_match_group) {
     var lastGroup = eventGroupMember.find({"event_id":event.event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
     if (lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
+      member.last_rank = lastGroup.members.length;
       lastGroup.members.push(member);
       eventGroupMember.update({"event_id":event.event_id, "group_id":lastGroup.group_id},{"$set":lastGroup}, true, false);
     } else {

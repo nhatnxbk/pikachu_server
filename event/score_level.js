@@ -18,6 +18,9 @@ delete player_data.online_match_start;
 delete player_data.online_bot_start;
 delete player_data.trophies;
 delete player_data.location;
+delete player_data.event_data;
+delete player_data.new_message;
+delete player_data.is_admin;
 
 var currentPlayer = playerDataList.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
