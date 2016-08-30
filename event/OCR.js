@@ -102,7 +102,8 @@ if(data.get_server){
 }
 
 if(data.get_bot_player){
-	var opponentPlayer = get_bot_player_data();
+	var isEvent = data.is_event ? data.is_event : false;
+	var opponentPlayer = get_bot_player_data(isEvent);
 	Spark.setScriptData("botData",opponentPlayer);
 }
 
@@ -359,7 +360,7 @@ function get_current_rank_with_friends() {
 	}
 }
 
-function get_bot_player_data() {
+function get_bot_player_data(isEvent) {
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 	var friendList = (currentPlayerData && currentPlayerData.facebook_friend && currentPlayerData.facebook_friend.length > 0) ? currentPlayerData.facebook_friend : "";
 	var friendListArr = friendList ? JSON.parse(friendList) : [];
@@ -454,6 +455,9 @@ function get_bot_player_data() {
 			opponentPlayer.rto_4 = rto_4_h;
 			opponentPlayer.rto_5 = rto_5_h;
 		}
+	}
+	if (isEvent && !opponentPlayer.event_trophies) {
+		opponentPlayer.event_trophies = 0;
 	}
 	return opponentPlayer;
 }
