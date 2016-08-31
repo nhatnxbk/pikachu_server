@@ -529,6 +529,28 @@ if (data.debug_change_time_event) {
 	Spark.setScriptData("data", response);
 }
 
+//get onesignal player info
+if (data.get_onesignal_player_info) {
+    var player_id = data.player_id ? data.player_id : playerID;
+    var one_signal_player_id = getOneSignalPlayerID(player_id);
+    var response;
+    if (one_signal_player_id) {
+		var url = "https://onesignal.com/api/v1/players/" + one_signal_player_id + "?app_id=53aa05a0-16d7-4e30-894f-149c80736052";
+	    var result = Spark.getHttp(url).setHeaders({
+		    "Content-Type": "application/json;charset=utf-8",
+		    "Authorization": "Basic YzU4NzA3N2YtNTZlZS00NjJlLWJkNzMtNzc5NjIwZDE0Zjlj"
+		}).get();
+		response = {
+		    "result" : result.getResponseJson()
+		}
+    } else {
+    	response = {
+    		"message" : "Not found onesignal id"
+    	}
+    }
+	Spark.setScriptData("data", response);
+}
+
 //=====================FUNCTION=====================//
 
 function getNotice () {
