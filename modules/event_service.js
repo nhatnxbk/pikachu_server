@@ -4,6 +4,7 @@ var eventMaster = Spark.metaCollection("event_master");
 var eventGroupMember = Spark.runtimeCollection("event_group_member");
 var playerDataSys = Spark.systemCollection("player");
 var playerDataCollection = Spark.runtimeCollection("playerData");
+var cache = Spark.getCache();
 
 function getEventComing() {
 	var now = getTimeNow();
@@ -18,14 +19,22 @@ function getEventJustEnded() {
 }
 
 function getCurrentEventStart() {
-    var now = getTimeNow();
-    var event = eventMaster.findOne({"$and":[{"time_start":{"$lte": now}}, {"time_end":{"$gt":now}}]});
+	var event = cache.get("current_event_start");
+	if (!event) {
+		var now = getTimeNow();
+    	event = eventMaster.findOne({"$and":[{"time_start":{"$lte": now}}, {"time_end":{"$gt":now}}]});	
+    	cache.put("current_event_start", event);
+	}
     return event;
 }
 
 function getCurrentEvent() {
-	var now = getTimeNow();
-    var event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_close":{"$gt":now}}]});
+	var event = cache.get("current_event");
+	if (!event) {
+		var now = getTimeNow();
+    	event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_close":{"$gt":now}}]});
+    	cache.put("current_event", event);
+	}
     return event;
 }
 
@@ -97,4 +106,9 @@ function getPlayerRank(event_id, playerID) {
 		}
 	}
 	return -1;
+}
+
+function removeCacheEvent() {
+	cache.remove("current_event");
+	cache.remove("current_event_start");
 }

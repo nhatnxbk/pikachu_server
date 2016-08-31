@@ -11,6 +11,7 @@ if (enable) {
 
     // match group for event coming
     if (eventComing && !eventComing.is_match_group) {
+        removeCacheEvent();
     	var playerMasterArr = playerDataSys.find().sort({"lastSeen.data.numberLong":-1}).toArray();
         var numberPlayer = playerMasterArr.length;
     	var numberGroup = Math.ceil(numberPlayer / NUMBER_MEMBER_PER_GROUP);
