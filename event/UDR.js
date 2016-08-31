@@ -131,7 +131,7 @@ if (data.user_feedback) {
 	var listAdmin = getAdmin();
 	var message = "You received one feedback from user";
 	if (!isAdmin()) {
-		var push = SendNewNotification(listAdmin, [], [], title, message, null).getResponseJson();
+		var push = SendNewNotification(listAdmin, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
 	}
 	Spark.setScriptData("data",response);
 }
@@ -165,7 +165,7 @@ if (data.response_feedback) {
 		var feedbackPlayerID = userFeedbackData.findOne({"_id":{$oid:feedbackID}}).playerID;
 		var oneSignalPlayerID = getOneSignalPlayerID(feedbackPlayerID);
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], [], "Picachu Online Response Feedback", "We are responsed your feedback, you can check in inbox of game.", null).getResponseJson();
+			var push = SendNewNotification([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
 		}
 		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":getTimeNow()}}, true, false);
 		response = {
@@ -183,8 +183,8 @@ if (data.response_feedback) {
 
 //add notice
 if (data.add_notice) {
-	var title = data.title ? data.title : "Pika Notice";
-	var content = data.content ? data.content : "No have notice!";
+	var title = data.title ? data.title : {"en": "Pika Notice"};
+	var content = data.content ? data.content : {"en" : "No have notice!"};
 	var timeNow = getTimeNow();
 	var playerID = data.playerID ? data.playerID : "all";
 	var notice = {
@@ -201,11 +201,11 @@ if (data.add_notice) {
 	}
 	if (playerID == "all") {
 	    //khi nao release bo comment
-        //SendNewNotification([], ["All"], [], "Picachu Online Notice", You have received a message, you can check in inbox of game.", null).getResponseJson();
+        //SendNewNotification([], ["All"], [], title, content, null).getResponseJson();
 	} else {
 		var oneSignalPlayerID = getOneSignalPlayerID(playerID);
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], [], "Picachu Online Notice", "You have received a message, you can check in inbox of game.", null).getResponseJson();
+			var push = SendNewNotification([oneSignalPlayerID], [], [], title, content, null).getResponseJson();
 		}
 	}
 	Spark.setScriptData("data",response);
@@ -535,10 +535,12 @@ function getNotice () {
 	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var timeNow = getTimeNow();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
+	var isVN = playerData.location && playerData.location.country && playerData.location.country == "VN" ? true : false;
 	for (var i = 0; i < notice.length; i++) {
 		notice[i].is_new = notice[i].time >= lastTimeRead ? 1 : 0;
 		notice[i].time = timeNow - notice[i].time;
-		notice[i].title = "Notice: " + notice[i].title;
+		notice[i].title = isVN && notice[i].title.vi ? "Notice: " + notice[i].title.vi : "Notice: " + notice[i].title.en;
+		notice[i].content = isVN && notice[i].content.vi ? "Notice: " + notice[i].content.vi : "Notice: " + notice[i].content.en;
 		notice[i].type = 0;
 	}
 	return notice;
