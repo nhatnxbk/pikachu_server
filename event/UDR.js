@@ -540,7 +540,7 @@ function getNotice () {
 		notice[i].is_new = notice[i].time >= lastTimeRead ? 1 : 0;
 		notice[i].time = timeNow - notice[i].time;
 		notice[i].title = isVN && notice[i].title.vi ? "Notice: " + notice[i].title.vi : "Notice: " + notice[i].title.en;
-		notice[i].content = isVN && notice[i].content.vi ? "Notice: " + notice[i].content.vi : "Notice: " + notice[i].content.en;
+		notice[i].message = isVN && notice[i].message.vi ? "Notice: " + notice[i].message.vi : "Notice: " + notice[i].message.en;
 		notice[i].type = 0;
 	}
 	return notice;
