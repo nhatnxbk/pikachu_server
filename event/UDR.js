@@ -92,6 +92,11 @@ if (data.log_purchaser) {
 			"pack_id"  : pack_id,
 			"reg_date" : reg_date
 		}
+		var pack_info = playerData.pack_info ? playerData.pack_info : [];
+		if (pack_info.indexOf(pack_id) == -1) {
+			pack_info.push(pack_id);
+			playerDataList.update({"playerID":playerID},{"$set":{"pack_info":pack_info}}, true, false);
+		}
 		logPurchaserData.insert(log);
 		Spark.setScriptData("response",log);
 	} else {
