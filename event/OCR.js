@@ -96,7 +96,11 @@ if(data.get_server){
 		// var levelCollection = Spark.metaCollection("Level");
 		// var levelEvent = levelCollection.findOne({level:1});
 		// response.level = levelEvent;
-		response.background = "http://topanhdep.net/wp-content/uploads/2015/12/anh-girl-xinh-gai-dep-98-7.jpg";
+		var event_data = getCurrentEvent();
+		if(event_data && event_data.background){
+			// response.background = "http://topanhdep.net/wp-content/uploads/2015/12/anh-girl-xinh-gai-dep-98-7.jpg";
+			response.background = event_data.background;
+		}
 	}
 	response.time_change_to_bot = 20 + Math.random()*20;
 	Spark.setScriptData("data",response);
