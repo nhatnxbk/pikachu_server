@@ -551,6 +551,12 @@ if (data.get_onesignal_player_info) {
 	Spark.setScriptData("data", response);
 }
 
+//get current event
+if (data.debug_get_current_event) {
+	var event = getCurrentEvent();
+	Spark.setScriptData("data", event);
+}
+
 //=====================FUNCTION=====================//
 
 function getNotice () {

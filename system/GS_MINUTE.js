@@ -49,10 +49,11 @@ if (enable) {
         eventMaster.update({"event_id":eventComing.event_id},{"$set":{"is_match_group":1}},true, false);
         var titlePN = {"en" : "Picachu Tournament"};
         var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
-        var messagePN;
-        messagePN.en = "Event will start after " + time + " hour";
-        messagePN.vi = "Giải đấu sẽ diễn ra sau " + time + " giờ nữa";
-        SendNewNotification(listPlayerPN_OTHER, [], [], titlePN, messagePN, null);
+        var messagePN = {
+            "en" : "Event will start after ".concat(time).concat(" hours"),
+            "vi" : "Giai dau se dien ra sau ".concat(time).concat(" gio nua")
+        };
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
     }
 
     // distribute reward for user after event ended
@@ -90,6 +91,6 @@ if (enable) {
             "en" : "You got some reward from Tournament, you can receive now",
             "vi" : "Bạn đã nhận được một số phần thưởng của giải đấu. Kiểm tra ngay nhé!"
         }
-        SendNewNotification(listPlayerPN_OTHER, [], [], titlePN, messagePN, null);
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
     }
 }
