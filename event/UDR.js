@@ -360,6 +360,12 @@ if (data.event_get_reward) {
 	Spark.setScriptData("data",response);
 }
 
+//get time server
+if (data.get_server_time) {
+	var time = getTimeNow();
+	Spark.setScriptData("data", time);
+}
+
 //=========================admin tool=========================//
 
 // fake event trophies
