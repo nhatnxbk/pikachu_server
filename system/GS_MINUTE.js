@@ -8,24 +8,25 @@ if (enable) {
     // test_real_time.insert({"time":getTimeNow()});
     var eventComing = getEventComing();
     var eventJustEnded = getEventJustEnded();
+    var eventOnGoing = getCurrentEventStart();
 
     // match group for event coming
     if (eventComing && !eventComing.is_match_group) {
         removeCacheEvent();
-    	var playerMasterArr = playerDataSys.find().sort({"lastSeen.data.numberLong":-1}).toArray();
+        var playerMasterArr = playerDataSys.find().sort({"lastSeen.data.numberLong":-1}).toArray();
         var numberPlayer = playerMasterArr.length;
-    	var numberGroup = Math.ceil(numberPlayer / NUMBER_MEMBER_PER_GROUP);
-    	var groupMemeber = [];
+        var numberGroup = Math.ceil(numberPlayer / NUMBER_MEMBER_PER_GROUP);
+        var groupMemeber = [];
         var listPlayerPN = [];
-    	for (var i = 0; i < numberGroup; i++) {
-    		var group = {
-    			"group_id" : i + 1,
-    			"event_id" : eventComing.event_id
-    		};
+        for (var i = 0; i < numberGroup; i++) {
+            var group = {
+                "group_id" : i + 1,
+                "event_id" : eventComing.event_id
+            };
             var members = [];
-    		var idxStart = i * NUMBER_MEMBER_PER_GROUP;
-    		var idxEnd = idxStart + NUMBER_MEMBER_PER_GROUP < numberPlayer ? idxStart + NUMBER_MEMBER_PER_GROUP : numberPlayer;
-    		for (var j = idxStart; j < idxEnd; j++) { 
+            var idxStart = i * NUMBER_MEMBER_PER_GROUP;
+            var idxEnd = idxStart + NUMBER_MEMBER_PER_GROUP < numberPlayer ? idxStart + NUMBER_MEMBER_PER_GROUP : numberPlayer;
+            for (var j = idxStart; j < idxEnd; j++) {
                 var playerID = playerMasterArr[j]._id.$oid;
                 var playerCus = playerDataCollection.findOne({"playerID":playerID});
                 var playerName = playerCus && playerCus.userName ? playerCus.userName : playerID;
@@ -41,19 +42,48 @@ if (enable) {
                     "last_trophies" : 0
                 };
                 members.push(member);
-    		}
+            }
             group.members = members;
             groupMemeber.push(group);
-    	}
+        }
         eventGroupMember.insert(groupMemeber);
         eventMaster.update({"event_id":eventComing.event_id},{"$set":{"is_match_group":1}},true, false);
-        var titlePN = {"en" : "Picachu Tournament"};
+        var titlePN = {
+            "en" : server_config.title_event_start.en,
+            "vi" : server_config.title_event_start.vi
+        };
         var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
         var messagePN = {
-            "en" : "Event will start after ".concat(time).concat(" hours"),
-            "vi" : "Giai dau se dien ra sau ".concat(time).concat(" gio nua")
+            "en" : server_config.message_event_start.en.concat(time).concat(server_config.message_event_start2.en),
+            "vi" : server_config.message_event_start.vi.concat(time).concat(server_config.message_event_start2.vi)
         };
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+    }
+
+    //push notification when event start
+    if (eventOnGoing && !eventOnGoing.is_push_start) {
+        var listPlayerPN = [];
+        var groupMembers = getAllGroupMember(eventOnGoing.event_id);
+        groupMembers.forEach(function(groupMember){
+            var members = groupMember.members;
+            members.forEach(function(member){
+                var playerCus = playerDataCollection.findOne({"playerID":member.playerID});
+                if (playerCus && playerCus.one_signal_player_id) {
+                    listPlayerPN.push(playerCus.one_signal_player_id);
+                }
+            });
+        });
+        eventMaster.update({"event_id":eventOnGoing.event_id},{"$set":{"is_push_start":1}},true, false);
+        removeCacheEvent();
+        var titlePN = {
+            "en" : server_config.title_event_start.en,
+            "vi" : server_config.title_event_start.vi
+        }
+        var messagePN = {
+            "en" : server_config.message_event_started.en,
+            "vi" : server_config.message_event_started.vi
+        }
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
 
     // distribute reward for user after event ended
@@ -84,13 +114,13 @@ if (enable) {
         }
         eventMaster.update({"event_id":eventJustEnded.event_id},{"$set":{"is_distribute_reward":1}},true, false);
         var titlePN = {
-            "en" : "Picachu Tournament End",
-            "vi" : "Giải đấu kết thúc"
+            "en" : server_config.title_event_reward.en,
+            "vi" : server_config.title_event_reward.vi
         }
         var messagePN = {
-            "en" : "You got some reward from Tournament, you can receive now",
-            "vi" : "Bạn đã nhận được một số phần thưởng của giải đấu. Kiểm tra ngay nhé!"
+            "en" : server_config.message_event_reward.en,
+            "vi" : server_config.message_event_reward.vi
         }
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, null);
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.REWARD});
     }
 }

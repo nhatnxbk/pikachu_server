@@ -18,9 +18,9 @@ function getEventJustEnded() {
     return event;
 }
 
-function getCurrentEventStart() {
+function getCurrentEventStart(without_cache) {
 	var event = cache.get("current_event_start");
-	if (!event) {
+	if (!event || without_cache) {
 		var now = getTimeNow();
     	event = eventMaster.findOne({"$and":[{"time_start":{"$lte": now}}, {"time_end":{"$gt":now}}]});	
     	cache.put("current_event_start", event);
@@ -28,9 +28,9 @@ function getCurrentEventStart() {
     return event;
 }
 
-function getCurrentEvent() {
+function getCurrentEvent(without_cache) {
 	var event = cache.get("current_event");
-	if (!event) {
+	if (!event || without_cache) {
 		var now = getTimeNow();
     	event = eventMaster.findOne({"$and":[{"time_prepare":{"$lte": now}}, {"time_close":{"$gt":now}}]});
     	cache.put("current_event", event);

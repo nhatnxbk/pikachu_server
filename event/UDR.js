@@ -553,8 +553,50 @@ if (data.get_onesignal_player_info) {
 
 //get current event
 if (data.debug_get_current_event) {
-	var event = getCurrentEvent();
+    var without_cache = data.without_cache || 0;
+	var event = getCurrentEvent(without_cache);
 	Spark.setScriptData("data", event);
+}
+
+//remove event cache
+if (data.debug_remove_event_cache) {
+    removeCacheEvent();
+    Spark.setScriptData("data", {"message":"Removed cache"});
+}
+
+//test
+if (data.debug_test) {
+    var eventOnGoing = getCurrentEventStart();
+    var response;
+    if (eventOnGoing && !eventOnGoing.is_push_start) {
+        var listPlayerPN = [];
+        var groupMembers = getAllGroupMember(eventOnGoing.event_id);
+        groupMembers.forEach(function(groupMember){
+            var members = groupMember.members;
+            members.forEach(function(member){
+                var one_signal_player_id = getOneSignalPlayerID(member.playerID);
+                if (one_signal_player_id) {
+                    listPlayerPN.push(one_signal_player_id);
+                }
+            });
+        });
+        eventMaster.update({"event_id":eventOnGoing.event_id},{"$set":{"is_push_start":1}},true, false);
+        var titlePN = {
+            "en" : server_config.message_event_start.en,
+            "vi" : server_config.message_event_start.vi
+        }
+        var messagePN = {
+            "en" : server_config.message_event_started.en,
+            "vi" : server_config.message_event_started.vi
+        }
+        test_real_time.insert({"listPlayerPN":listPlayerPN.length});
+        response = SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT}).getResponseJson();
+    } else {
+        response = {
+            "message" : "Event not found"
+        }
+    }
+    Spark.setScriptData("data", response);
 }
 
 //=====================FUNCTION=====================//
