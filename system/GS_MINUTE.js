@@ -121,6 +121,6 @@ if (enable) {
             "en" : server_config.message_event_reward.en,
             "vi" : server_config.message_event_reward.vi
         }
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.REWARD});
+        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
 }
