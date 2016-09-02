@@ -522,6 +522,7 @@ if (data.debug_change_time_event) {
 			time = getTimeNow();
 		}
 		setTimeNow(time);
+		removeCacheEvent();
 		response = {
 			"result": true,
 			"message" : "Change time success"
