@@ -395,7 +395,7 @@ if (data.video_for_coin) {
 				}
 			} else {
 				var message = (playerData.location && playerData.location.country == "VN") ?
-							message_const.video_for_coin.vn :
+							message_const.video_for_coin.vi :
 							message_const.video_for_coin.en;
 				var timeRemain = Math.ceil((server_config.video_for_coin_time + userFreeCoin.time - timeNow) / 1000);
 				response = {
@@ -453,7 +453,7 @@ if (data.invite_for_coin) {
 				userFreeCoinCollection.update({"$and":[{"playerID":playerID},{"type" : "invite_friend"}]}, {"$set":userFreeCoin}, true, false);
 			} else {
 				var message = (playerData.location && playerData.location.country == "VN") ?
-							message_const.invite_for_coin.vn :
+							message_const.invite_for_coin.vi :
 							message_const.invite_for_coin.en;
 				var timeRemain = Math.ceil((server_config.invite_for_coin_time + userFreeCoin.time - timeNow) / 1000);
 				response = {
