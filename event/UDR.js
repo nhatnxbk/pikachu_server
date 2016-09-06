@@ -366,6 +366,119 @@ if (data.get_server_time) {
 	Spark.setScriptData("data", time);
 }
 
+//watch ads to get coin
+if (data.video_for_coin) {
+	var userFreeCoinCollection = Spark.runtimeCollection("user_get_free_coin");
+	var userFreeCoin = userFreeCoinCollection.findOne({"$and":[{"playerID":playerID},{"type" : "view_ads"}]});
+	var response;
+	var timeNow = getTimeNow();
+	if (userFreeCoin) {
+		if (userFreeCoin.count < server_config.video_for_coin_count) {
+			userFreeCoin.count ++;
+			userFreeCoin.total ++;
+			if (userFreeCoin.count == server_config.video_for_coin_count) {
+				userFreeCoin.time = timeNow;
+			}
+			userFreeCoinCollection.update({"$and":[{"playerID":playerID},{"type" : "view_ads"}]}, {"$set":userFreeCoin}, true, false);
+			response = {
+				"time_remain" : 0,
+				"coin" : server_config.video_for_coin
+			}
+		} else {
+			if (timeNow - userFreeCoin.time > server_config.video_for_coin_time) {
+				userFreeCoin.count = 1;
+				userFreeCoin.total ++;
+				userFreeCoinCollection.update({"$and":[{"playerID":playerID},{"type" : "view_ads"}]}, {"$set":userFreeCoin}, true, false);
+				response = {
+					"time_remain" : 0,
+					"coin" : server_config.video_for_coin
+				}
+			} else {
+				var message = (playerData.location && playerData.location.country == "VN") ?
+							message_const.video_for_coin.vn :
+							message_const.video_for_coin.en;
+				var timeRemain = Math.ceil((server_config.video_for_coin_time + userFreeCoin.time - timeNow) / 1000);
+				response = {
+					"time_remain" : timeRemain,
+					"message_fail" : message
+				}
+			}
+		}
+	} else {
+		var userFreeCoinData = {
+			"playerID" : playerID,
+			"type" : "view_ads",
+			"count" : 1,
+			"total" : 1,
+			"time" : timeNow
+		}
+		userFreeCoinCollection.insert(userFreeCoinData);
+		response = {
+			"time_remain" : 0,
+			"coin" : server_config.video_for_coin
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+//invite friend to get coin
+if (data.invite_for_coin) {
+	var totalFriend = data.total_friend ? data.total_friend : 0;
+	var count = data.count ? data.count : 0;
+
+	var userFreeCoinCollection = Spark.runtimeCollection("user_get_free_coin");
+	var userFreeCoin = userFreeCoinCollection.findOne({"$and":[{"playerID":playerID},{"type" : "invite_friend"}]});
+	var response;
+	var timeNow = getTimeNow();
+	if (userFreeCoin) {
+		if (userFreeCoin.count < totalFriend) {
+			userFreeCoin.count += count;
+			userFreeCoin.total += count;
+			if (userFreeCoin.count >= totalFriend) {
+				userFreeCoin.time = timeNow;
+			}
+			userFreeCoinCollection.update({"$and":[{"playerID":playerID},{"type" : "invite_friend"}]}, {"$set":userFreeCoin}, true, false);
+			response = {
+				"time_remain" : 0,
+				"coin" : server_config.invite_for_coin
+			}
+		} else {
+			if (timeNow - userFreeCoin.time > server_config.invite_for_coin_time) {
+				userFreeCoin.count = count;
+				userFreeCoin.total += count;
+				response = {
+					"time_remain" : 0,
+					"coin" : server_config.invite_for_coin
+				}
+				userFreeCoinCollection.update({"$and":[{"playerID":playerID},{"type" : "invite_friend"}]}, {"$set":userFreeCoin}, true, false);
+			} else {
+				var message = (playerData.location && playerData.location.country == "VN") ?
+							message_const.invite_for_coin.vn :
+							message_const.invite_for_coin.en;
+				var timeRemain = Math.ceil((server_config.invite_for_coin_time + userFreeCoin.time - timeNow) / 1000);
+				response = {
+					"time_remain" : timeRemain,
+					"message_fail" : message
+				}
+			}
+		}
+	} else {
+		var userFreeCoinData = {
+			"playerID" : playerID,
+			"type" : "invite_friend",
+			"count" : count,
+			"total" : count,
+			"time" : timeNow
+		}
+		userFreeCoinCollection.insert(userFreeCoinData);
+		response = {
+			"time_remain" : 0,
+			"coin" : server_config.invite_for_coin
+		}
+	}
+	Spark.setScriptData("data", response);
+}
+
 //=========================admin tool=========================//
 
 // fake event trophies
@@ -465,6 +578,7 @@ if (data.debug_distribute_reward) {
 	var response;
 	if (event) {
 		setTimeNow(event.time_end);
+		removeCacheEvent();
 		eventMaster.update({"event_id":event_id},{"$set":{"is_distribute_reward":0}}, true, false);
 		response = {
 			"result": true,
@@ -609,8 +723,8 @@ if (data.debug_test) {
 //=====================FUNCTION=====================//
 
 function getNotice () {
-	var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var timeNow = getTimeNow();
+	var notice = userNotice.find({$and:[{$or:[{"playerID":"all"},{"playerID":playerID}]}, {"time":{"$lt":timeNow}}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	var isVN = playerData.location && playerData.location.country && playerData.location.country == "VN" ? true : false;
 	for (var i = 0; i < notice.length; i++) {
@@ -625,12 +739,12 @@ function getNotice () {
 
 function getUserFeedback () {
 	var feedbacks;
+	var timeNow = getTimeNow();
 	if (isAdmin()) {
-		feedbacks = userFeedbackData.find().limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();
+		feedbacks = userFeedbackData.find({"time":{"$lt":timeNow}}).limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();
 	} else {
 		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	}
-	var timeNow = getTimeNow();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < feedbacks.length; i++) {
 		var feedback = feedbacks[i];

@@ -4,6 +4,7 @@ var packData = Spark.metaCollection("client_config");
 CONFIG = packData.findOne({server:0});
 
 var server_config = packData.findOne({server:1});
+var message_const = packData.findOne({server:2});
 var DEBUG=server_config.DEBUG;
 var TIME_EXPIRE_MATCH=server_config.TIME_EXPIRE_MATCH;
 var TIME_EXPIRE_ROOM=server_config.TIME_EXPIRE_ROOM;

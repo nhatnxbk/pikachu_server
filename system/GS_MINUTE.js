@@ -54,8 +54,8 @@ if (enable) {
         };
         var time = Math.ceil((eventComing.time_start - getTimeNow()) / 86400000);
         var messagePN = {
-            "en" : server_config.message_event_start.en.concat(time).concat(server_config.message_event_start2.en),
-            "vi" : server_config.message_event_start.vi.concat(time).concat(server_config.message_event_start2.vi)
+            "en" : message_const.message_event_start.en.concat(time).concat(message_const.message_event_start2.en),
+            "vi" : message_const.message_event_start.vi.concat(time).concat(message_const.message_event_start2.vi)
         };
         SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
@@ -80,8 +80,8 @@ if (enable) {
             "vi" : server_config.title_event_start.vi
         }
         var messagePN = {
-            "en" : server_config.message_event_started.en,
-            "vi" : server_config.message_event_started.vi
+            "en" : message_const.message_event_started.en,
+            "vi" : message_const.message_event_started.vi
         }
         SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
@@ -118,8 +118,8 @@ if (enable) {
             "vi" : server_config.title_event_reward.vi
         }
         var messagePN = {
-            "en" : server_config.message_event_reward.en,
-            "vi" : server_config.message_event_reward.vi
+            "en" : message_const.message_event_reward.en,
+            "vi" : message_const.message_event_reward.vi
         }
         SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
