@@ -63,7 +63,8 @@ if (!currentPlayer.shop_version || currentPlayer.shop_version < SHOP_VERSION) {
 }
 
 var config;
-if (!currentPlayer.config_version || currentPlayer.config_version < CONFIG_VERSION) {
+if(!currentPlayer.app_version) currentPlayer.app_version = 1;
+if (!currentPlayer.config_version || currentPlayer.config_version < CONFIG_VERSION || currentPlayer.app_version <= 17) {
     config = CONFIG;
     currentPlayer.config_version = CONFIG_VERSION;
 }
