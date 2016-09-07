@@ -2,6 +2,9 @@ require("share");
 require("event_service");
 require("common");
 
+var playerID = Spark.getPlayer().getPlayerId();
+var playerDataList = Spark.runtimeCollection("playerData");
+var playerData = playerDataList.findOne({"playerID":playerID});
 var itemPackMaster = Spark.metaCollection("pack_item_master");
 var logPurchaserData = Spark.runtimeCollection("user_purchaser_log");
 var userFeedbackData = Spark.runtimeCollection("user_feedback");
@@ -780,4 +783,9 @@ function getAdmin() {
 		}
 	}
 	return adminsPush;
+}
+
+function getOneSignalPlayerID(player_id) {
+	var player = playerDataList.findOne({"playerID":player_id});
+	return player.one_signal_player_id;
 }

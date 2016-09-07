@@ -1,12 +1,4 @@
 //======== function common ========//
-var playerID = Spark.getPlayer().getPlayerId();
-var playerDataList = Spark.runtimeCollection("playerData");
-var playerData = playerDataList.findOne({"playerID":playerID});
-
-function getOneSignalPlayerID(player_id) {
-	var player = playerDataList.findOne({"playerID":player_id});
-	return player.one_signal_player_id;
-}
 
 function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, data) {
   var jsonBody = {
