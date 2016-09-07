@@ -1,6 +1,6 @@
 //-----------------event service - controller------------------//
 var test_real_time = Spark.runtimeCollection("test_real_time");
-var eventMaster = Spark.metaCollection("event_master");
+var eventMaster = Spark.runtimeCollection("event_master");
 var eventGroupMember = Spark.runtimeCollection("event_group_member");
 var playerDataSys = Spark.systemCollection("player");
 var playerDataCollection = Spark.runtimeCollection("playerData");
