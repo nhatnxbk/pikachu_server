@@ -13,7 +13,7 @@ function getEventComing() {
 }
 
 function getEventJustEnded() {
-	var now = getTimeNow() + 10*60*1000;
+	var now = getTimeNow() - 10*60*1000;
 	var event = eventMaster.findOne({"$and":[{"time_end":{"$lte":now}},{"time_close":{"$gt":now}}]});
     return event;
 }
