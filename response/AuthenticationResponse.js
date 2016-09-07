@@ -108,19 +108,19 @@ if (event) {
   if (event.time_prepare <= timeNow && timeNow < event.time_start) {
     event_data.status = 1;
     event_data.time = event.time_start - timeNow;
-    event_data.event_name = (currentPlayer.location && currentPlayer.location) == "VN"
+    event_data.event_name = (currentPlayer.location && currentPlayer.location.country == "VN")
         ? message_const.event_prepare_status.vn
         : message_const.event_prepare_status.en;
   } else if (event.time_start <= timeNow && timeNow < event.time_end) {
     event_data.status = 2;
     event_data.time = event.time_end - timeNow;
-    event_data.event_name = (currentPlayer.location && currentPlayer.location) == "VN"
+    event_data.event_name = (currentPlayer.location && currentPlayer.location.country == "VN")
         ? message_const.event_ongoing_status.vn
         : message_const.event_ongoing_status.en;
   } else if (event.time_end <= timeNow) {
     event_data.status = 3;
     event_data.time = event.time_close - timeNow;
-    event_data.event_name = (currentPlayer.location && currentPlayer.location) == "VN"
+    event_data.event_name = (currentPlayer.location && currentPlayer.location.country == "VN")
         ? message_const.event_ended_status.vn
         : message_const.event_ended_status.en;
   }
