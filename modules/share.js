@@ -1,6 +1,6 @@
 //Config send to user
 var CONFIG = {};
-var packData = Spark.runtimeCollection("client_config");
+var packData = Spark.metaCollection("client_config");
 CONFIG = packData.findOne({server:0});
 
 var server_config = packData.findOne({server:1});
