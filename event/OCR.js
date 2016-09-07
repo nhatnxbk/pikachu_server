@@ -1,7 +1,6 @@
 //=========Online COntroller============//
 require("share");
 require("event_service");
-var isEvent = true;
 var playerDataList = Spark.runtimeCollection("playerData");
 var playerID = Spark.getPlayer().getPlayerId();
 var data = Spark.getData().data;
@@ -13,6 +12,7 @@ if(data.get_server){
 	var index = 0;
 	var found = false;
 	var isDebug = data.debug;
+	var isEvent = data.is_event;
 	if(version && version > CONFIG.app_version_ios){
 		PHOTON_SERVER_LIST = PHOTON_SERVER_LIST_NEW_SERVER;
 	}
@@ -99,6 +99,9 @@ if(data.get_server){
 		var event_data = getCurrentEvent();
 		if(event_data && event_data.background){
 			// response.background = "http://topanhdep.net/wp-content/uploads/2015/12/anh-girl-xinh-gai-dep-98-7.jpg";
+			if(event_data.background.indexOf("http") == -1){
+            	event_data.background = getUrlDownloadable(event_data.background);
+          	}
 			response.background = event_data.background;
 		}
 	}
