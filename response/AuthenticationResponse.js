@@ -13,7 +13,7 @@ var currentPlayer = playerData.findOne({
   "playerID": playerID
 }); // search the collection data for the entry with the same id as the player
 var timeNow = getTimeNow();
-var event = getCurrentEvent();
+var event = getCurrentEvent(true);
 if (currentPlayer === null){
     currentPlayer = {};
 }
