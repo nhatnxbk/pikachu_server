@@ -133,7 +133,14 @@ if (event) {
         if (members[i].playerID == playerID) {
           event_data.trophies = members[i].trophies;
           if (i < rewards.length) {
-            event_data.rewards = rewards[i];
+            if (event.time_end <= timeNow && event_data.trophies == 0) {
+              event_data.rewards = {
+                "reward_coin" : 0,
+                "reward_trophies" : 0 
+              }
+            } else {
+              event_data.rewards = rewards[i];
+            }
           }
           break;
         }
