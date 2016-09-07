@@ -338,6 +338,12 @@ if (data.get_bonus_trophies) {
 	Spark.setScriptData("data", {"bonus_win":bonus_win, "bonus_lost": bonus_lost});
 }
 
+if(data.get_image_link_from_item){
+	var id = data.id;
+	var url = getUrlDownloadable(id);
+	Spark.setScriptData("url", url);
+}
+
 function remove_room () {
 	var server = Spark.runtimeCollection("FriendRoom");
 	server.remove({"playerID":playerID});

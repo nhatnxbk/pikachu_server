@@ -75,3 +75,11 @@ function setTimeNow(time_now) {
 	var offset = time_now - Date.now();
 	packData.update({"server":1},{"$set":{"DEBUG_OFFSET_TIME":offset}}, true, false);
 }
+
+function getUrlDownloadable(code){
+	var result = Spark.sendRequest({
+      "@class" : ".GetDownloadableRequest",
+      "shortCode" : code
+    });
+    return result.url;
+}
