@@ -347,6 +347,68 @@ if(data.get_image_link_from_item){
 	Spark.setScriptData("url", url);
 }
 
+if(data.get_number_fb_duplicate){
+    var count_found =0;
+    var playerDataList = Spark.runtimeCollection("playerData");
+    var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
+    var list_result = [];
+    for (var i = 0; i < list.length; i++) {
+        var currentPlayer = list[i];
+        var new_data = playerDataList.findOne({app_version:{$lt:16},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}});
+        if(new_data){
+        	count_found++;
+        	new_data.old_data = currentPlayer;
+        	list_result.push(new_data);
+        }
+    }
+
+    Spark.setScriptData("data", {"found":count_found, "total ": list.length,"preview":list_result});
+}
+
+if(data.load_old_data){
+	var old_id = data.old_id;
+    var playerDataList = Spark.runtimeCollection("playerData");
+	var new_data = playerDataList.findOne({playerID:old_id});
+	var found = false;
+	if(new_data){
+		found = true;
+		delete new_data._id;
+		delete new_data.app_version;
+		delete new_data.playerID;
+		playerDataList.update({"playerID": playerID}, {"$set": new_data}, true,false);
+
+		var result = Spark.sendRequest({
+			"@class": ".LogEventRequest",
+			"eventKey": "TLB",
+			"trophies": new_data ? new_data.trophies : 0,
+			"COUNTRY": new_data && new_data.location && new_data.location.country ? new_data.location.country : "VN",
+			"CITY": ""
+		});
+	}
+    Spark.setScriptData("data", {"success":found});
+}
+
+if(data.process_number_fb_duplicate){
+    var count_found =0;
+    var playerDataList = Spark.runtimeCollection("playerData");
+    var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
+
+    for (var i = 0; i < list.length; i++) {
+        var currentPlayer = list[i];
+        var new_data = playerDataList.findOne({app_version:{$lt:16},facebook_id:list[i].facebook_id,trophies:{$gt:list[i].trophies}});
+        if(new_data){
+            delete new_data._id;
+            delete new_data.app_version;
+			delete new_data.playerID;
+            count_found++;
+            playerDataList.update({"playerID": currentPlayer.playerID}, {"$set": new_data}, true,false);
+            // break;
+        }
+    }
+
+    Spark.setScriptData("data", {"updated":count_found, "total ": list.length});
+}
+
 function remove_room () {
 	var server = Spark.runtimeCollection("FriendRoom");
 	server.remove({"playerID":playerID});
@@ -499,6 +561,6 @@ function get_bonus_trophies_lost(myTrophies, oppoentTrophies) {
 	if (myTrophies > oppoentTrophies) {
 		bonusByOffset = -bonusByOffset;
 	}
-	// return (bonus - bonusByOffset);
-	return Math.floor((bonus - bonusByOffset) / 3);
+	return (bonus - bonusByOffset);
+	// return Math.floor((bonus - bonusByOffset) / 2);
 }
