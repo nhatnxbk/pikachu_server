@@ -108,21 +108,15 @@ if (event) {
   if (event.time_prepare <= timeNow && timeNow < event.time_start) {
     event_data.status = 1;
     event_data.time = event.time_start - timeNow;
-    event_data.event_name = (currentPlayer.location && currentPlayer.location.country == "VN")
-        ? message_const.event_prepare_status.vi
-        : message_const.event_prepare_status.en;
+    event_data.event_name = isVN() ? message_const.event_prepare_status.vi : message_const.event_prepare_status.en;
   } else if (event.time_start <= timeNow && timeNow < event.time_end) {
     event_data.status = 2;
     event_data.time = event.time_end - timeNow;
-    event_data.event_name = (currentPlayer.location && currentPlayer.location.country == "VN")
-        ? message_const.event_ongoing_status.vi
-        : message_const.event_ongoing_status.en;
+    event_data.event_name = isVN() ? message_const.event_ongoing_status.vi : message_const.event_ongoing_status.en;
   } else if (event.time_end <= timeNow) {
     event_data.status = 3;
     event_data.time = event.time_close - timeNow;
-    event_data.event_name = (currentPlayer.location && currentPlayer.location.country == "VN")
-        ? message_const.event_ended_status.vi
-        : message_const.event_ended_status.en;
+    event_data.event_name = isVN() ? message_const.event_ended_status.vi : message_const.event_ended_status.en;
   }
   var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
   if (groupMember) { // nam trong 1 group nao day roi
@@ -133,12 +127,7 @@ if (event) {
         if (members[i].playerID == playerID) {
           event_data.trophies = members[i].trophies;
           if (i < rewards.length) {
-            if (event.time_end <= timeNow && event_data.trophies == 0) {
-              event_data.rewards = {
-                "reward_coin" : 0,
-                "reward_trophies" : 0 
-              }
-            } else {
+            if (event.time_end > timeNow || event_data.trophies > 0) {
               event_data.rewards = rewards[i];
             }
           }
@@ -150,6 +139,13 @@ if (event) {
           break;
         }
       }
+    }
+    if (event_data.rewards) {
+      if (event_data.is_received) {
+        event_data.reward_status = isVN() ? message_const.received_reward_status.vi : message_const.received_reward_status.en;
+      }
+    } else {
+      event_data.reward_status = isVN() ? message_const.no_reward_status.vi : message_const.no_reward_status.en;
     }
   }
   currentPlayer.event_data = event_data;
@@ -222,4 +218,8 @@ function joinEvent() {
       eventGroupMember.insert(newGroupMember);
     }
   }
+}
+
+function isVN() {
+  return (currentPlayer.location && currentPlayer.location.country == "VN") ? true : false;
 }
