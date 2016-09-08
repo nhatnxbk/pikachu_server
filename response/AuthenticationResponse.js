@@ -148,6 +148,8 @@ if (event) {
       event_data.reward_status = isVN() ? message_const.no_reward_status.vi : message_const.no_reward_status.en;
     }
   }
+  event_data.text_time_start = isVN() ? message_const.text_time_start.vi : message_const.text_time_start.en;
+  event_data.text_time_end = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
   currentPlayer.event_data = event_data;
 }
 
