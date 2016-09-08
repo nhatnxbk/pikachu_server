@@ -101,6 +101,7 @@ if (enable) {
                     if (i < rewards.length && members[i].trophies > 0) {
                        var reward = rewards[i];
                        reward.is_received = 0;
+                       reward.event_id = eventJustEnded.event_id;
                        var playerCus = playerDataCollection.findOne({"playerID":members[i].playerID});
                        if (playerCus && playerCus.one_signal_player_id) {
                             listPlayerPN.push(playerCus.one_signal_player_id);

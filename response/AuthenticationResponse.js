@@ -142,6 +142,11 @@ if (event) {
               event_data.rewards = rewards[i];
             }
           }
+          if (playerData.event_rewards && playerData.event_rewards.event_id == event.event_id) {
+            event_data.is_received = playerData.event_rewards.is_received;
+          } else {
+            event_data.is_received = 0;
+          }
           break;
         }
       }
