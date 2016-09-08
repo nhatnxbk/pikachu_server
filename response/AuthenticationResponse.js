@@ -108,15 +108,18 @@ if (event) {
   if (event.time_prepare <= timeNow && timeNow < event.time_start) {
     event_data.status = 1;
     event_data.time = event.time_start - timeNow;
+    event_data.text_time_prefix = isVN() ? message_const.text_time_start.vi : message_const.text_time_start.en;
     event_data.event_name = isVN() ? message_const.event_prepare_status.vi : message_const.event_prepare_status.en;
   } else if (event.time_start <= timeNow && timeNow < event.time_end) {
     event_data.status = 2;
     event_data.time = event.time_end - timeNow;
     event_data.event_name = isVN() ? message_const.event_ongoing_status.vi : message_const.event_ongoing_status.en;
+    event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
   } else if (event.time_end <= timeNow) {
     event_data.status = 3;
     event_data.time = event.time_close - timeNow;
     event_data.event_name = isVN() ? message_const.event_ended_status.vi : message_const.event_ended_status.en;
+    event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
   }
   var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
   if (groupMember) { // nam trong 1 group nao day roi
@@ -148,8 +151,6 @@ if (event) {
       event_data.reward_status = isVN() ? message_const.no_reward_status.vi : message_const.no_reward_status.en;
     }
   }
-  event_data.text_time_start = isVN() ? message_const.text_time_start.vi : message_const.text_time_start.en;
-  event_data.text_time_end = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
   currentPlayer.event_data = event_data;
 }
 
