@@ -580,7 +580,7 @@ if (data.debug_distribute_reward) {
 	var event = eventMaster.findOne({"event_id":event_id});
 	var response;
 	if (event) {
-		setTimeNow(event.time_end);
+		setTimeNow(event.time_end + 10 * 60 * 1000);
 		removeCacheEvent();
 		eventMaster.update({"event_id":event_id},{"$set":{"is_distribute_reward":0}}, true, false);
 		response = {
