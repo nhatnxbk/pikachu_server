@@ -144,9 +144,7 @@ if (event) {
       }
     }
     if (event_data.rewards) {
-      if (event_data.is_received) {
-        event_data.reward_status = isVN() ? message_const.received_reward_status.vi : message_const.received_reward_status.en;
-      }
+      event_data.reward_status = isVN() ? message_const.received_reward_status.vi : message_const.received_reward_status.en;
     } else {
       event_data.reward_status = isVN() ? message_const.no_reward_status.vi : message_const.no_reward_status.en;
     }
