@@ -13,7 +13,6 @@ var currentPlayer = playerData.findOne({
   "playerID": playerID
 }); // search the collection data for the entry with the same id as the player
 var timeNow = getTimeNow();
-var event = getCurrentEvent(true);
 if (currentPlayer === null){
     currentPlayer = {};
 }
@@ -22,10 +21,6 @@ if(!("trophies" in currentPlayer)){
   currentPlayer.online_win = 0;
   currentPlayer.online_match_start = 0;
   currentPlayer.highest_trophy = currentPlayer.trophies;
-  //new user join event
-  if (event) {
-    joinEvent();
-  }
 }
 
 if (!currentPlayer.player_coin) {
@@ -100,58 +95,6 @@ currentPlayer.is_admin = isAdmin();
 var numNewMessage = getNumberNewMessgae(is_admin);
 currentPlayer.new_message = numNewMessage;
 
-//get event
-if (event) {
-  var event_data = {
-    "trophies" : 0
-  }
-  if (event.time_prepare <= timeNow && timeNow < event.time_start) {
-    event_data.status = 1;
-    event_data.time = event.time_start - timeNow;
-    event_data.text_time_prefix = isVN() ? message_const.text_time_start.vi : message_const.text_time_start.en;
-    event_data.event_name = isVN() ? message_const.event_prepare_status.vi : message_const.event_prepare_status.en;
-  } else if (event.time_start <= timeNow && timeNow < event.time_end) {
-    event_data.status = 2;
-    event_data.time = event.time_end - timeNow;
-    event_data.event_name = isVN() ? message_const.event_ongoing_status.vi : message_const.event_ongoing_status.en;
-    event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
-  } else if (event.time_end <= timeNow) {
-    event_data.status = 3;
-    event_data.time = event.time_close - timeNow;
-    event_data.event_name = isVN() ? message_const.event_ended_status.vi : message_const.event_ended_status.en;
-    event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
-  }
-  var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
-  if (groupMember) { // nam trong 1 group nao day roi
-    var members = groupMember.members;
-    var rewards = event.rewards;
-    if (rewards && rewards.length > 0) {
-      for (var i = 0; i < members.length; i++) {
-        if (members[i].playerID == playerID) {
-          event_data.trophies = members[i].trophies;
-          if (i < rewards.length) {
-            if (event.time_end > timeNow || event_data.trophies > 0) {
-              event_data.rewards = rewards[i];
-            }
-          }
-          if (playerData.event_rewards && playerData.event_rewards.event_id == event.event_id) {
-            event_data.is_received = playerData.event_rewards.is_received;
-          } else {
-            event_data.is_received = 0;
-          }
-          break;
-        }
-      }
-    }
-    if (event_data.rewards) {
-      event_data.reward_status = isVN() ? message_const.received_reward_status.vi : message_const.received_reward_status.en;
-    } else {
-      event_data.reward_status = isVN() ? message_const.no_reward_status.vi : message_const.no_reward_status.en;
-    }
-  }
-  currentPlayer.event_data = event_data;
-}
-
 Spark.setScriptData("player_Data", currentPlayer); // return the player via script-data
 if (config !== undefined) {
   Spark.setScriptData("config", CONFIG); // return the player via script-data
@@ -194,31 +137,6 @@ function isAdmin() {
     return 1;
   }
   return 0;
-}
-
-function joinEvent() {
-  var member = {
-    "playerID": playerID,
-    "userName": currentPlayer.userName ? currentPlayer.userName : playerID,
-    "trophies": 0,
-    "last_rank": 1,
-    "last_trophies": 0
-  }
-  if (event.is_match_group) {
-    var lastGroup = eventGroupMember.find({"event_id":event.event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
-    if (lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
-      member.last_rank = lastGroup.members.length;
-      lastGroup.members.push(member);
-      eventGroupMember.update({"event_id":event.event_id, "group_id":lastGroup.group_id},{"$set":lastGroup}, true, false);
-    } else {
-      var newGroupMember = {
-        "event_id" : event.event_id,
-        "group_id" : lastGroup.group_id + 1,
-        "members"  : [ member ]
-      }
-      eventGroupMember.insert(newGroupMember);
-    }
-  }
 }
 
 function isVN() {

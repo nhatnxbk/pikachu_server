@@ -10,6 +10,7 @@ var logPurchaserData = Spark.runtimeCollection("user_purchaser_log");
 var userFeedbackData = Spark.runtimeCollection("user_feedback");
 var userNotice = Spark.runtimeCollection("user_notice");
 var data = Spark.getData().data;
+var timeNow = getTimeNow();
 if(!data) data = {};
 
 //update one signal player id
@@ -89,11 +90,10 @@ if (data.buy_pack_item) {
 if (data.log_purchaser) {
 	var pack_id = data.pack_id;
 	if (pack_id !== undefined) {
-		var reg_date = getTimeNow();
 		var log = {
 			"playerID" : playerID,
 			"pack_id"  : pack_id,
-			"reg_date" : reg_date
+			"reg_date" : timeNow
 		}
 		var pack_info = playerData.pack_info ? playerData.pack_info : [];
 		if (pack_info.indexOf(pack_id) == -1) {
@@ -117,7 +117,6 @@ if (data.get_config) {
 if (data.user_feedback) {
 	var title = data.title ? data.title : "User Feedback";
 	var content = data.content ? data.content : "No feedback from user!";
-	var timeNow = getTimeNow();
 	var feedback = {
 		"playerID": playerID,
 		"title"   : title,
@@ -142,7 +141,7 @@ if (data.user_feedback) {
 //get feedback
 if (data.get_user_feedback) {
 	var feedback = getUserFeedback();
-	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":getTimeNow()}}, true, false);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":timeNow}}, true, false);
 	Spark.setScriptData("data", feedback);
 }
 
@@ -150,7 +149,6 @@ if (data.get_user_feedback) {
 if (data.get_all_feedback) {
 	var limit = data.limit ? data.limit : 100;
 	var feedbacks = userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}).toArray();
-	var timeNow = getTimeNow();
 	for (var i = 0; i < feedbacks.length; i++) {
 		feedbacks[i].time = timeNow - feedbacks[i].time;
 		feedbacks[i].type = 1;
@@ -170,7 +168,7 @@ if (data.response_feedback) {
 		if (oneSignalPlayerID) {
 			var push = SendNewNotification([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
 		}
-		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":getTimeNow()}}, true, false);
+		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":timeNow}}, true, false);
 		response = {
 			"result" : true,
 			"message": "Response success!"
@@ -188,7 +186,6 @@ if (data.response_feedback) {
 if (data.add_notice) {
 	var title = data.title ? data.title : {"en": "Pika Notice"};
 	var content = data.content ? data.content : {"en" : "No have notice!"};
-	var timeNow = getTimeNow();
 	var playerID = data.playerID ? data.playerID : "all";
 	var notice = {
 		"playerID": playerID,
@@ -217,7 +214,7 @@ if (data.add_notice) {
 //get notice without feedback
 if (data.get_notice_without_feedback) {
 	var notice = getNotice();
-	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":getTimeNow()}}, true, false);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":timeNow}}, true, false);
 	Spark.setScriptData("data", notice);
 }
 
@@ -231,7 +228,7 @@ if (data.get_notice) {
 	});
 	var limit = isAdmin() ? NUM_NOTICE_ADMIN : NUM_NOTICE;
 	allNotice = allNotice.slice(0, limit);
-	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":getTimeNow()}}, true, false);
+	playerDataList.update({"playerID":playerID}, {"$set": {"last_read":timeNow}}, true, false);
 	Spark.setScriptData("data", allNotice);
 }
 
@@ -365,8 +362,7 @@ if (data.event_get_reward) {
 
 //get time server
 if (data.get_server_time) {
-	var time = getTimeNow();
-	Spark.setScriptData("data", time);
+	Spark.setScriptData("data", timeNow);
 }
 
 //watch ads to get coin
@@ -374,7 +370,6 @@ if (data.video_for_coin) {
 	var userFreeCoinCollection = Spark.runtimeCollection("user_get_free_coin");
 	var userFreeCoin = userFreeCoinCollection.findOne({"$and":[{"playerID":playerID},{"type" : "view_ads"}]});
 	var response;
-	var timeNow = getTimeNow();
 	if (userFreeCoin) {
 		if (userFreeCoin.count < server_config.video_for_coin_count) {
 			userFreeCoin.count ++;
@@ -432,7 +427,6 @@ if (data.invite_for_coin) {
 	var userFreeCoinCollection = Spark.runtimeCollection("user_get_free_coin");
 	var userFreeCoin = userFreeCoinCollection.findOne({"$and":[{"playerID":playerID},{"type" : "invite_friend"}]});
 	var response;
-	var timeNow = getTimeNow();
 	if (userFreeCoin) {
 		if (userFreeCoin.count < totalFriend) {
 			userFreeCoin.count += count;
@@ -478,6 +472,68 @@ if (data.invite_for_coin) {
 			"time_remain" : 0,
 			"coin" : server_config.invite_for_coin
 		}
+	}
+	Spark.setScriptData("data", response);
+}
+
+// get event data
+if (data.get_event_data) {
+	var event = getCurrentEvent(true);
+	var response = {};
+	if (event) {
+		var event_data = {
+		"trophies" : 0
+		}
+		if (event.time_prepare <= timeNow && timeNow < event.time_start) {
+			event_data.status = 1;
+			event_data.time = event.time_start - timeNow;
+			event_data.text_time_prefix = isVN() ? message_const.text_time_start.vi : message_const.text_time_start.en;
+			event_data.event_name = isVN() ? message_const.event_prepare_status.vi : message_const.event_prepare_status.en;
+		} else if (event.time_start <= timeNow && timeNow < event.time_end) {
+			event_data.status = 2;
+			event_data.time = event.time_end - timeNow;
+			event_data.event_name = isVN() ? message_const.event_ongoing_status.vi : message_const.event_ongoing_status.en;
+			event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
+		} else if (event.time_end <= timeNow) {
+			event_data.status = 3;
+			event_data.time = event.time_close - timeNow;
+			event_data.event_name = isVN() ? message_const.event_ended_status.vi : message_const.event_ended_status.en;
+			event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
+		}
+		var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
+		if (!groupMember) {
+			joinEvent(event.event_id);
+			groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
+		}
+		var members = groupMember.members;
+		var rewards = event.rewards;
+		if (rewards && rewards.length > 0) {
+			for (var i = 0; i < members.length; i++) {
+				if (members[i].playerID == playerID) {
+					event_data.trophies = members[i].trophies;
+					if (i < rewards.length) {
+						if (event.time_end > timeNow || event_data.trophies > 0) {
+							event_data.rewards = rewards[i];
+						}
+					}
+					if (playerData.event_rewards && playerData.event_rewards.event_id == event.event_id) {
+						event_data.is_received = playerData.event_rewards.is_received;
+					} else {
+						event_data.is_received = 0;
+					}
+					break;
+				}
+			}
+		}
+		if (event_data.rewards) {
+		 event_data.reward_status = isVN() ? message_const.received_reward_status.vi : message_const.received_reward_status.en;
+		} else {
+		 event_data.reward_status = isVN() ? message_const.no_reward_status.vi : message_const.no_reward_status.en;
+		}
+		response.event_data = event_data;
+
+		//get event rewards
+		response.event_rewards = playerData.event_rewards;
 	}
 	Spark.setScriptData("data", response);
 }
@@ -726,7 +782,6 @@ if (data.debug_test) {
 //=====================FUNCTION=====================//
 
 function getNotice () {
-	var timeNow = getTimeNow();
 	var notice = userNotice.find({$and:[{$or:[{"playerID":"all"},{"playerID":playerID}]}, {"time":{"$lt":timeNow}}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	var isVN = playerData.location && playerData.location.country && playerData.location.country == "VN" ? true : false;
@@ -742,7 +797,6 @@ function getNotice () {
 
 function getUserFeedback () {
 	var feedbacks;
-	var timeNow = getTimeNow();
 	if (isAdmin()) {
 		feedbacks = userFeedbackData.find({"time":{"$lt":timeNow}}).limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();
 	} else {
@@ -788,4 +842,31 @@ function getAdmin() {
 function getOneSignalPlayerID(player_id) {
 	var player = playerDataList.findOne({"playerID":player_id});
 	return player.one_signal_player_id;
+}
+
+function joinEvent(event_id) {
+	var member = {
+	   "playerID": playerID,
+	   "userName": playerData.userName ? playerData.userName : playerID,
+	   "trophies": 0,
+	   "last_rank": 1,
+	   "last_trophies": 0
+	}
+	var lastGroup = eventGroupMember.find({"event_id":event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
+	if (lastGroup && lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
+	  member.last_rank = lastGroup.members.length;
+	  lastGroup.members.push(member);
+	  eventGroupMember.update({"event_id":event_id, "group_id":lastGroup.group_id},{"$set":lastGroup}, true, false);
+	} else {
+	  var newGroupMember = {
+	    "event_id" : event_id,
+	    "group_id" : lastGroup ? lastGroup.group_id + 1 : 1,
+	    "members"  : [ member ]
+	  }
+	  eventGroupMember.insert(newGroupMember);
+	}
+}
+
+function isVN() {
+  return (playerData.location && playerData.location.country == "VN") ? true : false;
 }
