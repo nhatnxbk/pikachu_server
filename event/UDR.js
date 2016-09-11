@@ -852,7 +852,7 @@ function joinEvent(event_id) {
 	   "last_rank": 1,
 	   "last_trophies": 0
 	}
-	playerDataList.update({"playerID":playerID},{"$set":{"event_trophies":0}, true, false});
+	playerDataList.update({"playerID":playerID},{"$set":{"event_trophies":0}}, true, false});
 	var lastGroup = eventGroupMember.find({"event_id":event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
 	if (lastGroup && lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
 	  member.last_rank = lastGroup.members.length;
