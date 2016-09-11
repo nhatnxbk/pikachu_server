@@ -179,7 +179,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 	}
 	response.is_finish = false;
 	//rank of myPlayer on leader board friends
-	var myRank = event && isGameEvent ? getPlayerRank(event.event_id, playerID) : get_current_rank_with_friends();
+	var myRank = isGameEvent ? 1 : get_current_rank_with_friends();
 	response.rank_before = myRank;
 
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
@@ -262,7 +262,7 @@ if(data.online_match_end){
 			}
 			online_match_data.is_finish = true;
 			//rank of myPlayer after match_end
-			myRank = event && isGameEvent ? getPlayerRank(event.event_id, playerID) : get_current_rank_with_friends();
+			myRank = isGameEvent ? 1 : get_current_rank_with_friends();
 			online_match_data.rank_after = myRank;
 			onlineMatchList.update({"playerID": playerID}, {"$set": online_match_data}, true,false);
 		}else{

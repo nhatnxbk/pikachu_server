@@ -201,7 +201,7 @@ if (data.add_notice) {
 	}
 	if (playerID == "all") {
 	    //khi nao release bo comment
-        //SendNewNotification([], ["All"], [], title, content, null).getResponseJson();
+        SendNewNotification([], ["All"], [], title, content, null).getResponseJson();
 	} else {
 		var oneSignalPlayerID = getOneSignalPlayerID(playerID);
 		if (oneSignalPlayerID) {
