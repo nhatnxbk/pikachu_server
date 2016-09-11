@@ -60,7 +60,7 @@ if(data.get_server){
 			if(data.game_type == "random"){
 				if (isGameEvent) {
 					var concurrentPlayersNotEvent = server.find({"is_event":{"$ne":1}}).toArray();
-					var event = getCurrentEventStart(true);
+					var event = getCurrentEventStart();
 					if (event) {
 						var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
 						if (groupMember) {
@@ -122,7 +122,7 @@ if(data.online_match_start  && data.game_type == "friend"){
 
 if(data.online_match_start  && data.game_type != "friend"){
 	var isGameEvent = data.is_event ? data.is_event : false;
-	var event = getCurrentEventStart(true);
+	var event = getCurrentEventStart();
 	var currentPlayerData = playerDataList.findOne({"playerID": playerID});
 	var currentPlayer = Spark.getPlayer();
 	if(!currentPlayer) currentPlayer = {};
@@ -215,7 +215,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 }
 
 if(data.online_match_end){
-	var event = getCurrentEventStart(true);
+	var event = getCurrentEventStart();
 	var isGameEvent = data.is_event ? data.is_event : false;
 	var my_score = data.my_score;
 	var op_score = data.opponent_score;

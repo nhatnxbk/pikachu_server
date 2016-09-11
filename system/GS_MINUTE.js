@@ -6,13 +6,13 @@ var enable = true;
 
 if (enable) {
     // test_real_time.insert({"time":getTimeNow()});
-    // var eventComing = getEventComing();
+    var eventComing = getEventComing();
     var eventJustEnded = getEventJustEnded();
     var eventOnGoing = getCurrentEventStart();
 
     // match group for event coming
-    // if (eventComing && !eventComing.is_match_group) {
-        // removeCacheEvent();
+    if (eventComing && !eventComing.is_prepare) {
+        removeCacheEvent();
         // var playerMasterArr = playerDataSys.find().sort({"lastSeen.data.numberLong":-1}).toArray();
         // var numberPlayer = playerMasterArr.length;
         // var numberGroup = Math.ceil(numberPlayer / NUMBER_MEMBER_PER_GROUP);
@@ -58,7 +58,7 @@ if (enable) {
         //     "vi" : message_const.message_event_start.vi.concat(time).concat(message_const.message_event_start2.vi)
         // };
         // SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
-    // }
+    }
 
     //push notification when event start
     if (eventOnGoing && !eventOnGoing.is_push_start) {
