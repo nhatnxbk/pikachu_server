@@ -76,7 +76,7 @@ if("facebook_friend" in player_data && currentPlayer.time_fb_invite > 100){
 }
 
 //=============== Check new user name =============//
-if(player_data.userName != currentPlayer.userName){
+if(player_data.userName && player_data.userName != currentPlayer.userName){
     var result = Spark.sendRequest(
     {
       "@class" : ".ChangeUserDetailsRequest",
