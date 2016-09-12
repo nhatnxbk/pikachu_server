@@ -535,7 +535,7 @@ function get_bot_player_data(isEvent) {
 		}
 	}
 	if (isEvent) {
-		opponentPlayer.trophies =  opponentPlayer.event_trophies ? opponentPlayer.event_trophies : 0;
+		opponentPlayer.trophies = opponentPlayer.event_trophies ? opponentPlayer.event_trophies : 0;
 	}
 	return opponentPlayer;
 }

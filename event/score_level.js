@@ -23,6 +23,7 @@ delete player_data.event_data;
 delete player_data.event_rewards;
 delete player_data.new_message;
 delete player_data.is_admin;
+delete player_data.event_trophies;
 
 var currentPlayer = playerDataList.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
