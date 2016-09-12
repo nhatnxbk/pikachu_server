@@ -283,7 +283,9 @@ if(data.online_match_end){
 
 		Spark.setScriptData("data", {
 			"bonus" : bonus,
-			"trophies": (event && isGameEvent) ? currentPlayerData.event_trophies : currentPlayerData.trophies,
+			"trophies": currentPlayerData.trophies,
+			"event_trophies" : currentPlayerData.event_trophies,
+			"is_event" : isGameEvent,
 			"online_win":currentPlayerData.online_win,
 			"online_match_start":currentPlayerData.online_match_start,
 			"highest_trophy":currentPlayerData.highest_trophy,
