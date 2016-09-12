@@ -3,13 +3,15 @@
 function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, data) {
   var jsonBody = {
     "app_id": "53aa05a0-16d7-4e30-894f-149c80736052",
-    "include_player_ids": include_player_ids,
     "excluded_segments": excluded_segments,
     "headings" : title,
     "contents" : message
   };
+  if (include_player_ids.length > 0) {
+      jsonBody.include_player_ids = include_player_ids;
+  }
   if (included_segments.length > 0) {
-  	jsonBody.included_segments = included_segments;
+      jsonBody.included_segments = included_segments;
   }
   if (data) {
     jsonBody.data = data;
