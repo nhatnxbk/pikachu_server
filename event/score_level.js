@@ -1,4 +1,5 @@
 require("share");
+require("event_service");
 
 var playerDataList = Spark.runtimeCollection("playerData"); 
 var playerID = Spark.getPlayer().getPlayerId(); 
@@ -80,7 +81,11 @@ if(player_data.userName != currentPlayer.userName){
     {
       "@class" : ".ChangeUserDetailsRequest",
       "displayName" : player_data.userName
-  });
+    });
+    var event = getCurrentEvent();
+    if (event) {
+        updateEventMemberName(event.event_id, playerID, player_data.userName);
+    }
 }
 
 playerDataList.update({

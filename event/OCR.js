@@ -532,8 +532,8 @@ function get_bot_player_data(isEvent) {
 			opponentPlayer.rto_5 = rto_5_h;
 		}
 	}
-	if (isEvent && !opponentPlayer.event_trophies) {
-		opponentPlayer.event_trophies = 0;
+	if (isEvent) {
+		opponentPlayer.trophies =  opponentPlayer.event_trophies ? opponentPlayer.event_trophies : 0;
 	}
 	return opponentPlayer;
 }
