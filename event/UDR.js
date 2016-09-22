@@ -162,13 +162,24 @@ if (data.response_feedback) {
 	var feedbackID   = data.id ? data.id : 0;
 	var responseData = data.response ? data.response : undefined;
 	var response;
+	var is_show_android_store = data.is_show_android_store;
+	var is_show_ios_store = data.is_show_ios_store;
 	if (feedbackID && responseData) {
 		var feedbackPlayerID = userFeedbackData.findOne({"_id":{$oid:feedbackID}}).playerID;
 		var oneSignalPlayerID = getOneSignalPlayerID(feedbackPlayerID);
+		var saveData = {"response":responseData,"time":timeNow};
 		if (oneSignalPlayerID) {
 			var push = SendNewNotification([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
 		}
-		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":{"response":responseData,"time":timeNow}}, true, false);
+		if(is_show_android_store){
+			saveData.button_name = "Rate 5 star";
+			saveData.url = "https://play.google.com/store/apps/details?id=com.SunnyMonkey.PikachuOnline";
+		}
+		if(is_show_ios_store){
+			saveData.button_name = "Rate 5 star";
+			saveData.url = "https://itunes.apple.com/vn/app/pukachi-online/id1068833233?mt=8";
+		}
+		userFeedbackData.update({"_id":{$oid:feedbackID}}, {"$set":saveData}, true, false);
 		response = {
 			"result" : true,
 			"message": "Response success!"
