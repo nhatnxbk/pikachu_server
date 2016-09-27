@@ -184,7 +184,7 @@ if(data.online_match_start  && data.game_type != "friend"){
 
 	onlineMatchList.update({"playerID": playerID},{"$set":response},true,false);
 
-	var bonus_trophies = get_bonus_trophies_lost(myTrophies,opponentTrophies);
+	var bonus_trophies = get_bonus_trophies_lost(myTrophies,opponentTrophies, isGameEvent);
 	currentPlayer.setPrivateData("total_match_on",my_total_match_on);
 	myTrophies = myTrophies > bonus_trophies ? myTrophies - bonus_trophies : 0;
 	if (event && isGameEvent) {
@@ -233,7 +233,7 @@ if(data.online_match_end){
 			if(my_score >= op_score){
 				var isWin = my_score > op_score;
 				var currentPlayer = Spark.getPlayer();
-				var bonus_trophies = get_bonus_trophies_win(online_match_data.my_trophy,online_match_data.opponent_trophy);
+				var bonus_trophies = get_bonus_trophies_win(online_match_data.my_trophy,online_match_data.opponent_trophy, isGameEvent);
 				bonus = bonus_trophies;
 				if(!currentPlayerData.trophies) currentPlayerData.trophies = 0;
 				if(isWin){
@@ -258,7 +258,7 @@ if(data.online_match_end){
 				Spark.getLog().debug(save_data);
 			}else{
 				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
-				bonus = -get_bonus_trophies_lost(online_match_data.my_trophy,online_match_data.opponent_trophy);
+				bonus = -get_bonus_trophies_lost(online_match_data.my_trophy,online_match_data.opponent_trophy, isGameEvent);
 			}
 			online_match_data.is_finish = true;
 			//rank of myPlayer after match_end
@@ -338,8 +338,9 @@ if(data.join_room){
 if (data.get_bonus_trophies) {
 	var myTrophies = data.my_trophies;
 	var oppoentTrophies = data.opponent_trophies;
-	var bonus_win  = get_bonus_trophies_win(myTrophies, oppoentTrophies);
-	var bonus_lost = get_bonus_trophies_lost(myTrophies, oppoentTrophies);
+	var isGameEvent = data.is_event ? data.is_event : 0;
+	var bonus_win  = get_bonus_trophies_win(myTrophies, oppoentTrophies, isGameEvent);
+	var bonus_lost = get_bonus_trophies_lost(myTrophies, oppoentTrophies, isGameEvent);
 	Spark.setScriptData("data", {"bonus_win":bonus_win, "bonus_lost": bonus_lost});
 }
 
@@ -540,7 +541,7 @@ function get_bot_player_data(isEvent) {
 	return opponentPlayer;
 }
 
-function get_bonus_trophies_win(myTrophies, oppoentTrophies) {
+function get_bonus_trophies_win(myTrophies, oppoentTrophies, isEvent) {
 	var bonus  = BONUS_TROPHIES;
 	var offset = Math.abs(myTrophies - oppoentTrophies)
 	var bonusByOffset = Math.floor(offset / BONUS_TROPHIES_OFFSET * BONUS_BY_TROPHIES_OFFSET);
@@ -550,10 +551,10 @@ function get_bonus_trophies_win(myTrophies, oppoentTrophies) {
 	if (myTrophies > oppoentTrophies) {
 		bonusByOffset = -bonusByOffset;
 	}
-	return bonus + bonusByOffset;
+	return isEvent ? (bonus + bonusByOffset) * 2 : (bonus + bonusByOffset);
 }
 
-function get_bonus_trophies_lost(myTrophies, oppoentTrophies) {
+function get_bonus_trophies_lost(myTrophies, oppoentTrophies, isEvent) {
 	var bonus  = BONUS_TROPHIES;
 	var offset = Math.abs(myTrophies - oppoentTrophies)
 	var bonusByOffset = Math.floor(offset / BONUS_TROPHIES_OFFSET * BONUS_BY_TROPHIES_OFFSET);
@@ -563,6 +564,6 @@ function get_bonus_trophies_lost(myTrophies, oppoentTrophies) {
 	if (myTrophies > oppoentTrophies) {
 		bonusByOffset = -bonusByOffset;
 	}
-	return (bonus - bonusByOffset);
-	// return Math.floor((bonus - bonusByOffset) / 2);
+	// return (bonus - bonusByOffset);
+	return isEvent ? Math.floor((bonus - bonusByOffset) / 2) : (bonus - bonusByOffset);
 }
