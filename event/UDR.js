@@ -821,12 +821,12 @@ function getUserFeedback () {
 		feedback.type = 1;
 		if (isAdmin()) {
 			var userFeedback = playerDataList.findOne({"playerID":feedback.playerID});
-			feedback.feedback = "UserName : " + userFeedback.userName + "\n"
+			feedback.feedback = feedback.feedback + "\n"
+			+ "UserName : " + userFeedback.userName + "\n"
 			+ "Trophies : " + userFeedback.trophies + "\n"
 			+ "Total Win : " + userFeedback.online_win + "\n"
 			+ "Online match : " + userFeedback.online_match_start + "\n"
-			+ "Bot match : " + userFeedback.online_bot_start + "\n"
-			+ feedback.feedback;
+			+ "Bot match : " + userFeedback.online_bot_start + "\n";
 		}
 	}
 	return feedbacks;
