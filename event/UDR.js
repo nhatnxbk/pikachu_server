@@ -131,7 +131,7 @@ if (data.user_feedback) {
 	}
 	var userName = playerData.userName ? playerData.userName : "UserFeedback";
 	var listAdmin = getAdmin();
-	var message = "You received one feedback from user";
+	var message = content;
 	if (!isAdmin()) {
 		var push = SendNewNotification(listAdmin, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
 	}
@@ -819,6 +819,15 @@ function getUserFeedback () {
 		feedback.is_new = feedback.time >= lastTimeRead ? 1 : 0;
 		feedback.time = timeNow - feedback.time;
 		feedback.type = 1;
+		if (isAdmin()) {
+			var userFeedback = playerDataList.findOne({"playerID":feedback.playerID});
+			feedback.feedback = "UserName : " + userFeedback.userName + "\n"
+			+ "Trophies : " + userFeedback.trophies + "\n"
+			+ "Total Win : " + userFeedback.online_win + "\n"
+			+ "Online match : " + userFeedback.online_match_start + "\n"
+			+ "Bot match : " + userFeedback.online_bot_start + "\n"
+			+ feedback.feedback;
+		}
 	}
 	return feedbacks;
 }
