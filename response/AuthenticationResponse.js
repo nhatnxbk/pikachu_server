@@ -14,59 +14,61 @@ var currentPlayer = playerData.findOne({
 }); // search the collection data for the entry with the same id as the player
 var timeNow = getTimeNow();
 if (currentPlayer === null){
-    currentPlayer = {};
+  currentPlayer = {};
 }
 if(!("trophies" in currentPlayer)){
   currentPlayer.trophies = USER_START_TROPHY + parseInt(Math.random()*100);
   currentPlayer.online_win = 0;
   currentPlayer.online_match_start = 0;
   currentPlayer.highest_trophy = currentPlayer.trophies;
-}
 
-if (!currentPlayer.player_coin) {
-    currentPlayer.player_coin = DEFAULT_COIN;
-}
-if (!currentPlayer.get_first_coin) {// Tang cho user 5k coin dau tien
+  if (!currentPlayer.get_first_coin) {// Tang cho user 5k coin dau tien
     currentPlayer.get_first_coin = true;
     currentPlayer.bonus_coin = 5000;
     currentPlayer.bonus_message = "First time login reward!";
+  }
 }
+
+if (!currentPlayer.player_coin) {
+  currentPlayer.player_coin = DEFAULT_COIN;
+}
+
 //======== Caculate time can request and receive energy or not=========//
 Spark.getLog().debug("Now : " + timeNow);
 var time_fb_invite = 0;
 if( "time_fb_invite" in currentPlayer){
-    time_fb_invite = currentPlayer.time_fb_invite;
+  time_fb_invite = currentPlayer.time_fb_invite;
 }
 if(!currentPlayer.userName && currentPlayer.facebook_name){
-    currentPlayer.userName = currentPlayer.facebook_name;
-    var result = Spark.sendRequest(
-    {
-      "@class" : ".ChangeUserDetailsRequest",
-      "displayName" : currentPlayer.facebook_name
-    });
+  currentPlayer.userName = currentPlayer.facebook_name;
+  var result = Spark.sendRequest(
+  {
+    "@class" : ".ChangeUserDetailsRequest",
+    "displayName" : currentPlayer.facebook_name
+  });
 }
 var timeDelta = timeNow - time_fb_invite;
 if(timeDelta < TIME_FB_INVITE){
-    currentPlayer.can_fb_invite = false;
+  currentPlayer.can_fb_invite = false;
 }else{
-    currentPlayer.can_fb_invite = true;
+  currentPlayer.can_fb_invite = true;
 }
 
 var itemShopData;
 if (!currentPlayer.shop_version || currentPlayer.shop_version < SHOP_VERSION) {
-    var packItemMaster = Spark.metaCollection("pack_item_master");
-    var item_shop_data = packItemMaster.find().toArray();
-    itemShopData = {
-      "item_shop_data" : item_shop_data
-    }
-    currentPlayer.shop_version = SHOP_VERSION;
+  var packItemMaster = Spark.metaCollection("pack_item_master");
+  var item_shop_data = packItemMaster.find().toArray();
+  itemShopData = {
+    "item_shop_data" : item_shop_data
+  }
+  currentPlayer.shop_version = SHOP_VERSION;
 }
 
 var config;
 if(!currentPlayer.app_version) currentPlayer.app_version = 1;
 if (!currentPlayer.config_version || currentPlayer.config_version < CONFIG_VERSION || currentPlayer.app_version <= 17) {
-    config = CONFIG;
-    currentPlayer.config_version = CONFIG_VERSION;
+  config = CONFIG;
+  currentPlayer.config_version = CONFIG_VERSION;
 }
 
 var response = Spark.sendRequest({"@class":".AccountDetailsRequest"});
