@@ -344,6 +344,7 @@ if (data.event_get_reward) {
 	var response;
 	if (!event_rewards.is_received) {
 		var currentTrophies = playerData.trophies;
+		var highTrophies = playerData.highest_trophy ? playerData.highest_trophy : 0;
 		if (event_rewards.reward_trophies) {
 			currentTrophies = currentTrophies + event_rewards.reward_trophies;
 			var result = Spark.sendRequest({
@@ -353,9 +354,12 @@ if (data.event_get_reward) {
 				"COUNTRY": playerData && playerData.location && playerData.location.country ? playerData.location.country : "VN",
 				"CITY": ""
 			});
+			if (highTrophies < currentTrophies) {
+				highTrophies = currentTrophies;
+			}
 		}
 		event_rewards.is_received = 1;
-		playerDataList.update({"playerID":playerID},{"$set":{"trophies":currentTrophies, "event_rewards":event_rewards}}, false, true);
+		playerDataList.update({"playerID":playerID},{"$set":{"trophies":currentTrophies, "highest_trophy":highTrophies, "event_rewards":event_rewards}}, false, true);
 		event_rewards.trophies = currentTrophies;
 		response = {
 			"result"  : true,
