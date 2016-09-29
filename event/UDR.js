@@ -825,12 +825,14 @@ function getUserFeedback () {
 		feedback.type = 1;
 		if (isAdmin()) {
 			var userFeedback = playerDataList.findOne({"playerID":feedback.playerID});
+			var userSys = playerDataSys.findOne({"_id":{"$oid":feedback.playerID}});
 			feedback.feedback = feedback.feedback + "\n"
-			+ "UserName : " + userFeedback.userName + "\n"
-			+ "Trophies : " + userFeedback.trophies + "\n"
-			+ "Total Win : " + userFeedback.online_win + "\n"
-			+ "Online match : " + userFeedback.online_match_start + "\n"
-			+ "Bot match : " + userFeedback.online_bot_start + "\n";
+			+ "UserName : " + userFeedback.userName + ". "
+			+ "Trophies : " + userFeedback.trophies + ". "
+			+ "Total Win : " + userFeedback.online_win + ". "
+			+ "Online match : " + userFeedback.online_match_start + ". "
+			+ "Bot match : " + userFeedback.online_bot_start + ". "
+			+ "OS : " + userSys.userName;
 		}
 	}
 	return feedbacks;
