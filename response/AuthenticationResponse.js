@@ -26,6 +26,11 @@ if(!("trophies" in currentPlayer)){
 if (!currentPlayer.player_coin) {
     currentPlayer.player_coin = DEFAULT_COIN;
 }
+if (!currentPlayer.get_first_coin) {// Tang cho user 5k coin dau tien
+    currentPlayer.get_first_coin = true;
+    currentPlayer.bonus_coin = 5000;
+    currentPlayer.bonus_message = "First time login reward!";
+}
 //======== Caculate time can request and receive energy or not=========//
 Spark.getLog().debug("Now : " + timeNow);
 var time_fb_invite = 0;
@@ -86,6 +91,7 @@ delete currentPlayer.rto_2;
 delete currentPlayer.rto_3;
 delete currentPlayer.rto_4;
 delete currentPlayer.rto_5;
+delete currentPlayer.get_first_coin;
 
 // check admin
 var is_admin = isAdmin();

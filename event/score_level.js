@@ -10,6 +10,7 @@ if(player_data.ignore_bonus){
     delete player_data.bonus_hint;
     delete player_data.bonus_random;
     delete player_data.bonus_message;
+    delete player_data.bonus_coin;
 }
 
 delete player_data.online_win;
@@ -24,6 +25,7 @@ delete player_data.event_rewards;
 delete player_data.new_message;
 delete player_data.is_admin;
 delete player_data.event_trophies;
+delete player_data.get_first_coin;
 
 var currentPlayer = playerDataList.findOne({
 	"playerID": Spark.getPlayer().getPlayerId()
