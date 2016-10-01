@@ -811,10 +811,10 @@ if (data.compensate_user) {
 			"hint":hint,
 			"random":random,
 			"message":message,
-			"last_time_login":lastTimeLogin
+			"last_time_login":lastTimeLogin,
 			"time":timeNow
-		};
-		compensateLogCollection.inset(compensateData);
+		}
+		compensateLogCollection.insert(compensateData);
 	});
 	var response = {
 		"result" : true,
