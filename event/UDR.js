@@ -794,6 +794,25 @@ if (data.debug_test) {
     Spark.setScriptData("data", response);
 }
 
+//compensate for user
+if (data.compensate_user) {
+	var energy = data.energy ? data.energy : 0;
+	var hint = data.hint ? data.hint : 0;
+	var random = data.random ? data.random : 0;
+	var lastTimeLogin = data.last_time_login ? data.last_time_login : 0;
+	var message = data.message ? data.message : "Compensate for user";
+	var playerSysArr = playerDataSys.find({"lastSeen":{ "$gte": {"$date": lastTimeLogin}}}).toArray();
+	playerSysArr.forEach(function(player){
+		playerDataList.update({"playerID":player._id.$oid},{"$set":{"bonus_energy":energy,"bonus_hint":hint,"bonus_random":random,"bonus_message":message}}, true, false);
+	});
+	var response = {
+		"result" : true,
+		"message" : "Compensate done",
+		"number_user": playerSysArr.length
+	}
+	Spark.setScriptData("data",response);
+}
+
 //=====================FUNCTION=====================//
 
 function getNotice () {
