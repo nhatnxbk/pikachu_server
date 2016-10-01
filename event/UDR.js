@@ -9,6 +9,7 @@ var itemPackMaster = Spark.metaCollection("pack_item_master");
 var logPurchaserData = Spark.runtimeCollection("user_purchaser_log");
 var userFeedbackData = Spark.runtimeCollection("user_feedback");
 var userNotice = Spark.runtimeCollection("user_notice");
+var compensateLogCollection = Spark.runtimeCollection("compensate_log");
 var data = Spark.getData().data;
 var timeNow = getTimeNow();
 if(!data) data = {};
@@ -804,6 +805,16 @@ if (data.compensate_user) {
 	var playerSysArr = playerDataSys.find({"lastSeen":{ "$gte": {"$date": lastTimeLogin}}}).toArray();
 	playerSysArr.forEach(function(player){
 		playerDataList.update({"playerID":player._id.$oid},{"$set":{"bonus_energy":energy,"bonus_hint":hint,"bonus_random":random,"bonus_message":message}}, true, false);
+		var compensateData = {
+			"playerID" : player._id.$oid,
+			"energy":energy,
+			"hint":hint,
+			"random":random,
+			"message":message,
+			"last_time_login":lastTimeLogin
+			"time":timeNow
+		};
+		compensateLogCollection.inset(compensateData);
 	});
 	var response = {
 		"result" : true,
