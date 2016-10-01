@@ -813,6 +813,17 @@ if (data.compensate_user) {
 	Spark.setScriptData("data",response);
 }
 
+if (data.get_player_sys) {
+	var lastTimeLogin = data.last_time_login ? data.last_time_login : 0;
+	var playerSysArr = playerDataSys.find({"lastSeen":{ "$gte": {"$date": lastTimeLogin}}}).toArray();
+	var response = {
+		"result": true,
+		"number_player" : playerSysArr.length,
+		"player" : playerSysArr
+	}
+	Spark.setScriptData("data", response);
+}
+
 //=====================FUNCTION=====================//
 
 function getNotice () {
