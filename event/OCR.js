@@ -230,6 +230,7 @@ if(data.online_match_end){
 		var online_match_data =onlineMatchList.findOne({"playerID":playerID});
 		var coin_bonus = 0;
 		if(online_match_data !== null && !online_match_data.is_finish){
+			var log_data;
 			if(my_score >= op_score){
 				var isWin = my_score > op_score;
 				var currentPlayer = Spark.getPlayer();
@@ -251,15 +252,38 @@ if(data.online_match_end){
 						currentPlayerData.highest_trophy = currentPlayerData.trophies;
 					}
 				}
-
+				log_data = {
+					"winner":{
+						"id":playerID,
+						"score":my_score,
+						"coin_bonus":coin_bonus,
+						"bonus_trophies":bonus
+					},
+					"loser":{
+						"id":op_id,
+						"score":op_score
+					},
+					"status": isWin ? "win" : "draw"
+				}
 				playerDataList.update({"playerID": playerID}, {"$set": currentPlayerData}, true,false);
-
-				var save_data = {"winner":{"id":playerID,"score":my_score, "coin_bonus": coin_bonus},"loser":{"id":op_id,"score":op_score},"draw":(!isWin)};
-				Spark.getLog().debug(save_data);
 			}else{
 				currentPlayerData.online_lose = currentPlayerData.online_lose ? (currentPlayerData.online_lose+1) : 0;
 				bonus = -get_bonus_trophies_lost(online_match_data.my_trophy,online_match_data.opponent_trophy, isGameEvent);
+				log_data = {
+					"winner":{
+						"id":op_id,
+						"score":op_score
+					},
+					"loser":{
+						"id":playerID,
+						"score":my_score,
+						"coin_bonus":0,
+						"bonus_trophies":bonus
+					},
+					"draw":"lose"
+				}
 			}
+			Spark.getLog().debug(log_data);
 			online_match_data.is_finish = true;
 			//rank of myPlayer after match_end
 			myRank = isGameEvent ? 1 : get_current_rank_with_friends();
