@@ -795,7 +795,7 @@ if (data.debug_test) {
     Spark.setScriptData("data", response);
 }
 
-//compensate for user
+//compensate for user who login after time
 if (data.compensate_user) {
 	var energy = data.energy ? data.energy : 0;
 	var hint = data.hint ? data.hint : 0;
@@ -820,6 +820,33 @@ if (data.compensate_user) {
 		"result" : true,
 		"message" : "Compensate done",
 		"number_user": playerSysArr.length
+	}
+	Spark.setScriptData("data",response);
+}
+
+//compensate for user with array player_id
+if (data.compensate_user_special) {
+	var energy = data.energy ? data.energy : 0;
+	var hint = data.hint ? data.hint : 0;
+	var random = data.random ? data.random : 0;
+	var message = data.message ? data.message : "Compensate for user";
+	var listPlayerID = data.list_player ? data.list_player : [];
+	listPlayerID.forEach(function(player_id){
+		playerDataList.update({"playerID":player_id},{"$set":{"bonus_energy":energy,"bonus_hint":hint,"bonus_random":random,"bonus_message":message}}, true, false);
+		var compensateData = {
+			"playerID" : player_id,
+			"energy":energy,
+			"hint":hint,
+			"random":random,
+			"message":message,
+			"time":timeNow
+		}
+		compensateLogCollection.insert(compensateData);
+	});
+	var response = {
+		"result" : true,
+		"message" : "Compensate done",
+		"number_user": listPlayerID.length
 	}
 	Spark.setScriptData("data",response);
 }
