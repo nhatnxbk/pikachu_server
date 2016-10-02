@@ -280,7 +280,7 @@ if(data.online_match_end){
 						"coin_bonus":0,
 						"bonus_trophies":bonus
 					},
-					"draw":"lose"
+					"status":"lose"
 				}
 			}
 			Spark.getLog().debug(log_data);
