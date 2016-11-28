@@ -143,8 +143,8 @@ if (data.user_feedback) {
 	}
 	var message = content;
 	if (!isAdmin()) {
-		SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online, listAdminPikachu, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
-		SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p, listAdminPikachu2p, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
+		SendNewNotification(listAdminPikachu, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
+		SendNewNotification2p(listAdminPikachu2p, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
 	}
 	Spark.setScriptData("data",response);
 }
@@ -181,9 +181,11 @@ if (data.response_feedback) {
 		var oneSignalPlayerID = feedbackPlayer.one_signal_player_id;
 		var saveData = {"response":responseData,"time":timeNow};
 		if (oneSignalPlayerID) {
-			var app_id = feedbackPlayer.store_id == server_config.STORE_ID.pikachu_2p_android
-			? server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p : server_config.ONE_SIGNAL_APP_ID.pikachu_online;
-			SendNewNotification(app_id, [oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
+			if (feedbackPlayer.store_id == server_config.STORE_ID.pikachu_2p_android) {
+				SendNewNotification2p([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();	
+			} else {
+				SendNewNotification([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
+			}
 		}
 		if(is_show_android_store){
 			saveData.button_name = "Rate 5 star";
@@ -226,15 +228,17 @@ if (data.add_notice) {
 	}
 	if (playerID == "all") {
 	    //khi nao release bo comment
-        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online, [], ["All"], [], title, content, null).getResponseJson();
-        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p, [], ["All"], [], title, content, null).getResponseJson();
+        SendNewNotification([], ["All"], [], title, content, null).getResponseJson();
+        SendNewNotification2p([], ["All"], [], title, content, null).getResponseJson();
 	} else {
 		var noticePlayer = playerDataList.findOne({"playerID":playerID});
 		var oneSignalPlayerID = noticePlayer.one_signal_player_id;
 		if (oneSignalPlayerID) {
-			var app_id = noticePlayer.store_id == server_config.STORE_ID.pikachu_2p_android
-			? server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p : server_config.ONE_SIGNAL_APP_ID.pikachu_online;
-			SendNewNotification(app_id, [oneSignalPlayerID], [], [], title, content, null).getResponseJson();
+			if (noticePlayer.store_id == server_config.STORE_ID.pikachu_2p_android) {
+				SendNewNotification2p([oneSignalPlayerID], [], [], title, content, null).getResponseJson();
+			} else {
+				SendNewNotification([oneSignalPlayerID], [], [], title, content, null).getResponseJson();	
+			}
 		}
 	}
 	Spark.setScriptData("data",response);
