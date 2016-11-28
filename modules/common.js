@@ -1,8 +1,8 @@
 //======== function common ========//
 
-function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, data) {
+function SendNewNotification(app_id, include_player_ids, included_segments, excluded_segments, title, message, data) {
   var jsonBody = {
-    "app_id": "53aa05a0-16d7-4e30-894f-149c80736052",
+    "app_id": app_id,
     "excluded_segments": excluded_segments,
     "headings" : title,
     "contents" : message
