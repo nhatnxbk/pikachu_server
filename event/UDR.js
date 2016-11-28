@@ -844,7 +844,7 @@ function getAdmin() {
 		if (listAdmin[i].one_signal_player_id) {
 			var admin = {
 				"player_id": listAdmin[i].one_signal_player_id,
-				"store_id" : listAdmin[i].store_id;
+				"store_id" : listAdmin[i].store_id
 			}
 			adminsPush.push(admin);
 		}
