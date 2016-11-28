@@ -20,7 +20,8 @@ if (enable) {
             "en" : message_const.message_event_start.en.concat(time).concat(message_const.message_event_start2.en),
             "vi" : message_const.message_event_start.vi.concat(time).concat(message_const.message_event_start2.vi)
         };
-        SendNewNotification([], ["All"], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online, [], ["All"], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p, [], ["All"], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
 
     //push notification when event start
@@ -29,12 +30,14 @@ if (enable) {
         removeCacheEvent();
         var titlePN = message_const.title_event_start;
         var messagePN = message_const.message_event_started;
-        SendNewNotification([], ["All"], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online, [], ["All"], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p, [], ["All"], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
 
     // distribute reward for user after event ended
     if (eventJustEnded && !eventJustEnded.is_distribute_reward) {
-        var listPlayerPN = [];
+        var listPlayerPNPikachu = [];
+        var listPlayerPNPikachu2p = [];
         var groupMembers = getAllGroupMember(eventJustEnded.event_id);
         var rewards = eventJustEnded.rewards;
         if (rewards && rewards.length > 0) {
@@ -50,7 +53,11 @@ if (enable) {
                        reward.event_id = eventJustEnded.event_id;
                        var playerCus = playerDataCollection.findOne({"playerID":members[i].playerID});
                        if (playerCus && playerCus.one_signal_player_id) {
-                            listPlayerPN.push(playerCus.one_signal_player_id);
+                            if (playerCus.store_id == server_config.STORE_ID.pikachu_2p_android) {
+                                listPlayerPNPikachu2p.push(playerCus.one_signal_player_id);
+                            } else {
+                                listPlayerPNPikachu.push(playerCus.one_signal_player_id);
+                            }
                        }
                        playerDataCollection.update({"playerID":members[i].playerID},{"$set":{"event_rewards":reward}}, true, false);
                     } else {
@@ -68,6 +75,7 @@ if (enable) {
             "en" : message_const.message_event_reward.en,
             "vi" : message_const.message_event_reward.vi
         }
-        SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online, listPlayerPNPikachu, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
+        SendNewNotification(server_config.ONE_SIGNAL_APP_ID.pikachu_online_2p, listPlayerPNPikachu2p, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT});
     }
 }
