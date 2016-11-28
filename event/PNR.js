@@ -18,7 +18,7 @@ if (data.push_notification) {
             if (playerPush.store_id == server_config.STORE_ID.pikachu_2p_android) {
                 response = SendNewNotification2p([onesignalID], [], [], title, message, additionData).getResponseJson();
             } else {
-                response = SendNewNotification([onesignalID], []], [], title, message, additionData).getResponseJson();    
+                response = SendNewNotification([onesignalID], [], [], title, message, additionData).getResponseJson();    
             }
         }
     }
