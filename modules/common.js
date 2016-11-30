@@ -22,3 +22,26 @@ function SendNewNotification(include_player_ids, included_segments, excluded_seg
   }).postJson(jsonBody);
   return promise;
 }
+
+function SendNewNotification2p(include_player_ids, included_segments, excluded_segments, title, message, data) {
+  var jsonBody = {
+    "app_id": "6ac231d8-7391-46c8-bc7c-e46915531132",
+    "excluded_segments": excluded_segments,
+    "headings" : title,
+    "contents" : message
+  };
+  if (include_player_ids.length > 0) {
+      jsonBody.include_player_ids = include_player_ids;
+  }
+  if (included_segments.length > 0) {
+      jsonBody.included_segments = included_segments;
+  }
+  if (data) {
+    jsonBody.data = data;
+  }
+   var promise = Spark.getHttp("https://onesignal.com/api/v1/notifications").setHeaders({
+    "Content-Type": "application/json;charset=utf-8",
+    "Authorization": "Basic MWIxYjliODItOTI1MC00MzVlLWEzZTgtMWU1OTFhNWUzODg5"
+  }).postJson(jsonBody);
+  return promise;
+}

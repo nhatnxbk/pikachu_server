@@ -8,17 +8,19 @@ if(!data) data = {};
 if (data.push_notification) {
     var player_id = data.player_id;
     var additionData = data.data;
-    var include_player_ids = [];
+    var response = {};
     if (player_id) {
-      var onesignalID = playerDataList.findOne({"playerID":player_id}).one_signal_player_id;
-      if (onesignalID) {
-        include_player_ids.push(onesignalID);
-      }
+        var playerPush = playerDataList.findOne({"playerID":player_id});
+        var onesignalID = playerPush.one_signal_player_id;
+        if (onesignalID) {
+            var message = data.message ? data.message : {"en" : "Hey, can you back to play with us?"};
+            var title = data.title ? data.title : {"en" : "Picachu Online"};
+            if (playerPush.store_id == server_config.STORE_ID.pikachu_2p_android) {
+                response = SendNewNotification2p([onesignalID], [], [], title, message, additionData).getResponseJson();
+            } else {
+                response = SendNewNotification([onesignalID], [], [], title, message, additionData).getResponseJson();    
+            }
+        }
     }
-    var included_segments = include_player_ids.length > 0 ? [] : ["All"];
-    var excluded_segments = [];
-    var message = data.message ? data.message : {"en" : "Hey, can you back to play with us?"};
-    var title = data.title ? data.title : {"en" : "Picachu Online"};
-    var response = SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, additionData).getResponseJson();
     Spark.setScriptData("response", response);
 }

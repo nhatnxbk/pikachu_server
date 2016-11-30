@@ -131,9 +131,20 @@ if (data.user_feedback) {
 	}
 	var userName = playerData.userName ? playerData.userName : "UserFeedback";
 	var listAdmin = getAdmin();
+	var listAdminPikachu = [];
+	var listAdminPikachu2p = [];
+	for (var i = 0; i < listAdmin.length; i++) {
+		var admin = listAdmin[i];
+		if (admin.store_id == server_config.STORE_ID.pikachu_2p_android) {
+			listAdminPikachu2p.push(admin.player_id);
+		} else {
+			listAdminPikachu.push(admin.player_id);
+		}
+	}
 	var message = content;
 	if (!isAdmin()) {
-		var push = SendNewNotification(listAdmin, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
+		SendNewNotification(listAdminPikachu, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
+		SendNewNotification2p(listAdminPikachu2p, [], [], {"en" : title}, {"en": message}, null).getResponseJson();
 	}
 	Spark.setScriptData("data",response);
 }
@@ -166,10 +177,15 @@ if (data.response_feedback) {
 	var is_show_ios_store = data.is_show_ios_store;
 	if (feedbackID && responseData) {
 		var feedbackPlayerID = userFeedbackData.findOne({"_id":{$oid:feedbackID}}).playerID;
-		var oneSignalPlayerID = getOneSignalPlayerID(feedbackPlayerID);
+		var feedbackPlayer = playerDataList.findOne({"playerID":feedbackPlayerID});
+		var oneSignalPlayerID = feedbackPlayer.one_signal_player_id;
 		var saveData = {"response":responseData,"time":timeNow};
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
+			if (feedbackPlayer.store_id == server_config.STORE_ID.pikachu_2p_android) {
+				SendNewNotification2p([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();	
+			} else {
+				SendNewNotification([oneSignalPlayerID], [], [], {"en" : "Picachu Online Response Feedback"}, {"en" : responseData}, null).getResponseJson();
+			}
 		}
 		if(is_show_android_store){
 			saveData.button_name = "Rate 5 star";
@@ -213,10 +229,16 @@ if (data.add_notice) {
 	if (playerID == "all") {
 	    //khi nao release bo comment
         SendNewNotification([], ["All"], [], title, content, null).getResponseJson();
+        SendNewNotification2p([], ["All"], [], title, content, null).getResponseJson();
 	} else {
-		var oneSignalPlayerID = getOneSignalPlayerID(playerID);
+		var noticePlayer = playerDataList.findOne({"playerID":playerID});
+		var oneSignalPlayerID = noticePlayer.one_signal_player_id;
 		if (oneSignalPlayerID) {
-			var push = SendNewNotification([oneSignalPlayerID], [], [], title, content, null).getResponseJson();
+			if (noticePlayer.store_id == server_config.STORE_ID.pikachu_2p_android) {
+				SendNewNotification2p([oneSignalPlayerID], [], [], title, content, null).getResponseJson();
+			} else {
+				SendNewNotification([oneSignalPlayerID], [], [], title, content, null).getResponseJson();	
+			}
 		}
 	}
 	Spark.setScriptData("data",response);
@@ -759,41 +781,6 @@ if (data.debug_remove_event_cache) {
     Spark.setScriptData("data", {"message":"Removed cache"});
 }
 
-//test
-if (data.debug_test) {
-    var eventOnGoing = getCurrentEventStart();
-    var response;
-    if (eventOnGoing && !eventOnGoing.is_push_start) {
-        var listPlayerPN = [];
-        var groupMembers = getAllGroupMember(eventOnGoing.event_id);
-        groupMembers.forEach(function(groupMember){
-            var members = groupMember.members;
-            members.forEach(function(member){
-                var one_signal_player_id = getOneSignalPlayerID(member.playerID);
-                if (one_signal_player_id) {
-                    listPlayerPN.push(one_signal_player_id);
-                }
-            });
-        });
-        eventMaster.update({"event_id":eventOnGoing.event_id},{"$set":{"is_push_start":1}},true, false);
-        var titlePN = {
-            "en" : server_config.message_event_start.en,
-            "vi" : server_config.message_event_start.vi
-        }
-        var messagePN = {
-            "en" : server_config.message_event_started.en,
-            "vi" : server_config.message_event_started.vi
-        }
-        test_real_time.insert({"listPlayerPN":listPlayerPN.length});
-        response = SendNewNotification(listPlayerPN, [], [], titlePN, messagePN, {"actionSelected":server_config.REDIRECT_TO.EVENT}).getResponseJson();
-    } else {
-        response = {
-            "message" : "Event not found"
-        }
-    }
-    Spark.setScriptData("data", response);
-}
-
 //=====================FUNCTION=====================//
 
 function getNotice () {
@@ -859,7 +846,11 @@ function getAdmin() {
 	var adminsPush = [];
 	for (var i = 0; i < listAdmin.length; i++) {
 		if (listAdmin[i].one_signal_player_id) {
-			adminsPush.push(listAdmin[i].one_signal_player_id);
+			var admin = {
+				"player_id": listAdmin[i].one_signal_player_id,
+				"store_id" : listAdmin[i].store_id
+			}
+			adminsPush.push(admin);
 		}
 	}
 	return adminsPush;
