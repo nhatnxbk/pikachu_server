@@ -799,7 +799,7 @@ if (data.debug_add_event_master) {
 	        "is_prepare"          : 0,
 	        "is_push_start"       : 0,
 	        "is_distribute_reward": 0,
-	        "background"          : lastEvent.backgroud
+	        "background"          : lastEvent.background
 	    }
 	    newEvents.push(event);
 	}
