@@ -781,6 +781,37 @@ if (data.debug_remove_event_cache) {
     Spark.setScriptData("data", {"message":"Removed cache"});
 }
 
+//add event master
+if (data.debug_add_event_master) {
+	var numberEvent = data.number_event ? data.number_event : 5;
+	var events = eventMaster.find().sort({"event_id":-1}).limit(1).toArray();
+	var lastEvent = events ? events[0] : undefined;
+	var newEvents = [];
+	var offsetTime = 7*24*60*60*1000;
+	for (var i = 0; i < numberEvent; i++) {
+	    var event = {
+	        "event_id"            : lastEvent.event_id + (i+1),
+	        "time_prepare"        : lastEvent.time_prepare + (i+1) * offsetTime,
+	        "time_start"          : lastEvent.time_start + (i+1) * offsetTime,
+	        "time_end"            : lastEvent.time_end + (i+1) * offsetTime,
+	        "time_close"          : lastEvent.time_close + (i+1) * offsetTime,
+	        "rewards"             : lastEvent.rewards,
+	        "is_prepare"          : 0,
+	        "is_push_start"       : 0,
+	        "is_distribute_reward": 0,
+	        "background"          : lastEvent.backgroud
+	    }
+	    newEvents.push(event);
+	}
+	eventMaster.insert(newEvents);
+	var response = {
+		"result": true,
+		"message": "Add event success",
+		"newEvents": newEvents
+	}
+	Spark.setScriptData("data",response);
+}
+
 //=====================FUNCTION=====================//
 
 function getNotice () {
