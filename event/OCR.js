@@ -448,13 +448,39 @@ function get_bot_player_data(isEvent) {
 	var list_ignore = online_match_data && online_match_data.list_ignore ? online_match_data.list_ignore : [];
 	var opponentPlayer;
 	var opponentPlayerData;
+	var offsetTrophies1 = server_config.offset_trophies_1;
+	var offsetTrophies2 = server_config.offset_trophies_2;
+	var offsetTrophies3 = server_config.offset_trophies_3;
+	// Find player has trophies around +/- 300
+	var myTrophies = currentPlayerData.trophies ? currentPlayerData.trophies : 0;
+	var trophiesMax = myTrophies + offsetTrophies1;
+	var trophiesMin = myTrophies > offsetTrophies1 ? myTrophies - offsetTrophies1 : 0;
 	if (IGNORE_HAS_RANDOM_TIME) {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true},"facebook_id":{"$exists":true,"$nin":friendListArr}});
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
 	} else {
-		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true},"facebook_id":{"$exists":true,"$nin":friendListArr},"has_random_time":true});
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr},"has_random_time":true});
 	}
 	var opponentPlayerDataArr = opponentPlayerData.toArray();
 	if (!IGNORE_HAS_RANDOM_TIME && opponentPlayerDataArr.length == 0) {
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+	}
+	//Find player has trophies around +/- 500
+	if (opponentPlayerDataArr.length == 0) {
+		trophiesMax = myTrophies + offsetTrophies2;
+		trophiesMin = myTrophies > offsetTrophies2 ? myTrophies - offsetTrophies2 : 0;
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+	}
+	//Find player has trophies around +/- 800
+	if (opponentPlayerDataArr.length == 0) {
+		trophiesMax = myTrophies + offsetTrophies3;
+		trophiesMin = myTrophies > offsetTrophies3 ? myTrophies - offsetTrophies3 : 0;
+		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
+		opponentPlayerDataArr = opponentPlayerData.toArray();
+	}
+	//Find player has trophies
+	if (opponentPlayerDataArr.length == 0) {
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true},"facebook_id":{"$exists":true,"$nin":friendListArr}});
 		opponentPlayerDataArr = opponentPlayerData.toArray();
 	}
@@ -551,7 +577,8 @@ function get_bonus_trophies_win(myTrophies, oppoentTrophies, isEvent) {
 	if (myTrophies > oppoentTrophies) {
 		bonusByOffset = -bonusByOffset;
 	}
-	return isEvent ? (bonus + bonusByOffset) * 2 : (bonus + bonusByOffset);
+	// return isEvent ? (bonus + bonusByOffset) * 2 : (bonus + bonusByOffset);
+	return bonus;
 }
 
 function get_bonus_trophies_lost(myTrophies, oppoentTrophies, isEvent) {
@@ -565,5 +592,6 @@ function get_bonus_trophies_lost(myTrophies, oppoentTrophies, isEvent) {
 		bonusByOffset = -bonusByOffset;
 	}
 	// return (bonus - bonusByOffset);
-	return isEvent ? Math.floor((bonus - bonusByOffset) / 2) : (bonus - bonusByOffset);
+	// return isEvent ? Math.floor((bonus - bonusByOffset) / 2) : (bonus - bonusByOffset);
+	return bonus;
 }
