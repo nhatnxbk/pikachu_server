@@ -1,6 +1,7 @@
 //======== function common ========//
-
+require("share");
 function SendNewNotification(include_player_ids, included_segments, excluded_segments, title, message, data) {
+  if (server_config.DEBUG) return;
   var jsonBody = {
     "app_id": "53aa05a0-16d7-4e30-894f-149c80736052",
     "excluded_segments": excluded_segments,
@@ -24,6 +25,7 @@ function SendNewNotification(include_player_ids, included_segments, excluded_seg
 }
 
 function SendNewNotification2p(include_player_ids, included_segments, excluded_segments, title, message, data) {
+  if (server_config.DEBUG) return;
   var jsonBody = {
     "app_id": "6ac231d8-7391-46c8-bc7c-e46915531132",
     "excluded_segments": excluded_segments,
