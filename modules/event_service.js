@@ -76,7 +76,7 @@ function getLastGroupMemberSortByTrophies(event_id) {
 		members.sort(function(a,b){
 			return b.trophies - a.trophies;
 		});
-	}else return [];
+	}else return {"members":[{"playerID": "NONE","userName": "Waiting for player...","trophies": 0,"rank": 1,"last_trophies": 0}]};
 	return groupMember;
 }
 

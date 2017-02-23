@@ -274,9 +274,9 @@ if (data.event_get_leaderboard) {
 	var rankInfo;
 	if (event) {
 		var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
+		var rewards = getEventReward(event.event_id);
 		if (groupMember) {
 			var members = groupMember.members;
-			var rewards = getEventReward(event.event_id);
 			var myRankInfo;
 			var myMemberInfo;
 			if (rewards && rewards.length > 0) {
@@ -334,6 +334,17 @@ if (data.event_get_leaderboard) {
 		    if(members.length > EVENT_LEADERBOARD_NUMBER){
                 members = members.slice(0,EVENT_LEADERBOARD_NUMBER);
             }
+
+            if (rewards && rewards.length > 0) {
+            	for (var i = 0; i < members.length; i++) {
+            		var member = members[i];
+            		member.rank = (i+1);
+            		if (i < rewards.length) {
+            			member.rewards = rewards[i];
+            		}
+            	}
+            }
+
 			response = {
 				"result": true,
 				"data" : members,
