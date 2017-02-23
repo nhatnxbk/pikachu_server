@@ -143,6 +143,22 @@ function joinEvent(event_id,NUMBER_MEMBER_PER_GROUP,playerID,playerData) {
 	}
 }
 
+function joinGroupTest(number){
+    var event = getCurrentEvent(true);
+    var playerDataList = Spark.runtimeCollection("playerData");
+    var playerData = playerDataList.find({});
+    var count = 0;
+    for(var index in playerData.toArray()){
+        var player = playerData.toArray()[index];
+        if(count > number) break;
+        var groupMember = getGroupMemberSortByTrophies(event.event_id, player.playerID);
+    	if (!groupMember) {
+    		joinEvent(event.event_id,1000,player.playerID,playerDataList);
+    		count++;
+    	}
+    }
+}
+
 function removeCacheEvent() {
 	cache.remove("current_event");
 	cache.remove("current_event_start");

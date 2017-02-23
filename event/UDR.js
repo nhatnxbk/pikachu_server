@@ -278,6 +278,7 @@ if (data.event_get_leaderboard) {
 			var members = groupMember.members;
 			var rewards = getEventReward(event.event_id);
 			var myRankInfo;
+			var myMemberInfo;
 			if (rewards && rewards.length > 0) {
 				for (var i = 0; i < members.length; i++) {
 					var member = members[i];
@@ -286,7 +287,11 @@ if (data.event_get_leaderboard) {
 						member.rewards = rewards[i];
 					}
 					if (member.playerID == playerID) {
-						if (member.last_rank && member.last_rank > member.rank) {
+					    if(member.rank > EVENT_LEADERBOARD_NUMBER){
+					        myMemberInfo = member;
+					    }
+						if (member.last_rank && member.last_rank > member.rank  && member.rank < EVENT_LEADERBOARD_NUMBER ) {//Neu khong lot top rank hien tai thi khong can hieu ung
+						    if(member.last_rank > EVENT_LEADERBOARD_NUMBER) member.last_rank = EVENT_LEADERBOARD_NUMBER;//Neu rank truoc qua lon thi se gay loi
 							myRankInfo = {
 								"last_rank" : {
 									"rank" : member.last_rank,
@@ -310,7 +315,12 @@ if (data.event_get_leaderboard) {
 					}
 				}
 			}
-
+            if(members.length > EVENT_LEADERBOARD_NUMBER){
+                members = members.slice(0,EVENT_LEADERBOARD_NUMBER);
+                if(myMemberInfo){// Neu nam ngoai rank thi nhet them vao cuoi
+                    members.push(myMemberInfo);
+                }
+            }
 			response = {
 				"result" : true,
 				"data"   : members,
@@ -321,6 +331,9 @@ if (data.event_get_leaderboard) {
 		} else {
 		    var members = getLastGroupMemberSortByTrophies(event.event_id).members;
 		    if(!members) members = [];
+		    if(members.length > EVENT_LEADERBOARD_NUMBER){
+                members = members.slice(0,EVENT_LEADERBOARD_NUMBER);
+            }
 			response = {
 				"result": true,
 				"data" : members,
@@ -818,6 +831,12 @@ if (data.debug_add_event_master) {
 		"newEvents": newEvents
 	}
 	Spark.setScriptData("data",response);
+}
+
+if(data.debug_join_group_test){
+    var number = data.number;
+    if(!number) number = 100;
+    joinGroupTest(number);
 }
 
 //=====================FUNCTION=====================//

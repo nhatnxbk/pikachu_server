@@ -66,6 +66,7 @@ var rto_2_h=server_config.rto_2_h;
 var rto_3_h=server_config.rto_3_h;
 var rto_4_h=server_config.rto_4_h;
 var rto_5_h=server_config.rto_5_h;
+var EVENT_LEADERBOARD_NUMBER = 50;
 
 function getTimeNow() {
 	return Date.now() + OFFSET_TIME;
