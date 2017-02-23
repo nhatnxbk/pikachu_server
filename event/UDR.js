@@ -319,9 +319,11 @@ if (data.event_get_leaderboard) {
 				response.rank_up_data = myRankInfo;
 			}
 		} else {
+		    var members = getLastGroupMemberSortByTrophies(event.event_id).members;
+		    if(!members) members = [];
 			response = {
-				"result": false,
-				"message" : "Group members not found."
+				"result": true,
+				"data" : members,
 			}
 		}
 	} else {
@@ -538,30 +540,36 @@ if (data.get_event_data) {
 			event_data.text_time_prefix = isVN() ? message_const.text_time_end.vi : message_const.text_time_end.en;
 		}
 		var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
-		if (!groupMember) {
-			joinEvent(event.event_id);
-			groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
-		}
-		var members = groupMember.members;
-		var rewards = event.rewards;
-		if (rewards && rewards.length > 0) {
-			for (var i = 0; i < members.length; i++) {
-				if (members[i].playerID == playerID) {
-					event_data.trophies = members[i].trophies;
-					if (i < rewards.length) {
-						if (event.time_end > timeNow || event_data.trophies > 0) {
-							event_data.rewards = rewards[i];
-						}
-					}
-					if (playerData.event_rewards && playerData.event_rewards.event_id == event.event_id) {
-						event_data.is_received = playerData.event_rewards.is_received;
-					} else {
-						event_data.is_received = 0;
-					}
-					break;
-				}
-			}
-		}
+// 		if (!groupMember) {
+// 			joinEvent(event.event_id);
+// 			groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
+// 		}
+        if(groupMember){
+    		var members = groupMember.members;
+    		var rewards = event.rewards;
+    		if (rewards && rewards.length > 0) {
+    			for (var i = 0; i < members.length; i++) {
+    				if (members[i].playerID == playerID) {
+    					event_data.trophies = members[i].trophies;
+    					if (i < rewards.length) {
+    						if (event.time_end > timeNow || event_data.trophies > 0) {
+    							event_data.rewards = rewards[i];
+    						}
+    					}
+    					if (playerData.event_rewards && playerData.event_rewards.event_id == event.event_id) {
+    						event_data.is_received = playerData.event_rewards.is_received;
+    					} else {
+    						event_data.is_received = 0;
+    					}
+    					break;
+    				}
+    			}
+    		}
+    		response.event_rewards = playerData.event_rewards;
+        }else{
+            response.event_rewards = {reward_coin: 0,reward_trophies: 0};
+            event_data.is_received = 0;
+        }
 		if (event_data.rewards) {
 		 event_data.reward_status = isVN() ? message_const.received_reward_status.vi : message_const.received_reward_status.en;
 		} else {
@@ -570,7 +578,7 @@ if (data.get_event_data) {
 		response.event_data = event_data;
 
 		//get event rewards
-		response.event_rewards = playerData.event_rewards;
+		
 	}
 	Spark.setScriptData("data", response);
 }
@@ -890,30 +898,6 @@ function getAdmin() {
 function getOneSignalPlayerID(player_id) {
 	var player = playerDataList.findOne({"playerID":player_id});
 	return player.one_signal_player_id;
-}
-
-function joinEvent(event_id) {
-	var member = {
-	   "playerID": playerID,
-	   "userName": playerData.userName ? playerData.userName : playerID,
-	   "trophies": 0,
-	   "last_rank": 1,
-	   "last_trophies": 0
-	}
-	playerDataList.update({"playerID":playerID},{"$set":{"event_trophies":0}}, true, false);
-	var lastGroup = eventGroupMember.find({"event_id":event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
-	if (lastGroup && lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
-	  member.last_rank = lastGroup.members.length;
-	  lastGroup.members.push(member);
-	  eventGroupMember.update({"event_id":event_id, "group_id":lastGroup.group_id},{"$set":lastGroup}, true, false);
-	} else {
-	  var newGroupMember = {
-	    "event_id" : event_id,
-	    "group_id" : lastGroup ? lastGroup.group_id + 1 : 1,
-	    "members"  : [ member ]
-	  }
-	  eventGroupMember.insert(newGroupMember);
-	}
 }
 
 function isVN() {

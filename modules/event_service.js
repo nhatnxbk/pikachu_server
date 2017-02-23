@@ -69,6 +69,17 @@ function getGroupMemberSortByTrophies(event_id, playerID) {
 	return groupMember;
 }
 
+function getLastGroupMemberSortByTrophies(event_id) {
+	var groupMember = eventGroupMember.findOne({"event_id":event_id});
+	if (groupMember) {
+		var members = groupMember.members;
+		members.sort(function(a,b){
+			return b.trophies - a.trophies;
+		});
+	}else return [];
+	return groupMember;
+}
+
 function updateMemberData(event_id, member) {
 	eventGroupMember.update({"$and":[{"event_id":event_id},{"members.playerID":member.playerID}]},
 		{"$set":{"members.$.trophies":member.trophies,"members.$.last_rank":member.last_rank,"members.$.last_trophies":member.last_trophies}}, true, false);
@@ -106,6 +117,30 @@ function getPlayerRank(event_id, playerID) {
 		}
 	}
 	return -1;
+}
+
+function joinEvent(event_id,NUMBER_MEMBER_PER_GROUP,playerID,playerData) {
+	var member = {
+	   "playerID": playerID,
+	   "userName": playerData.userName ? playerData.userName : playerID,
+	   "trophies": 0,
+	   "last_rank": 1,
+	   "last_trophies": 0
+	}
+	playerDataCollection.update({"playerID":playerID},{"$set":{"event_trophies":0}}, true, false);
+	var lastGroup = eventGroupMember.find({"event_id":event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
+	if (lastGroup && lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
+	  member.last_rank = lastGroup.members.length;
+	  lastGroup.members.push(member);
+	  eventGroupMember.update({"event_id":event_id, "group_id":lastGroup.group_id},{"$set":lastGroup}, true, false);
+	} else {
+	  var newGroupMember = {
+	    "event_id" : event_id,
+	    "group_id" : lastGroup ? lastGroup.group_id + 1 : 1,
+	    "members"  : [ member ]
+	  }
+	  eventGroupMember.insert(newGroupMember);
+	}
 }
 
 function removeCacheEvent() {

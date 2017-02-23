@@ -19,6 +19,14 @@ if(data.get_server){
 	if(isDebug){
 		PHOTON_SERVER_LIST = PHOTON_SERVER_LIST_DEBUG;
 	}
+	if(isEvent){
+	    var event = getCurrentEvent(true);
+	    var playerData = playerDataList.findOne({"playerID": playerID});
+	    var groupMember = getGroupMemberSortByTrophies(event.event_id, playerID);
+		if (!groupMember) {
+			joinEvent(event.event_id,NUMBER_MEMBER_PER_GROUP,playerID,playerData);
+		}
+	}
 	while(index < PHOTON_SERVER_LIST.length && !found){
 		var server = Spark.runtimeCollection("PhotonServer");
 		var numberUser = server.count({"server_id": index});
@@ -91,6 +99,7 @@ if(data.get_server){
 	}
 	if(!found){
 		response.error = "Not enough server";
+		Spark.getLog().error("Not enough server player id " + playerID + " time " + new Date().toLocaleDateString()+ " " + new Date().toLocaleTimeString());
 	}
 	if(isEvent){
 		// var levelCollection = Spark.metaCollection("Level");
