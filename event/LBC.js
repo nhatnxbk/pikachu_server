@@ -31,7 +31,8 @@ if (data.leader_board_type == LEADER_BOARD_BY_FRIENDS) {
 	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
 	var friendListArr = friendList ? JSON.parse(friendList) : [];
 	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
-	var playerList = playerData.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
+	var playerListHash = playerData.find({"$or":[{"facebook_id":{"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100);
+	var playerList = convertCollectionHashToArray(playerListHash);
 	var listRank = [];
 	var myPlayerRank;
 	for (var i = 0; i < playerList.length; i++) {

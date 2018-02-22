@@ -1,16 +1,10 @@
-// ====================================================================================================
-//
-// Cloud Code for GLP, write your code here to customise the GameSparks platform.
-//
-// For details of the GameSparks Cloud Code API see https://portal.gamesparks.net/docs.htm			
-//
-// ====================================================================================================
+require("common");
 var packData = Spark.metaCollection("PackItem");
-var searchResult = packData.find({"pack":Spark.getData().p});
+var searchResult = convertCollectionHashToArray(packData.find({"pack":Spark.getData().p}));
 var listResponse = new Array();
 
-for(i = 0; i< searchResult.toArray().length; i++){
-    var pack = searchResult.toArray()[i];
+for(i = 0; i< searchResult.length; i++){
+    var pack = searchResult[i];
     var sCode = "p" + pack.pack + "i" + pack.item;
     if(pack.pack == 103){
         sCode = "p1" + "i" + pack.item;

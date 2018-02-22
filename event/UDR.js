@@ -49,7 +49,7 @@ if (data.add_player_coin) {
 //get item master
 if (data.get_item_in_shop) {
 	var querry = data.item_type ? {"item_type":data.item_type} : {};
-    var itemPackMasterArr = itemPackMaster.find(querry).toArray();
+    var itemPackMasterArr = convertCollectionHashToArray(itemPackMaster.find(querry));
     var itemShopData = {"item_shop_data":itemPackMasterArr};
     Spark.setScriptData("data", itemShopData);
 }
@@ -159,7 +159,7 @@ if (data.get_user_feedback) {
 //get all feedback
 if (data.get_all_feedback) {
 	var limit = data.limit ? data.limit : 100;
-	var feedbacks = userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}).toArray();
+	var feedbacks = convertCollectionHashToArray(userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}));
 	for (var i = 0; i < feedbacks.length; i++) {
 		feedbacks[i].time = timeNow - feedbacks[i].time;
 		feedbacks[i].type = 1;
@@ -614,7 +614,7 @@ if(data.event_fake_trophies) {
 	var event = getCurrentEvent();
 	var response;
 	if (event) {
-		var groupMembers = eventGroupMember.find({"event_id":event.event_id}).toArray();
+		var groupMembers = convertCollectionHashToArray(eventGroupMember.find({"event_id":event.event_id}));
 		groupMembers.forEach(function(groupMember) {
 			var members = groupMember.members;
 			members.forEach(function(member) {
@@ -639,7 +639,7 @@ if (data.event_reset_trophies) {
 	var event = getCurrentEvent();
 	var response;
 	if (event) {
-		var groupMembers = eventGroupMember.find({"event_id":event.event_id}).toArray();
+		var groupMembers = convertCollectionHashToArray(eventGroupMember.find({"event_id":event.event_id}));
 		groupMembers.forEach(function(groupMember) {
 			var members = groupMember.members;
 			members.forEach(function(member) {
@@ -816,7 +816,7 @@ if (data.debug_remove_event_cache) {
 //add event master
 if (data.debug_add_event_master) {
 	var numberEvent = data.number_event ? data.number_event : 5;
-	var events = eventMaster.find().sort({"event_id":-1}).limit(1).toArray();
+	var events = convertCollectionHashToArray(eventMaster.find().sort({"event_id":-1}).limit(1));
 	var lastEvent = events ? events[0] : undefined;
 	var newEvents = [];
 	var offsetTime = 7*24*60*60*1000;
@@ -853,7 +853,7 @@ if(data.debug_join_group_test){
 //=====================FUNCTION=====================//
 
 function getNotice () {
-	var notice = userNotice.find({$and:[{$or:[{"playerID":"all"},{"playerID":playerID}]}, {"time":{"$lt":timeNow}}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
+	var notice = convertCollectionHashToArray(userNotice.find({$and:[{$or:[{"playerID":"all"},{"playerID":playerID}]}, {"time":{"$lt":timeNow}}]}).limit(NUM_NOTICE).sort({"time":-1}));
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	var isVN = playerData.location && playerData.location.country && playerData.location.country == "VN" ? true : false;
 	for (var i = 0; i < notice.length; i++) {
@@ -869,9 +869,9 @@ function getNotice () {
 function getUserFeedback () {
 	var feedbacks;
 	if (isAdmin()) {
-		feedbacks = userFeedbackData.find({"time":{"$lt":timeNow}}).limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}).toArray();
+		feedbacks = convertCollectionHashToArray(userFeedbackData.find({"time":{"$lt":timeNow}}).limit(NUM_NOTICE_ADMIN).sort({"response":1,"time":-1}));
 	} else {
-		feedbacks = userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
+		feedbacks = convertCollectionHashToArray(userFeedbackData.find({"playerID":playerID}).limit(NUM_NOTICE).sort({"time":-1}));
 	}
 	var lastTimeRead = playerData.last_read ? playerData.last_read : 0;
 	for (var i = 0; i < feedbacks.length; i++) {
@@ -911,7 +911,7 @@ function isAdmin() {
 }
 
 function getAdmin() {
-	var listAdmin = playerDataList.find({"playerID":{"$in": LIST_ADMIN}}).toArray();
+	var listAdmin = convertCollectionHashToArray(playerDataList.find({"playerID":{"$in": LIST_ADMIN}}));
 	var adminsPush = [];
 	for (var i = 0; i < listAdmin.length; i++) {
 		if (listAdmin[i].one_signal_player_id) {

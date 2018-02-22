@@ -57,7 +57,7 @@ if(timeDelta < TIME_FB_INVITE){
 var itemShopData;
 if (!currentPlayer.shop_version || currentPlayer.shop_version < SHOP_VERSION) {
   var packItemMaster = Spark.metaCollection("pack_item_master");
-  var item_shop_data = packItemMaster.find().toArray();
+  var item_shop_data = convertCollectionHashToArray(packItemMaster.find());
   itemShopData = {
     "item_shop_data" : item_shop_data
   }
@@ -115,13 +115,13 @@ function getNumberNewMessgae(isAdmin) {
   var lastTimeRead = currentPlayer.last_read ? currentPlayer.last_read : 0;
   var userFeedbackData = Spark.runtimeCollection("user_feedback");
   var userNotice = Spark.runtimeCollection("user_notice");
-  var notice = userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}).toArray();
+  var notice = convertCollectionHashToArray(userNotice.find({$or:[{"playerID":"all"},{"playerID":playerID}]}).limit(NUM_NOTICE).sort({"time":-1}));
   var feedbacks;
   var limit = isAdmin ? NUM_NOTICE_ADMIN : NUM_NOTICE;
   if (isAdmin) {
-    feedbacks = userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}).toArray();
+    feedbacks = convertCollectionHashToArray(userFeedbackData.find().limit(limit).sort({"response":1,"time":-1}));
   } else {
-    feedbacks = userFeedbackData.find({"playerID":playerID}).limit(limit).sort({"time":-1}).toArray();  
+    feedbacks = convertCollectionHashToArray(userFeedbackData.find({"playerID":playerID}).limit(limit).sort({"time":-1}));  
   }
   var allMessage = notice.concat(feedbacks);
   allMessage.sort(function(a,b){

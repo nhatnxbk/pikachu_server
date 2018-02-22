@@ -6,6 +6,7 @@
 //
 // ====================================================================================================
 require("share");
+require("common");
 var data = Spark.getData().data;
 var playerDataList = Spark.runtimeCollection("playerData");
 var response= {};
@@ -30,7 +31,7 @@ if(data.report_trophies) {
 	} else {
 		query = {"trophies":{"$gt":minTrophies}};
 	}
-	var trophiesData = playerDataList.find(query).toArray();
+	var trophiesData = convertCollectionHashToArray(playerDataList.find(query));
 	var result = [];
 	for (var i = 0; i < trophiesData.length; i++) {
 		var data = trophiesData[i];
@@ -52,7 +53,7 @@ if (data.report_online_match) {
 	if (filter_pvp) {
 		query = {"online_match_start":{$gt:0},$where: "this.online_match_start > this.online_bot_start"}
 	}
-	var playerDataArr = playerDataList.find(query).sort({"online_match_start":-1}).toArray();
+	var playerDataArr = convertCollectionHashToArray(playerDataList.find(query).sort({"online_match_start":-1}));
 	var result = [];
 	for (var i = 0; i < playerDataArr.length; i++) {
 		var data = playerDataArr[i];

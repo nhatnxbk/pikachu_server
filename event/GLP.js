@@ -1,13 +1,7 @@
-// ====================================================================================================
-//
-// Cloud Code for GLP, write your code here to customise the GameSparks platform.
-//
-// For details of the GameSparks Cloud Code API see https://portal.gamesparks.net/docs.htm			
-//
-// ====================================================================================================
+require("common");
 // var packData = Spark.runtimeCollection("Pack");
 var packData = Spark.metaCollection("Pack");
-var searchResult = packData.find().toArray();
+var searchResult = convertCollectionHashToArray(packData.find());
 var list = new Array();
 
 var playerData = Spark.runtimeCollection("playerData"); // get the collection data

@@ -67,7 +67,7 @@ if(data.get_server){
 			}
 			if(data.game_type == "random"){
 				if (isGameEvent) {
-					var concurrentPlayersNotEvent = server.find({"is_event":{"$ne":1}}).toArray();
+					var concurrentPlayersNotEvent = convertCollectionHashToArray(server.find({"is_event":{"$ne":1}}));
 					var event = getCurrentEventStart();
 					if (event) {
 						var groupMember = getGroupMemberByPlayerID(event.event_id, playerID);
@@ -316,7 +316,7 @@ if(data.online_match_cancel){
 
 if(data.get_friend_room_list){
 	var friendRoomDB = Spark.runtimeCollection("FriendRoom");
-	var response = friendRoomDB.find({"playerID":{"$ne":playerID},"server_id":{"$ne":null}}).toArray();
+	var response = convertCollectionHashToArray(friendRoomDB.find({"playerID":{"$ne":playerID},"server_id":{"$ne":null}}));
 	var timeNow = getTimeNow();
 	var list = [];
 	for (var i = 0; i < response.length; i++) {
@@ -362,7 +362,7 @@ if(data.get_image_link_from_item){
 if(data.get_number_fb_duplicate){
     var count_found =0;
     var playerDataList = Spark.runtimeCollection("playerData");
-    var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
+    var list = convertCollectionHashToArray(playerDataList.find({app_version:16,facebook_id:{$exists:true}}));
     var list_result = [];
     for (var i = 0; i < list.length; i++) {
         var currentPlayer = list[i];
@@ -403,7 +403,7 @@ if(data.load_old_data){
 if(data.process_number_fb_duplicate){
     var count_found =0;
     var playerDataList = Spark.runtimeCollection("playerData");
-    var list = playerDataList.find({app_version:16,facebook_id:{$exists:true}}).toArray();
+    var list = convertCollectionHashToArray(playerDataList.find({app_version:16,facebook_id:{$exists:true}}));
 
     for (var i = 0; i < list.length; i++) {
         var currentPlayer = list[i];
@@ -431,7 +431,7 @@ function get_current_rank_with_friends() {
 	var friendList = (currentPlayer && currentPlayer.facebook_friend  && currentPlayer.facebook_friend.length > 0) ? currentPlayer.facebook_friend : "";
 	var friendListArr = friendList ? JSON.parse(friendList) : [];
 	var myFBId = currentPlayer && currentPlayer.facebook_id ? currentPlayer.facebook_id : "";
-	var playerList = playerDataList.find({"$or":[{"facebook_id":{"$exists":true,"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100).toArray();
+	var playerList = convertCollectionHashToArray(playerDataList.find({"$or":[{"facebook_id":{"$exists":true,"$ne":"","$in":friendListArr}},{"facebook_id":myFBId}],"trophies":{"$ne":null}}).sort({"trophies":-1}).limit(100));
 	var rank = 0;
 	for (var i = 0; i < playerList.length; i++) {
 		var opponent = playerList[i];
@@ -469,29 +469,29 @@ function get_bot_player_data(isEvent) {
 	} else {
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr},"has_random_time":true});
 	}
-	var opponentPlayerDataArr = opponentPlayerData.toArray();
+	var opponentPlayerDataArr = convertCollectionHashToArray(opponentPlayerData);
 	if (!IGNORE_HAS_RANDOM_TIME && opponentPlayerDataArr.length == 0) {
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
+		opponentPlayerDataArr = convertCollectionHashToArray(opponentPlayerData);
 	}
 	//Find player has trophies around +/- 500
 	if (opponentPlayerDataArr.length == 0) {
 		trophiesMax = myTrophies + offsetTrophies2;
 		trophiesMin = myTrophies > offsetTrophies2 ? myTrophies - offsetTrophies2 : 0;
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
+		opponentPlayerDataArr = convertCollectionHashToArray(opponentPlayerData);
 	}
 	//Find player has trophies around +/- 800
 	if (opponentPlayerDataArr.length == 0) {
 		trophiesMax = myTrophies + offsetTrophies3;
 		trophiesMin = myTrophies > offsetTrophies3 ? myTrophies - offsetTrophies3 : 0;
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true,"$lte":trophiesMax,"$gte":trophiesMin},"facebook_id":{"$exists":true,"$nin":friendListArr}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
+		opponentPlayerDataArr = convertCollectionHashToArray(opponentPlayerData);
 	}
 	//Find player has trophies
 	if (opponentPlayerDataArr.length == 0) {
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true},"facebook_id":{"$exists":true,"$nin":friendListArr}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
+		opponentPlayerDataArr = convertCollectionHashToArray(opponentPlayerData);
 	}
 	var count = 0;
 	while(count < 10) {
@@ -514,7 +514,7 @@ function get_bot_player_data(isEvent) {
 	if (!opponentPlayer) {
 		count = 0;
 		opponentPlayerData = playerDataList.find({"playerID":{"$ne":playerID},"trophies":{"$exists":true}});
-		opponentPlayerDataArr = opponentPlayerData.toArray();
+		opponentPlayerDataArr = convertCollectionHashToArray(opponentPlayerData);
 		while(count < 10) {
 			var r = Math.floor(Math.random() * opponentPlayerDataArr.length);
 			var opponent = opponentPlayerDataArr[r];

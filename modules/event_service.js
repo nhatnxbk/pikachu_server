@@ -44,7 +44,7 @@ function getEventReward(event_id) {
 }
 
 function getAllGroupMember(event_id) {
-	var group = eventGroupMember.find({"event_id":event_id}).toArray();
+	var group = convertCollectionHashToArray(eventGroupMember.find({"event_id":event_id}));
 	return group;
 }
 
@@ -128,7 +128,8 @@ function joinEvent(event_id,NUMBER_MEMBER_PER_GROUP,playerID,playerData) {
 	   "last_trophies": 0
 	}
 	playerDataCollection.update({"playerID":playerID},{"$set":{"event_trophies":0}}, true, false);
-	var lastGroup = eventGroupMember.find({"event_id":event_id}).sort({"group_id":-1}).limit(1).toArray()[0];
+	var allGroups = convertCollectionHashToArray(eventGroupMember.find({"event_id":event_id}).sort({"group_id":-1}).limit(1));
+	var lastGroup = allGroups[0];
 	if (lastGroup && lastGroup.members.length < NUMBER_MEMBER_PER_GROUP) {
 	  member.last_rank = lastGroup.members.length;
 	  lastGroup.members.push(member);
@@ -146,10 +147,10 @@ function joinEvent(event_id,NUMBER_MEMBER_PER_GROUP,playerID,playerData) {
 function joinGroupTest(number){
     var event = getCurrentEvent(true);
     var playerDataList = Spark.runtimeCollection("playerData");
-    var playerData = playerDataList.find({});
+    var playerData = convertCollectionHashToArray(playerDataList.find({}));
     var count = 0;
-    for(var index in playerData.toArray()){
-        var player = playerData.toArray()[index];
+    for(var index in playerData) {
+        var player = playerData[index];
         if(count > number) break;
         var groupMember = getGroupMemberSortByTrophies(event.event_id, player.playerID);
     	if (!groupMember) {

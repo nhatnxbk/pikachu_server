@@ -47,3 +47,11 @@ function SendNewNotification2p(include_player_ids, included_segments, excluded_s
   }).postJson(jsonBody);
   return promise;
 }
+
+function convertCollectionHashToArray(cursor) {
+  var res = [];
+  while(cursor.hasNext()){
+      res.push(cursor.next());
+  }
+  return res;
+}
